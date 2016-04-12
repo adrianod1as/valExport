@@ -65,7 +65,7 @@ function sharedBuildingSchool($collun3, $value){
 	return true;
 }
 
-//campo 13, 69
+//campo 13, 69, 87
 function isAllowedValue($collun, $value, $allowed_values){
 
 	if($collun == 1){
@@ -138,23 +138,71 @@ function supply($supply_locations, $value){
 	if($supply_locations($len-1) == "1"){ //ultimo campo
 		for($i = 0; $i < ($len-1); $i++){ //primeiros campos
 			if($supply_locations[$i] == "1"){
+				echo "Já que ultimo campo 1 não pode haver outros campos marcados como 1"; 
 				return false;
 			}
 		}
-	}		
+	}
+
+	return true;		
 	
 }
 
+//70, 88
 function isGreaterThan($value, $target){
-	
+
 	if($value > $target){
+		echo "Valor não é maior que o alvo.";
 		return false;
 	}
 
 	return true;
 }
 
+//71 à 83
+function equipmentAmounts($amounts){
 
+	foreach ($amounts as $key => $value) {
+		if(!$value == null){
+			if(!isGreaterThan($value, 0)){
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+//84, 85
+function pcCount($collun82, $value){
+	if($collun82 != null){
+		if($value <= 0){
+			echo "Valor não está entre as opções";
+			return false;
+		}
+		if($value > $collun82){
+			echo "Valor é maior que o permitido";
+			return false;
+		}
+		return true;
+	}
+	echo "Valor permitido é nulo";
+	return false;
+
+}
+
+//86
+function internetAccess($collun, $value, $allowed_values){
+
+	if($collun != null){
+		if(in_array($value, $allowed_values)){
+			return true;
+		}else{
+			echo "valor não permitido"."</br>";
+			return false;
+		}
+	}
+	return true;
+}
 
 
 
