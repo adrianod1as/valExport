@@ -79,9 +79,6 @@ function isAllowedValue($collun, $value, $allowed_values){
 	return true;
 }
 
-
-
-
 //campo 14 à 19
 function sharedSchoolInep($collun13, $inep_id, $shared_schools_inep_ids){
 
@@ -144,8 +141,7 @@ function supply($supply_locations, $value){
 		}
 	}
 
-	return true;		
-	
+	return true;			
 }
 
 //70, 88
@@ -187,7 +183,6 @@ function pcCount($collun82, $value){
 	}
 	echo "Valor permitido é nulo";
 	return false;
-
 }
 
 //86
@@ -204,8 +199,47 @@ function internetAccess($collun, $value, $allowed_values){
 	return true;
 }
 
+//89
+function schoolFeeding($collun, $value){
 
+	if(in_array($collun, ["1", "2", "3"])){
+		if($value == "1"){
+			return true;
+		}
+	}else{
+		if($value == "0"){
+			return true;
+		}
+	}
 
+	return false;
+}
+
+//90, 91
+function aee($value, $collun, $complementar_activities){
+
+	if(!in_array($value, ["0", "1", "2"])){
+		return false;
+	}else{
+		if($value == "2"){
+			if($collun != 0){
+				return false;
+			}
+			foreach ($complementar_activities as $key => $value) {
+				if($value != null){
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+//92 à 95
+function modalities(){
+
+}
 
 
 
