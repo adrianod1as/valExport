@@ -1,5 +1,9 @@
 <?php
 
+require($_SERVER['DOCUMENT_ROOT'] ."/valExport/schoolStructureValidation.php");
+
+ini_set('memory_limit', '-1');
+
 //Conexão com o banco
 $hostname="db.ipti.org.br";
 $database="br.org.ipti.tag";
@@ -57,6 +61,32 @@ $student_documents_and_address = tabletToArray($sql, $link);
 
 $sql = "SELECT * FROM student_enrollment";
 $student_enrollment = tabletToArray($sql, $link);
+
+
+$ssv = new SchoolStructureValidation();
+
+
+foreach ($school_structure as $key => $collun) {
+	echo "Registro 20. Index $key"."</br>";
+	echo "Campo 1"."</br>";
+	$ssv->isRegisterTen($collun['register_type']);
+	echo "Campo 2"."</br>";
+	$ssv->isEqual($collun["school_inep_id_fk"], $school_identification[$key]["inep_id"], 
+					"Inep id's são diferentes");
+	echo "Campo 3"."</br>";
+	$operation_locations = array($collun["operation_location_building"], 
+									$collun["operation_location_temple"],
+									$collun["operation_location_businness_room"], 
+									$collun["operation_location_instructor_house"],
+									$collun["operation_location_other_school_room"],
+									$collun["operation_location_barracks"],
+									$collun["operation_location_socioeducative_unity"],
+									$collun["operation_location_prison_unity"],
+									$collun["operation_location_other"]);
+	$ssv->atLeastOne($operation_locations);
+
+}
+
 
 mysqli_close($link);
 
