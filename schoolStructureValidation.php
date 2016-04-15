@@ -14,14 +14,21 @@ class SchoolStructureValidation {
 		return false;
 	}
 
+	function ifNull($value){
+		if($value == null)
+			$value = "nulo";
+		return $value;
+	}
+
 	//campo 01
 	function isRegisterTen($value){
 
 		if($value != "10"){
-			echo "valor é diferente de 10"."</br>";
-			return false;
+			/*echo "valor é diferente de 10"."</br>";
+			return false;*/
+			return array("status"=>false,"erro"=>"valor é diferente de 10");
 		}
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 
@@ -29,14 +36,12 @@ class SchoolStructureValidation {
 	//campo 02
 	function isEqual($x, $y, $msg){
 		if($this->isNUll($x)){
-			return false;
+			return array("status"=>false,"erro"=>"valor é nulo");
 		}
 		if($x != $y){
-			echo $msg."</br>";
-			return false;
+			return array("status"=>false,"erro"=>$msg);
 		}
-
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//campo 03 à 11, 33 à 38
@@ -47,28 +52,25 @@ class SchoolStructureValidation {
 				$number_of_ones++; 
 		}
 		if($number_of_ones==0){
-			echo "Não há nenhum valor marcado"."</br>";
-			return false;
+			return array("status"=>false,"erro"=>"Não há nenhum valor marcado");
 		}
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//campo 12
 	function buildingOccupationStatus($collun3, $collun8, $value){
 
 		if($collun3 == 1){
-			if($value == 1 || $value == 2 || $value == 3){
-				return true;
+			if(!($value == 1 || $value == 2 || $value == 3)){
+				return array("status"=>false,
+								"erro"=>"operation_location_building é 1. Valor $value não está enre as õpções");
 			}
-		}elseif($collun == 8){
-			return true;
 		}elseif($collun3 != 1 && $collun8 != 1){
-			if($value == null){
-				return true;
+			if(!$value == null){
+				return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
 			}
 		}
-		echo "Não atende condições"."</br>";
-		return false;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//campo 13
@@ -76,18 +78,17 @@ class SchoolStructureValidation {
 
 		if($collun3 == 1){
 			if($value == 0 || $value == 1){
-				return true;
+				return array("status"=>true,"erro"=>"");
 			}else{
-				echo "valor não permitido"."</br>";
-				return false;
+				return array("status"=>false,"erro"=>"valor $value não permitido");
 			}
 		}else{
 			if(($value != null)){
-				echo "Coluna 3 não é 1. Valor deve ser nulo";
-				return false;
+				return array("status"=>false,"erro"=>"operation_location_building não é 1. Valor $value deveria ser nulo");
+
 			}
 		}
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//campo 13, 69, 87
@@ -95,13 +96,12 @@ class SchoolStructureValidation {
 
 		if($collun == 1){
 			if(in_array($value, $allowed_values)){
-				return true;
+				return array("status"=>true,"erro"=>"");
 			}else{
-				echo "valor não permitido"."</br>";
-				return false;
+				return array("status"=>false,"erro"=>"valor $value não permitido");
 			}
 		}
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//campo 14 à 19
@@ -109,31 +109,33 @@ class SchoolStructureValidation {
 
 		if($collun13 == 1){
 			foreach($shared_schools_inep_ids as $school_inep_id){
-				if($this->isEqual(substr($inep_id, 0, 2), substr($school_inep_id, 0, 2), "Escolas não são do mesmo estado"))
+				$result = $this->isEqual(substr($inep_id, 0, 2), 
+											substr($school_inep_id, 0, 2), 
+											"Escolas não são do mesmo estado");
+				if($result["status"])
 				{	
 					if(strlen($school_inep_id)){
-						echo "Menos de 8 carácteres";
-						return false;
+						return array("status"=>false,"erro"=>"Menos de 8 carácteres");
 					}
 					if($inep_id == $school_inep_id){
-						echo "Inep id é igual"."</br>";
-						return false;
+						return array("status"=>false,"erro"=>"Inep id é igual");
 					}
 				}else{
-					return false;
+					return array("status"=>false,"erro"=>"Não são do mesmo UF");
 				}
 			}
 		}
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//campo 20
 	function consumedWater($value){
 		if($value == 1 || $value == 2){
-			return true;
+			return array("status"=>true,"erro"=>"");
 		}
-		echo "Valor não está entre as opções";
-		return false;
+		$value = $this->ifNull($value);
+		return array("status"=>false,"erro"=>"Valor $value não está entre as opções");
+
 	}
 
 	//campo 21 à 25, 26 à 29, 30 à 32, 39 à 68
@@ -142,35 +144,38 @@ class SchoolStructureValidation {
 
 		foreach ($array as $key => $value) {
 			if(!in_array($value, $allowed_values)){
-				echo "Valor $key não está entre os permitidos";
-				return false;
+				$value = $this->ifNull($value);
+				return array("status"=>false,
+								"erro"=>"Valor $value de ordem $key não está entre as opções");
 			}
 		}
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
-	function supply($supply_locations, $value){
+	function supply($supply_locations){
 
 		$len = sizeof($supply_locations);
 
-		if(!$this->checkRange($supply_locations, array("0", "1"))){
-			return false;
+		$result = $this->checkRange($supply_locations, array("0", "1"));
+		if(!$result["status"]){
+			return array("status"=>false,"erro"=>$result["erro"]);
+
 		}
 
-		if(!$this->atLeastOne($supply_locations)){
-			return false;
+		$result = $this->atLeastOne($supply_locations);
+		if(!$result["status"]){
+			return array("status"=>false,"erro"=>$result["erro"]);
 		}
 
-		if($supply_locations($len-1) == "1"){ //ultimo campo
+		if($supply_locations[$len-1] == "1"){ //ultimo campo
 			for($i = 0; $i < ($len-1); $i++){ //primeiros campos
 				if($supply_locations[$i] == "1"){
-					echo "Já que ultimo campo 1 não pode haver outros campos marcados como 1"; 
-					return false;
+					return array("status"=>false,
+								"erro"=>"Já que ultimo campo 1 não pode haver outros campos marcados como 1");
 				}
 			}
 		}
-
-		return true;			
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//70, 88
