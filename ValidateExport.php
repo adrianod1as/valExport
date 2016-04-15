@@ -136,8 +136,88 @@ foreach ($school_structure as $key => $collun) {
 	$result = $ssv->supply($energy_supplys);
 	if(!$result["status"]) array_push($log, array("energy_supplys"=>$result["erro"]));
 
-	
+	//campos 30 à 32
+	$sewages = array($collun["sewage_public"], 
+						$collun["sewage_fossa"],
+						$collun["sewage_inexistent"]);
+	$result = $ssv->supply($sewages);
+	if(!$result["status"]) array_push($log, array("sewages"=>$result["erro"]));
 
+	//campos 33 à 38
+	$garbage_destinations = array($collun["garbage_destination_collect"], 
+									$collun["garbage_destination_burn"],
+									$collun["garbage_destination_throw_away"], 
+									$collun["garbage_destination_recycle"],
+									$collun["garbage_destination_bury"],
+									$collun["garbage_destination_other"]);
+	$result = $ssv->atLeastOne($garbage_destinations);
+	if(!$result["status"]) array_push($log, array("garbage_destinations"=>$result["erro"]));
+
+	//campos 39 à 68
+	$dependencies = array($collun["dependencies_principal_room"], 
+							$collun["dependencies_instructors_room"],
+							$collun["dependencies_secretary_room"], 
+							$collun["dependencies_info_lab"],
+							$collun["dependencies_science_lab"],
+							$collun["dependencies_aee_room"], 
+							$collun["dependencies_indoor_sports_court"],
+							$collun["dependencies_outdoor_sports_court"],
+							$collun["dependencies_kitchen"], 
+							$collun["dependencies_library"],
+							$collun["dependencies_reading_room"],
+							$collun["dependencies_playground"], 
+							$collun["dependencies_nursery"],
+							$collun["dependencies_outside_bathroom"],
+							$collun["dependencies_inside_bathroom"], 
+							$collun["dependencies_child_bathroom"],
+							$collun["dependencies_prysical_disability_bathroom"],
+							$collun["dependencies_physical_disability_support"], 
+							$collun["dependencies_bathroom_with_shower"],
+							$collun["dependencies_refectory"],
+							$collun["dependencies_storeroom"], 
+							$collun["dependencies_warehouse"],
+							$collun["dependencies_auditorium"],
+							$collun["dependencies_covered_patio"], 
+							$collun["dependencies_uncovered_patio"],
+							$collun["dependencies_student_accomodation"],
+							$collun["dependencies_instructor_accomodation"], 
+							$collun["dependencies_green_area"],
+							$collun["dependencies_laundry"],
+							$collun["dependencies_none"]);
+	$result = $ssv->supply($dependencies);
+	if(!$result["status"]) array_push($log, array("dependencies"=>$result["erro"]));
+
+	//campo 69
+	$result = $ssv->schoolsCount($collun["operation_location_building"],
+												$collun["classroom_count"]);
+	if(!$result["status"]) array_push($log, array("classroom_count"=>$result["erro"]));
+
+	//campo 70
+	$result = $ssv->isGreaterThan($collun["used_classroom_count"], "0");
+	if(!$result["status"]) array_push($log, array("used_classroom_count"=>$result["erro"]));
+
+	//campo 71 à 83
+	$result = $ssv->isGreaterThan($collun["used_classroom_count"], "0");
+	if(!$result["status"]) array_push($log, array("used_classroom_count"=>$result["erro"]));
+
+	//campo 84
+	$result = $ssv->pcCount($collun["equipments_computer"],
+									$collun["administrative_computers_count"]);
+	if(!$result["status"]) array_push($log, array("administrative_computers_count"=>$result["erro"]));
+
+	//campo 85
+	$result = $ssv->pcCount($collun["equipments_computer"],
+									$collun["student_computers_count"]);
+	if(!$result["status"]) array_push($log, array("student_computers_count"=>$result["erro"]));
+
+	//campo 86
+	$result = $ssv->internetAccess($collun["equipments_computer"],
+									$collun["internet_access"]);
+	if(!$result["status"]) array_push($log, array("internet_access"=>$result["erro"]));
+
+	//campo 88
+	$result = $ssv->isGreaterThan($collun["employees_count"], "0");
+	if(!$result["status"]) array_push($log, array("employees_count"=>$result["erro"]));
 
 	if($log != null) $school_structure_log["row $key"] = $log;
 

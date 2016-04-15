@@ -91,13 +91,11 @@ class SchoolStructureValidation {
 		return array("status"=>true,"erro"=>"");
 	}
 
-	//campo 13, 69, 87
+	//campo 13, 87
 	function isAllowedValue($collun, $value, $allowed_values){
 
 		if($collun == 1){
-			if(in_array($value, $allowed_values)){
-				return array("status"=>true,"erro"=>"");
-			}else{
+			if(!in_array($value, $allowed_values)){
 				return array("status"=>false,"erro"=>"valor $value não permitido");
 			}
 		}
@@ -178,15 +176,26 @@ class SchoolStructureValidation {
 		return array("status"=>true,"erro"=>"");
 	}
 
+	//campo 69
+	function schoolsCount($collun3, $value){
+
+		if($collun3 == 1){
+			$result = $this->isGreaterThan($value, "0");
+			if(!$result["status"]){
+				return array("status"=>false,"erro"=>$result["erro"]);
+			}
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
 	//70, 88
 	function isGreaterThan($value, $target){
 
-		if($value > $target){
-			echo "Valor não é maior que o alvo.";
-			return false;
+		if($value <= $target){
+			$value = $this->ifNull($value);
+			return array("status"=>false,"erro"=>"Valor $value não é maior que o alvo.");
 		}
-
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//71 à 83
@@ -194,60 +203,61 @@ class SchoolStructureValidation {
 
 		foreach ($amounts as $key => $value) {
 			if(!$value == null){
-				if(!isGreaterThan($value, 0)){
-					return false;
+				$result = $this->isGreaterThan($value, "0");
+				if(!$result["status"]){
+					return array("status"=>false,"erro"=>$result["erro"]);
 				}
-				if($this->isGreaterThan(strlen($value), 4)){
-					echo "Maior que 4 dígitos";
-					return false;
+		
+				$result = $this->isGreaterThan(strlen($value), "4");
+				if($result["status"]){
+					return array("status"=>false,"erro"=>"Valor $value maior que 4 dígitos");
 				}
 			}
 		}
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//84, 85
 	function pcCount($collun82, $value){
 		if($collun82 != null){
-			if($this->isGreaterThan(strlen($value), 4)){
-					echo "Maior que 4 dígitos";
-					return false;
-				}
-			if(!$this->isGreaterThan($value, 0)){
-				return false;
+			$result = $this->isGreaterThan(strlen($value), "4");
+			if($result["status"]){
+				return array("status"=>false,"erro"=>"Valor $value maior que 4 dígitos");
 			}
+			$result = $this->isGreaterThan($value, "0");
+			if(!$result["status"]){
+				return array("status"=>false,"erro"=>$result["erro"]);
+			}
+
 			if($value > $collun82){
-				echo "Valor é maior que o permitido";
-				return false;
+				return array("status"=>false,"erro"=>"Valor $value é maior que o permitido");
 			}
 			
 		}else{
 			if($value != null) {
-				echo "Coluna 82 é nulo. Valor deve ser nulo";
-				return false;
+				return array("status"=>false,"erro"=>"Coluna 82 é nulo. Valor $value deve ser nulo");
 			}
 		}
-		return true;
+		return array("status"=>true,"erro"=>"");
+		
 		
 	}
 
 	//86
-	function internetAccess($collun, $value, $allowed_values){
+	function internetAccess($collun, $value){
 
 		if($collun != null){
-			if(in_array($value, $allowed_values)){
-				return true;
-			}else{
-				echo "valor não permitido"."</br>";
-				return false;
+			if(!in_array($value, array("0", "1"))){
+				$value = $this->ifNull($value);
+				return array("status"=>false,"erro"=>"valor $value não permitido");
 			}
 		}else{
 			if($value != null) {
-				echo "Coluna 82 é nulo. Valor deve ser nulo";
-				return false;
+				return array("status"=>false,"erro"=>"Coluna 82 é nulo. Valor $value deve ser nulo");
+
 			}
 		}
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//89
@@ -256,50 +266,50 @@ class SchoolStructureValidation {
 		if(in_array($collun1028, array("1", "2", "3"))){
 			if($value == "1"){
 				if(!in_array($collun206, array("1", "2"))){
-					echo "Campo 6 do registro 20 deve ser 1 ou 2";
-					return false;
+					return array("status"=>false,"erro"=>"Campo 6 do registro 20 deve ser 1 ou 2");
 				}
 			}else{
-				echo "Valor deve ser 1 pois a coluna está entre os valores supostos";
-				return false;
+				return array("status"=>false,
+								"erro"=>"Valor deve ser 1 pois a coluna está entre os valores supostos");
 			}
 		}else{
 			if($value != "0"){
-				echo "Valor deve ser 0 pois a coluna não está entre os valores supostos";
-				return false;
+				return array("status"=>false,
+								"erro"=>"Valor $value deveria ser 0 
+											pois a coluna não está entre os valores supostos");
 			}
 		}
 
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//90, 91
 	function aee($value, $collun, $complementar_activities, $collun2018){
 
 		if(!in_array($value, array("0", "1", "2"))){
-			echo "Não está entre os valores permitidos";
-			return false;
+			return array("status"=>false, "erro"=>"Valor $value não está entre os valores permitidos");
 		}else{
 			if($value == "1" || $value == "2"){
 				if($collun2018 != 1){
-					echo "Valor igual à 1 ou 2. Coluna 18 do registro 20 deve ser 1";
-					return false;
+					return array("status"=>false, 
+									"erro"=>"Valor $value deveria igual à 1 ou 2.
+												Coluna 18 do registro 20 deve ser 1");
 				}
 			}
 			if($value == "2"){
 				if($collun != 0){
-					echo "Já que valor 2 a outra coluna deve ser 0";
-					return false;
+					return array("status"=>false, 
+									"erro"=>"Já que valor 2 a outra coluna de valor $collun deveria ser 0");
 				}
 				foreach ($complementar_activities as $key => $value) {
 					if($value != null){
-						return false;
+						return array("status"=>false, "erro"=>"Valor deveria ser nulo");
 					}
 				}
 			}
 		}
 
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 	//92 à 95
@@ -307,13 +317,14 @@ class SchoolStructureValidation {
 
 		if($collun90 != 2 && $collun91 != 2){
 			if(!($collun90 == 1 && $collun91 == 1)){
-				if($this->atLeastOne($modalities)){
-					return false;
+				$result = $this->atLeastOne($modalities);
+				if(!$result["status"]){
+					return array("status"=>false,"erro"=>$result["erro"]);
 				}
 			}
 		}
 
-		return true;
+		return array("status"=>true,"erro"=>"");
 	}
 
 }
