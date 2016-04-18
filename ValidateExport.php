@@ -215,11 +215,42 @@ foreach ($school_structure as $key => $collun) {
 									$collun["internet_access"]);
 	if(!$result["status"]) array_push($log, array("internet_access"=>$result["erro"]));
 
+	//campo 87
+	$result = $ssv->bandwidth($collun["internet_access"],
+									$collun["bandwidth"]);
+	if(!$result["status"]) array_push($log, array("bandwidth"=>$result["erro"]));
+
 	//campo 88
 	$result = $ssv->isGreaterThan($collun["employees_count"], "0");
 	if(!$result["status"]) array_push($log, array("employees_count"=>$result["erro"]));
 
+	//campo 89
+	$result = $ssv->schoolFeeding($school_identification[$key]["administrative_dependence"],
+									$collun["feeding"],
+									$classroom[$key]["pedagogical_mediation_type"]);
+	if(!$result["status"]) array_push($log, array("feeding"=>$result["erro"]));
+
+	//campo 90
+	$modalities = array($collun["modalities_regular"], 
+									$collun["modalities_especial"],
+									$collun["modalities_eja"], 
+									$collun["modalities_professional"]);
+
+	$result = $ssv->aee($collun["aee"], $collun["complementary_activities"], $modalities, 
+									$classroom[$key]["pedagogical_mediation_type"]);
+	if(!$result["status"]) array_push($log, array("aee"=>$result["erro"]));
+
+	//campo 91
+	$result = $ssv->aee($collun["complementary_activities"], $collun["aee"], $modalities, 
+									$classroom[$key]["pedagogical_mediation_type"]);
+	if(!$result["status"]) array_push($log, array("complementary_activities"=>$result["erro"]));
+
+	//campo 92 à 95
+	$result = $ssv->checkModalities($collun["aee"], $collun["complementary_activities"], $modalities);
+	if(!$result["status"]) array_push($log, array("modalities"=>$result["erro"]));
+
 	if($log != null) $school_structure_log["row $key"] = $log;
+
 
 }
 

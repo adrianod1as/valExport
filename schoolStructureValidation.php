@@ -91,16 +91,6 @@ class SchoolStructureValidation {
 		return array("status"=>true,"erro"=>"");
 	}
 
-	//campo 13, 87
-	function isAllowedValue($collun, $value, $allowed_values){
-
-		if($collun == 1){
-			if(!in_array($value, $allowed_values)){
-				return array("status"=>false,"erro"=>"valor $value não permitido");
-			}
-		}
-		return array("status"=>true,"erro"=>"");
-	}
 
 	//campo 14 à 19
 	function sharedSchoolInep($collun13, $inep_id, $shared_schools_inep_ids){
@@ -260,6 +250,17 @@ class SchoolStructureValidation {
 		return array("status"=>true,"erro"=>"");
 	}
 
+	//campo 87
+	function bandwidth($collun, $value){
+
+		if($collun == 1){
+			if(!($value == "0" || $value == "1")){
+				return array("status"=>false,"erro"=>"valor $value não permitido");
+			}
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
 	//89
 	function schoolFeeding($collun1028, $value, $collun206){
 
@@ -284,7 +285,7 @@ class SchoolStructureValidation {
 	}
 
 	//90, 91
-	function aee($value, $collun, $complementar_activities, $collun2018){
+	function aee($value, $collun, $modalities, $collun2018){
 
 		if(!in_array($value, array("0", "1", "2"))){
 			return array("status"=>false, "erro"=>"Valor $value não está entre os valores permitidos");
@@ -301,7 +302,7 @@ class SchoolStructureValidation {
 					return array("status"=>false, 
 									"erro"=>"Já que valor 2 a outra coluna de valor $collun deveria ser 0");
 				}
-				foreach ($complementar_activities as $key => $value) {
+				foreach ($modalities as $key => $value) {
 					if($value != null){
 						return array("status"=>false, "erro"=>"Valor deveria ser nulo");
 					}
@@ -313,7 +314,7 @@ class SchoolStructureValidation {
 	}
 
 	//92 à 95
-	function modalities($collun90, $collun91, $modalities){
+	function checkModalities($collun90, $collun91, $modalities){
 
 		if($collun90 != 2 && $collun91 != 2){
 			if(!($collun90 == 1 && $collun91 == 1)){
