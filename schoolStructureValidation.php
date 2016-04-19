@@ -1,245 +1,451 @@
 <?php
 //Validações para a tabela school_structure
 
-//campo 01
-function isRegisterTen($value){
-	if($value != "10"){
-		echo "valor é diferente de 10"."</br>";
-		return false;
-	}
-	return true;
-}
+class SchoolStructureValidation {
 
-//campo 02
-function isEqual($x, $y, $msg){
-	if($x != $y){
-		echo $msg."</br>";
-		return false;
+	function __construct() {
 	}
-	return true;
-}
 
-//campo 03 à 11, 33 à 38
-function atLeastOne($operation_locations){
-	$number_of_ones = 0;
-	for($i = 0; $i < sizeof($operation_locations); $i++){
-		if($operation_locations[$i]=="1")
-			$number_of_ones++; 
-	}
-	if($number_of_ones==0){
-		echo "Não há nenhum valor marcado"."</br>";
-		return false;
-	}
-	return true;
-}
-
-//campo 12
-function buildingOccupationStatus($collun3, $collun8, $value){
-
-	if($collun3 == 1){
-		if($value == 1 || $value == 2 || $value == 3){
+	function isNull($x){
+		if($x == null){
+			echo "Numéro é nulo";
 			return true;
 		}
-	}elseif($collun == 8){
-		return true;
-	}elseif($collun3 != 1 && $collun8 != 1){
-		if($value == null){
-			return true;
-		}
+		return false;
 	}
-	echo "Não atende condições"."</br>";
-	return false;
-}
 
-//campo 13
-function sharedBuildingSchool($collun3, $value){
+	function ifNull($value){
+		if($value == null)
+			$value = "nulo";
+		return $value;
+	}
 
-	if($collun3 == 1){
-		if($value == 0 || $value == 1){
-			return true;
+	//campo 01
+	function isRegisterTen($value){
+
+		if($value != "10"){
+			/*echo "valor é diferente de 10"."</br>";
+			return false;*/
+			return array("status"=>false,"erro"=>"valor é diferente de 10");
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+
+
+	//campo 02
+	function isEqual($x, $y, $msg){
+		if($this->isNUll($x)){
+			return array("status"=>false,"erro"=>"valor é nulo");
+		}
+		if($x != $y){
+			return array("status"=>false,"erro"=>$msg);
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//campo 03 à 11, 33 à 38
+	function atLeastOne($operation_locations){
+		$number_of_ones = 0;
+		for($i = 0; $i < sizeof($operation_locations); $i++){
+			if($operation_locations[$i]=="1")
+				$number_of_ones++; 
+		}
+		if($number_of_ones==0){
+			return array("status"=>false,"erro"=>"Não há nenhum valor marcado");
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//campo 12
+	function buildingOccupationStatus($collun3, $collun8, $value){
+
+		if($collun3 == 1){
+			if(!($value == 1 || $value == 2 || $value == 3)){
+				return array("status"=>false,
+								"erro"=>"operation_location_building é 1. Valor $value não está enre as õpções");
+			}
+		}elseif($collun3 != 1 && $collun8 != 1){
+			if(!$value == null){
+				return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
+			}
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//campo 13
+	function sharedBuildingSchool($collun3, $value){
+
+		if($collun3 == 1){
+			if($value == 0 || $value == 1){
+				return array("status"=>true,"erro"=>"");
+			}else{
+				return array("status"=>false,"erro"=>"valor $value não permitido");
+			}
 		}else{
-			echo "valor não permitido"."</br>";
-			return false;
+			if(($value != null)){
+				return array("status"=>false,"erro"=>"operation_location_building não é 1. Valor $value deveria ser nulo");
+
+			}
 		}
+		return array("status"=>true,"erro"=>"");
 	}
-	return true;
-}
 
-//campo 13, 69, 87
-function isAllowedValue($collun, $value, $allowed_values){
 
-	if($collun == 1){
-		if(in_array($value, $allowed_values)){
-			return true;
+	//campo 14 à 19
+	function sharedSchoolInep($collun13, $inep_id, $shared_schools_inep_ids){
+
+		if($collun13 == 1){
+			foreach($shared_schools_inep_ids as $school_inep_id){
+				$result = $this->isEqual(substr($inep_id, 0, 2), 
+											substr($school_inep_id, 0, 2), 
+											"Escolas não são do mesmo estado");
+				if($result["status"])
+				{	
+					if(strlen($school_inep_id)){
+						return array("status"=>false,"erro"=>"Menos de 8 carácteres");
+					}
+					if($inep_id == $school_inep_id){
+						return array("status"=>false,"erro"=>"Inep id é igual");
+					}
+				}else{
+					return array("status"=>false,"erro"=>"Não são do mesmo UF");
+				}
+			}
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//campo 20
+	function consumedWater($value){
+		if($value == 1 || $value == 2){
+			return array("status"=>true,"erro"=>"");
+		}
+		$value = $this->ifNull($value);
+		return array("status"=>false,"erro"=>"Valor $value não está entre as opções");
+
+	}
+
+	//101, 105, 106
+
+	function isAllowed($value, $allowed_values){
+
+		if(!in_array($value, $allowed_values)){
+				$value = $this->ifNull($value);
+				return array("status"=>false,
+								"erro"=>"Valor $value de ordem $key não está entre as opções");
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//campo 21 à 25, 26 à 29, 30 à 32, 39 à 68
+	
+
+	function checkRangeOfArray($array, $allowed_values){
+
+		foreach ($array as $key => $value) {
+			$result = $this->isAllowed($value, $allowed_values);
+			if(!$result["status"]){
+				return array("status"=>false,"erro"=>$result["erro"]);
+			}
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	function supply($supply_locations){
+
+		$len = sizeof($supply_locations);
+
+		$result = $this->checkRangeOfArray($supply_locations, array("0", "1"));
+		if(!$result["status"]){
+			return array("status"=>false,"erro"=>$result["erro"]);
+
+		}
+
+		$result = $this->atLeastOne($supply_locations);
+		if(!$result["status"]){
+			return array("status"=>false,"erro"=>$result["erro"]);
+		}
+
+		if($supply_locations[$len-1] == "1"){ //ultimo campo
+			for($i = 0; $i < ($len-1); $i++){ //primeiros campos
+				if($supply_locations[$i] == "1"){
+					return array("status"=>false,
+								"erro"=>"Já que ultimo campo 1 não pode haver outros campos marcados como 1");
+				}
+			}
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//campo 69
+	function schoolsCount($collun3, $value){
+
+		if($collun3 == 1){
+			$result = $this->isGreaterThan($value, "0");
+			if(!$result["status"]){
+				return array("status"=>false,"erro"=>$result["erro"]);
+			}
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//70, 88
+	function isGreaterThan($value, $target){
+
+		if($value <= $target){
+			$value = $this->ifNull($value);
+			return array("status"=>false,"erro"=>"Valor $value não é maior que o alvo.");
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//71 à 83
+	function equipmentAmounts($amounts){
+
+		foreach ($amounts as $key => $value) {
+			if(!$value == null){
+				$result = $this->isGreaterThan($value, "0");
+				if(!$result["status"]){
+					return array("status"=>false,"erro"=>$result["erro"]);
+				}
+		
+				$result = $this->isGreaterThan(strlen($value), "4");
+				if($result["status"]){
+					return array("status"=>false,"erro"=>"Valor $value maior que 4 dígitos");
+				}
+			}
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//84, 85
+	function pcCount($collun82, $value){
+		if($collun82 != null){
+			$result = $this->isGreaterThan(strlen($value), "4");
+			if($result["status"]){
+				return array("status"=>false,"erro"=>"Valor $value maior que 4 dígitos");
+			}
+			$result = $this->isGreaterThan($value, "0");
+			if(!$result["status"]){
+				return array("status"=>false,"erro"=>$result["erro"]);
+			}
+
+			if($value > $collun82){
+				return array("status"=>false,"erro"=>"Valor $value é maior que o permitido");
+			}
+			
 		}else{
-			echo "valor não permitido"."</br>";
-			return false;
+			if($value != null) {
+				return array("status"=>false,"erro"=>"Coluna 82 é nulo. Valor $value deve ser nulo");
+			}
 		}
+		return array("status"=>true,"erro"=>"");
+		
+		
 	}
-	return true;
-}
 
-//campo 14 à 19
-function sharedSchoolInep($collun13, $inep_id, $shared_schools_inep_ids){
+	//86
+	function internetAccess($collun, $value){
 
-	if($collun13 == 1){
-		foreach($shared_schools_inep_ids as $school_inep_id){
-			if(isEqual(substr($inep_id, 0, 2), substr($school_inep_id, 0, 2), "Escolas não são do mesmo estado"))
-			{
-				if($inep_id == $school_inep_id){
-					echo "Inep id é igual"."</br>";
-					return false;
+		if($collun != null){
+			if(!in_array($value, array("0", "1"))){
+				$value = $this->ifNull($value);
+				return array("status"=>false,"erro"=>"valor $value não permitido");
+			}
+		}else{
+			if($value != null) {
+				return array("status"=>false,"erro"=>"Coluna 82 é nulo. Valor $value deve ser nulo");
+
+			}
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//campo 87
+	function bandwidth($collun, $value){
+
+		if($collun == 1){
+			if(!($value == "0" || $value == "1")){
+				return array("status"=>false,"erro"=>"valor $value não permitido");
+			}
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//89
+	function schoolFeeding($collun1028, $value, $collun206){
+
+		if(in_array($collun1028, array("1", "2", "3"))){
+			if($value == "1"){
+				if(!in_array($collun206, array("1", "2"))){
+					return array("status"=>false,"erro"=>"Campo 6 do registro 20 deve ser 1 ou 2");
 				}
 			}else{
-				return false;
+				return array("status"=>false,
+								"erro"=>"Valor deve ser 1 pois a coluna está entre os valores supostos");
 			}
-		}
-	}
-	return true;
-}
-
-//campo 20
-function consumedWater($value){
-	if($value == 1 || $value == 2){
-		return true;
-	}
-	echo "Valor não está entre as opções";
-	return false;
-}
-
-//campo 21 à 25, 26 à 29, 30 à 32, 39 à 68
-
-function checkRange($array, $allowed_values){
-
-	foreach ($array as $key => $value) {
-		if(!in_array($value, $allowed_values)){
-			echo "Valor $key não está entre os permitidos";
-			return false;
-		}
-	}
-	return true;
-}
-
-function supply($supply_locations, $value){
-
-	$len = sizeof($supply_locations);
-
-	if(!checkRange($supply_locations), ["0", "1"]){
-		return false;
-	}
-
-	if(!atLeastOne($supply_locations)){
-		return false;
-	}
-
-	if($supply_locations($len-1) == "1"){ //ultimo campo
-		for($i = 0; $i < ($len-1); $i++){ //primeiros campos
-			if($supply_locations[$i] == "1"){
-				echo "Já que ultimo campo 1 não pode haver outros campos marcados como 1"; 
-				return false;
-			}
-		}
-	}
-
-	return true;			
-}
-
-//70, 88
-function isGreaterThan($value, $target){
-
-	if($value > $target){
-		echo "Valor não é maior que o alvo.";
-		return false;
-	}
-
-	return true;
-}
-
-//71 à 83
-function equipmentAmounts($amounts){
-
-	foreach ($amounts as $key => $value) {
-		if(!$value == null){
-			if(!isGreaterThan($value, 0)){
-				return false;
-			}
-		}
-	}
-	return true;
-}
-
-//84, 85
-function pcCount($collun82, $value){
-	if($collun82 != null){
-		if($value <= 0){
-			echo "Valor não está entre as opções";
-			return false;
-		}
-		if($value > $collun82){
-			echo "Valor é maior que o permitido";
-			return false;
-		}
-		return true;
-	}
-	echo "Valor permitido é nulo";
-	return false;
-}
-
-//86
-function internetAccess($collun, $value, $allowed_values){
-
-	if($collun != null){
-		if(in_array($value, $allowed_values)){
-			return true;
 		}else{
-			echo "valor não permitido"."</br>";
-			return false;
-		}
-	}
-	return true;
-}
-
-//89
-function schoolFeeding($collun, $value){
-
-	if(in_array($collun, ["1", "2", "3"])){
-		if($value == "1"){
-			return true;
-		}
-	}else{
-		if($value == "0"){
-			return true;
-		}
-	}
-
-	return false;
-}
-
-//90, 91
-function aee($value, $collun, $complementar_activities){
-
-	if(!in_array($value, ["0", "1", "2"])){
-		return false;
-	}else{
-		if($value == "2"){
-			if($collun != 0){
-				return false;
+			if($value != "0"){
+				return array("status"=>false,
+								"erro"=>"Valor $value deveria ser 0 
+											pois a coluna não está entre os valores supostos");
 			}
-			foreach ($complementar_activities as $key => $value) {
-				if($value != null){
-					return false;
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//90, 91
+	function aee($value, $collun, $modalities, $collun2018){
+
+		if(!in_array($value, array("0", "1", "2"))){
+			return array("status"=>false, "erro"=>"Valor $value não está entre os valores permitidos");
+		}else{
+			if($value == "1" || $value == "2"){
+				if($collun2018 != 1){
+					return array("status"=>false, 
+									"erro"=>"Valor $value deveria igual à 1 ou 2.
+												Coluna 18 do registro 20 deve ser 1");
+				}
+			}
+			if($value == "2"){
+				if($collun != 0){
+					return array("status"=>false, 
+									"erro"=>"Já que valor 2 a outra coluna de valor $collun deveria ser 0");
+				}
+				foreach ($modalities as $key => $value) {
+					if($value != null){
+						return array("status"=>false, "erro"=>"Valor deveria ser nulo");
+					}
 				}
 			}
 		}
+
+		return array("status"=>true,"erro"=>"");
 	}
 
-	return true;
-}
+	//92 à 95
+	// falta validação 'bruta'
 
-//92 à 95
-function modalities(){
+	function checkModalities($collun90, $collun91, $modalities){
 
-}
+		if($collun90 != 2 && $collun91 != 2){
+			if(!($collun90 == 1 && $collun91 == 1)){
+				$result = $this->atLeastOne($modalities);
+				if(!$result["status"]){
+					return array("status"=>false,"erro"=>$result["erro"]);
+				}
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//96
+	//falta validação 'bruta'
+
+	//97
+	function differentiatedLocation($collun0029, $value){
+
+		if(!in_array($value, array("1", "2", "3", "4", "5", "6", "7"))){
+			$value = $this->ifNull($value);
+			return array("status"=>false,"erro"=>"Valor $value não permitido");
+		}
+
+		if($collun0029 == 1){
+			if($value == 1) return array("status"=>false,
+											"erro"=>"Valor $value não permitido 
+													pois coluna 29 do registro é $collun0029");
+		}elseif ($collun0029 == 2) {
+			if($value != 1) return array("status"=>false,
+											"erro"=>"Valor $value não permitido 
+													pois coluna 29 do registro é $collun0029");
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//98 à 100
+	function exclusive($itens){
+
+		$count = array_count_values($itens);
+		if ($count["1"] > 1) 
+			return array("status"=>false,"erro"=>"Há mais de um valor marcado");
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	function materials($itens){
+
+		$len = sizeof($itens);
+
+		$result = $this->checkRangeOfArray($itens, array("0", "1"));
+		if(!$result["status"]){
+			return array("status"=>false,"erro"=>$result["erro"]);
+
+		}
+
+		$result = $this->atLeastOne($itens);
+		if(!$result["status"]){
+			return array("status"=>false,"erro"=>$result["erro"]);
+		}
+
+		$result = $this->exclusive($itens);
+		if(!$result["status"]){
+			return array("status"=>false,"erro"=>$result["erro"]);
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//102 e 103
+
+	function languages($collun101, $languages){
+
+		if($collun101 != "1"){
+			foreach ($languages as $key => $value) {
+				if($value != null){
+					return array("status"=>false, "erro"=>"Valor deveria ser nulo");
+				}
+			}
+		}else{
+			$result = $this->atLeastOne($languages);
+			if(!$result["status"]){
+				return array("status"=>false,"erro"=>$result["erro"]);
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	//104
+
+	function edcensoNativeLanguages($collun102, $value, $conection){
+
+		if($collun102 != "1"){
+			if($value != null){
+				return array("status"=>false, "erro"=>"Valor deveria ser nulo pois coluna 102 é $collun102");
+			}
+		}else{
+			$sql = "SELECT * FROM edcenso_native_languages WHERE id = '$value' ";
+			$result = $conection->query($sql);
+			$array = mysqli_fetch_all($result,MYSQLI_ASSOC);
+			if(empty($array)){
+				$value = $this->ifNull($value);
+				return array("status"=>false,
+								"erro"=>"Valor $valor não está entre os valores de edcenso_native_languages");
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
+
+}//fim de classe
+
+
 
 
 
