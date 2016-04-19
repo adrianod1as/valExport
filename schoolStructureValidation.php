@@ -126,15 +126,27 @@ class SchoolStructureValidation {
 
 	}
 
-	//campo 21 à 25, 26 à 29, 30 à 32, 39 à 68
+	//101, 105, 106
 
-	function checkRange($array, $allowed_values){
+	function isAllowed($value, $allowed_values){
 
-		foreach ($array as $key => $value) {
-			if(!in_array($value, $allowed_values)){
+		if(!in_array($value, $allowed_values)){
 				$value = $this->ifNull($value);
 				return array("status"=>false,
 								"erro"=>"Valor $value de ordem $key não está entre as opções");
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//campo 21 à 25, 26 à 29, 30 à 32, 39 à 68
+	
+
+	function checkRangeOfArray($array, $allowed_values){
+
+		foreach ($array as $key => $value) {
+			$result = $this->isAllowed($value, $allowed_values);
+			if(!$result["status"]){
+				return array("status"=>false,"erro"=>$result["erro"]);
 			}
 		}
 		return array("status"=>true,"erro"=>"");
@@ -144,7 +156,7 @@ class SchoolStructureValidation {
 
 		$len = sizeof($supply_locations);
 
-		$result = $this->checkRange($supply_locations, array("0", "1"));
+		$result = $this->checkRangeOfArray($supply_locations, array("0", "1"));
 		if(!$result["status"]){
 			return array("status"=>false,"erro"=>$result["erro"]);
 
@@ -314,6 +326,8 @@ class SchoolStructureValidation {
 	}
 
 	//92 à 95
+	// falta validação 'bruta'
+
 	function checkModalities($collun90, $collun91, $modalities){
 
 		if($collun90 != 2 && $collun91 != 2){
@@ -328,7 +342,108 @@ class SchoolStructureValidation {
 		return array("status"=>true,"erro"=>"");
 	}
 
-}
+	//96
+	//falta validação 'bruta'
+
+	//97
+	function differentiatedLocation($collun0029, $value){
+
+		if(!in_array($value, array("1", "2", "3", "4", "5", "6", "7"))){
+			$value = $this->ifNull($value);
+			return array("status"=>false,"erro"=>"Valor $value não permitido");
+		}
+
+		if($collun0029 == 1){
+			if($value == 1) return array("status"=>false,
+											"erro"=>"Valor $value não permitido 
+													pois coluna 29 do registro é $collun0029");
+		}elseif ($collun0029 == 2) {
+			if($value != 1) return array("status"=>false,
+											"erro"=>"Valor $value não permitido 
+													pois coluna 29 do registro é $collun0029");
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//98 à 100
+	function exclusive($itens){
+
+		$count = array_count_values($itens);
+		if ($count["1"] > 1) 
+			return array("status"=>false,"erro"=>"Há mais de um valor marcado");
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	function materials($itens){
+
+		$len = sizeof($itens);
+
+		$result = $this->checkRangeOfArray($itens, array("0", "1"));
+		if(!$result["status"]){
+			return array("status"=>false,"erro"=>$result["erro"]);
+
+		}
+
+		$result = $this->atLeastOne($itens);
+		if(!$result["status"]){
+			return array("status"=>false,"erro"=>$result["erro"]);
+		}
+
+		$result = $this->exclusive($itens);
+		if(!$result["status"]){
+			return array("status"=>false,"erro"=>$result["erro"]);
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
+	//102 e 103
+
+	function languages($collun101, $languages){
+
+		if($collun101 != "1"){
+			foreach ($languages as $key => $value) {
+				if($value != null){
+					return array("status"=>false, "erro"=>"Valor deveria ser nulo");
+				}
+			}
+		}else{
+			$result = $this->atLeastOne($languages);
+			if(!$result["status"]){
+				return array("status"=>false,"erro"=>$result["erro"]);
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	//104
+
+	function edcensoNativeLanguages($collun102, $value, $conection){
+
+		if($collun102 != "1"){
+			if($value != null){
+				return array("status"=>false, "erro"=>"Valor deveria ser nulo pois coluna 102 é $collun102");
+			}
+		}else{
+			$sql = "SELECT * FROM edcenso_native_languages WHERE id = '$value' ";
+			$result = $conection->query($sql);
+			$array = mysqli_fetch_all($result,MYSQLI_ASSOC);
+			if(empty($array)){
+				$value = $this->ifNull($value);
+				return array("status"=>false,
+								"erro"=>"Valor $valor não está entre os valores de edcenso_native_languages");
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
+
+}//fim de classe
 
 
 

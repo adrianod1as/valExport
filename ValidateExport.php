@@ -19,6 +19,8 @@ if (!$link) {
     exit;
 }
 
+
+
 //Conversão da tabela para array
 function tabletToArray($sql, $con){
 	$array = null;
@@ -249,6 +251,45 @@ foreach ($school_structure as $key => $collun) {
 	$result = $ssv->checkModalities($collun["aee"], $collun["complementary_activities"], $modalities);
 	if(!$result["status"]) array_push($log, array("modalities"=>$result["erro"]));
 
+	//campo 97
+	$result = $ssv->differentiatedLocation($school_identification[$key]["inep_id"], 
+											$collun["different_location"]);
+	if(!$result["status"]) array_push($log, array("different_location"=>$result["erro"]));
+
+	//campo 98 à 100
+	$sociocultural_didactic_materials = array($collun["sociocultural_didactic_material_none"], 
+												$collun["sociocultural_didactic_material_quilombola"],
+												$collun["sociocultural_didactic_material_native"]);
+	$result = $ssv->materials($sociocultural_didactic_materials);
+	if(!$result["status"]) array_push($log, array("sociocultural_didactic_materials"=>$result["erro"]));
+
+	//101
+	$result = $ssv->isAllowed($collun["native_education"], array("0", "1"));
+	if(!$result["status"]) array_push($log, array("native_education"=>$result["erro"]));
+
+	//102 à 103
+	$native_education_languages = array($collun["native_education_language_native"], 
+												$collun["native_education_language_portuguese"]);
+	$result = $ssv->languages($collun["native_education"], $native_education_languages);
+	if(!$result["status"]) array_push($log, array("native_education_languages"=>$result["erro"]));
+
+	//104
+	$result = $ssv->edcensoNativeLanguages($collun["native_education_language_native"],
+											$collun["edcenso_native_languages_fk"],
+											$link);
+	if(!$result["status"]) array_push($log, array("edcenso_native_languages_fk"=>$result["erro"]));
+
+	//105
+	$result = $ssv->isAllowed($collun["brazil_literate"], array("0", "1"));
+	if(!$result["status"]) array_push($log, array("brazil_literate"=>$result["erro"]));
+
+	//106
+	$result = $ssv->isAllowed($collun["open_weekend"], array("0", "1"));
+	if(!$result["status"]) array_push($log, array("open_weekend"=>$result["erro"]));
+
+
+
+	//Adicionando log da row
 	if($log != null) $school_structure_log["row $key"] = $log;
 
 
