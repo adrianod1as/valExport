@@ -1,6 +1,15 @@
 <?php
+$var = isset($_GET['year']) ? $_GET['year'] : $argv[1];
 
-require($_SERVER['DOCUMENT_ROOT'] ."/valExport/schoolStructureValidation.php");
+$year = date('Y');
+if( $var != null 
+	&& is_int(intval($var)) 
+	&& $var > 2010 
+	&& $var < $year){
+	$year = $var;
+}
+
+require(dirname(__FILE__) . DIRECTORY_SEPARATOR . "schoolStructureValidation.php");
 
 ini_set('memory_limit', '-1');
 
@@ -18,6 +27,7 @@ if (!$link) {
     echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
     exit;
 }
+
 
 
 
@@ -248,6 +258,33 @@ foreach ($school_structure as $key => $collun) {
 	if(!$result["status"]) array_push($log, array("complementary_activities"=>$result["erro"]));
 
 	//campo 92 à 95
+
+	$sql = "SELECT  modalities, COUNT(se.student_fk) as number_of_students
+			FROM	edcenso_stage_vs_modality_complementary as esmc 
+						INNER JOIN 
+					classroom AS cr
+						ON esmc.fk_edcenso_stage_vs_modality = cr.edcenso_stage_vs_modality_fk
+						INNER JOIN
+					student_enrollment AS se
+						ON cr.id = se.classroom_fk
+			WHERE cr.school_year = '$year'
+			GROUP BY esmc.modalities;";
+	$studens_by_modalitie = tabletToArray($sql, $link);
+
+	$sql = "SELECT  COUNT(itd.instructor_fk) as number_of_instructors, modalities
+			FROM	edcenso_stage_vs_modality_complementary as esmc 
+						INNER JOIN 
+					classroom AS cr
+						ON esmc.fk_edcenso_stage_vs_modality = cr.edcenso_stage_vs_modality_fk
+						INNER JOIN
+					instructor_teaching_data AS itd
+						ON cr.id = itd.classroom_id_fk
+			WHERE cr.school_year = '$year'
+			GROUP BY esmc.modalities;";
+
+	$instructors_by_modalitie = tabletToArray($sql, $link);
+
+
 	$result = $ssv->checkModalities($collun["aee"], $collun["complementary_activities"], $modalities);
 	if(!$result["status"]) array_push($log, array("modalities"=>$result["erro"]));
 

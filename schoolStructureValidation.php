@@ -328,6 +328,19 @@ class SchoolStructureValidation {
 	//92 à 95
 	// falta validação 'bruta'
 
+	function checkClassroom($items, $label){
+		foreach ($items as $key => $item) {
+			if($item["number_of_students"] <= "0"){
+				$modalitie = $item["modalities"]
+				return array("status"=>false,"erro"=>"A modalidade $modalitie não possui $label");
+
+			}
+		}
+		
+		return array("status"=>true,"erro"=>"");
+
+	}
+
 	function checkModalities($collun90, $collun91, $modalities){
 
 		if($collun90 != 2 && $collun91 != 2){
@@ -441,6 +454,8 @@ class SchoolStructureValidation {
 
 		return array("status"=>true,"erro"=>"");
 	}
+
+	
 
 
 }//fim de classe
