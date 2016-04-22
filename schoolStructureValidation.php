@@ -278,8 +278,10 @@ class SchoolStructureValidation {
 
 		if(in_array($collun1028, array("1", "2", "3"))){
 			if($value == "1"){
-				if(!in_array($collun206, array("1", "2"))){
-					return array("status"=>false,"erro"=>"Campo 6 do registro 20 deve ser 1 ou 2");
+				if($collun206 <= "0"){
+					return array("status"=>false,
+									"erro"=>"Ao menos um Campo 6 do registro 20 
+												para esta escola deve ser 1 ou 2");
 				}
 			}else{
 				return array("status"=>false,
@@ -303,10 +305,10 @@ class SchoolStructureValidation {
 			return array("status"=>false, "erro"=>"Valor $value não está entre os valores permitidos");
 		}else{
 			if($value == "1" || $value == "2"){
-				if($collun2018 != 1){
+				if($collun2018 <= 0){
 					return array("status"=>false, 
-									"erro"=>"Valor $value deveria igual à 1 ou 2.
-												Coluna 18 do registro 20 deve ser 1");
+									"erro"=>"Já que valor à $value.
+												Coluna 18 de valor $collun2018 do registro 20 está incorreta");
 				}
 			}
 			if($value == "2"){
@@ -328,20 +330,12 @@ class SchoolStructureValidation {
 	//92 à 95
 	// falta validação 'bruta'
 
-	function checkClassroom($items, $label){
-		foreach ($items as $key => $item) {
-			if($item["number_of_students"] <= "0"){
-				$modalitie = $item["modalities"]
-				return array("status"=>false,"erro"=>"A modalidade $modalitie não possui $label");
 
-			}
-		}
-		
-		return array("status"=>true,"erro"=>"");
 
-	}
-
-	function checkModalities($collun90, $collun91, $modalities){
+	function checkModalities($collun90, $collun91, $modalities, 
+								$are_there_students_by_modalitie,
+								$are_there_instructors_by_modalitie)
+	{
 
 		if($collun90 != 2 && $collun91 != 2){
 			if(!($collun90 == 1 && $collun91 == 1)){
@@ -352,11 +346,40 @@ class SchoolStructureValidation {
 			}
 		}
 
+		foreach ($modalities as $key => $value) {
+			if($value == "1"){
+				if(!$are_there_students_by_modalitie[$key]){
+					return array("status"=>false,
+									"erro"=>"$key é 1 e não há estudantes nessa modalidade");
+				}
+				if(!$are_there_instructors_by_modalitie[$key]){
+					return array("status"=>false,
+									"erro"=>"$key é 1 e não há instrutores nessa modalidade");
+				}
+			}
+		}
+
+
 		return array("status"=>true,"erro"=>"");
 	}
 
 	//96
 	//falta validação 'bruta'
+	function schoolCicle($value, $number_of_schools){
+		if($number_of_schools > 0){
+			if(!($value == 0 || $value == 1)){
+				$value = $this->ifNull($value);
+				return array("status"=>false, "erro"=>"Valor $value não permitido");
+			}
+		}else{
+			if($value != null){
+				return array("status"=>false, "erro"=>"Valor $value deveria ser nulo");
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
 
 	//97
 	function differentiatedLocation($collun0029, $value){
@@ -453,6 +476,15 @@ class SchoolStructureValidation {
 		}
 
 		return array("status"=>true,"erro"=>"");
+	}
+
+	//107
+
+	function pedagogicalFormation(){
+		if(!($value == 0 || $value == 1)){
+				$value = $this->ifNull($value);
+				return array("status"=>false, "erro"=>"Valor $value não permitido");
+		}
 	}
 
 	

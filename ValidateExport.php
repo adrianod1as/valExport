@@ -44,10 +44,47 @@ function tabletToArray($sql, $con){
 	return $array;
 }
 
-$sql = "SELECT * FROM school_identification";
+
+
+function areThereByModalitie($students_by_modalitie){
+	$modalities_regular	= false;
+	$modalities_especial = false;
+	$modalities_eja = false;
+	$modalities_professional = false;
+	foreach ($students_by_modalitie as $key => $item) {
+		switch ($item['modalities']) {
+
+			case '1':
+				if($item['number_of'] > '0')
+					$modalities_regular = true;
+				break;
+			
+			case '2':
+				if($item['number_of'] > '0')
+					$modalities_especial = true;
+				break;
+
+			case '3':
+				if($item['number_of'] > '0')
+					$modalities_eja = true;
+				break;
+
+			case '4':
+				if($item['number_of'] > '0')
+					$modalities_professional = true;
+				break;
+		}
+	}
+	return array("modalities_regular" => $modalities_regular, 
+					"modalities_especial" => $modalities_especial, 
+					"modalities_eja" => $modalities_eja,
+					"modalities_professional" => $modalities_professional);
+}
+
+$sql = "SELECT * FROM school_identification ORDER BY inep_id";
 $school_identification = tabletToArray($sql, $link);
 
-$sql = "SELECT * FROM school_structure";
+$sql = "SELECT * FROM school_structure ORDER BY school_inep_id_fk";
 $school_structure = tabletToArray($sql, $link);
 
 $sql = "SELECT * FROM classroom";
@@ -74,21 +111,47 @@ $student_documents_and_address = tabletToArray($sql, $link);
 $sql = "SELECT * FROM student_enrollment";
 $student_enrollment = tabletToArray($sql, $link);
 
+$sql = "SELECT  modalities, COUNT(se.student_fk) as number_of
+		FROM	edcenso_stage_vs_modality_complementary as esmc 
+					INNER JOIN 
+				classroom AS cr
+					ON esmc.fk_edcenso_stage_vs_modality = cr.edcenso_stage_vs_modality_fk
+					INNER JOIN
+				student_enrollment AS se
+					ON cr.id = se.classroom_fk
+		WHERE cr.school_year = '$year'
+		GROUP BY esmc.modalities;";
+$students_by_modalitie = tabletToArray($sql, $link);
+$are_there_students_by_modalitie = areThereByModalitie($students_by_modalitie);
+
+$sql = "SELECT  modalities, COUNT(itd.instructor_fk) as number_of
+		FROM	edcenso_stage_vs_modality_complementary as esmc 
+					INNER JOIN 
+				classroom AS cr
+					ON esmc.fk_edcenso_stage_vs_modality = cr.edcenso_stage_vs_modality_fk
+					INNER JOIN
+				instructor_teaching_data AS itd
+					ON cr.id = itd.classroom_id_fk
+		WHERE cr.school_year = '$year'
+		GROUP BY esmc.modalities;";
+$instructors_by_modalitie = tabletToArray($sql, $link);
+$are_there_instructors_by_modalitie = areThereByModalitie($students_by_modalitie);
 
 $ssv = new SchoolStructureValidation();
 $school_structure_log = array();
 
-
 foreach ($school_structure as $key => $collun) {
+
+	$school_inep_id_fk = $collun["school_inep_id_fk"];
 	$log = array();
 	//campo 1
 	$result = $ssv->isRegisterTen($collun['register_type']);
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
 
 	//campo 2
-	$result = $ssv->isEqual($collun["school_inep_id_fk"], 
-					$school_identification[$key]["inep_id"], 
-					"Inep id's são diferentes");
+	$result = $ssv->isEqual($school_inep_id_fk, 
+								$school_identification[$key]["inep_id"], 
+								"Inep id's são diferentes");
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
 	//campo 3 à 11
@@ -237,56 +300,67 @@ foreach ($school_structure as $key => $collun) {
 	if(!$result["status"]) array_push($log, array("employees_count"=>$result["erro"]));
 
 	//campo 89
+	$sql = 'SELECT  COUNT(pedagogical_mediation_type) AS number_of 
+		FROM 	classroom 
+		WHERE 	school_inep_fk = "$school_inep_id_fk" AND
+				(pedagogical_mediation_type =  "1" OR pedagogical_mediation_type =  "2");';
+	$pedagogical_mediation_type = tabletToArray($sql, $link);
+
+
 	$result = $ssv->schoolFeeding($school_identification[$key]["administrative_dependence"],
 									$collun["feeding"],
-									$classroom[$key]["pedagogical_mediation_type"]);
+									$pedagogical_mediation_type[0]["number_of"]);
 	if(!$result["status"]) array_push($log, array("feeding"=>$result["erro"]));
 
 	//campo 90
-	$modalities = array($collun["modalities_regular"], 
-									$collun["modalities_especial"],
-									$collun["modalities_eja"], 
-									$collun["modalities_professional"]);
+	$sql = "SELECT 	COUNT(assistance_type) AS number_of 
+			FROM 	classroom  
+			WHERE 	assistance_type = '5' AND 
+					school_inep_fk = '$school_inep_fk';" ;
+	$assistance_type = tabletToArray($sql, $link);
+
+
+	$modalities = array("modalities_regular" => $collun["modalities_regular"], 
+							"modalities_especial" => $collun["modalities_especial"],
+							"modalities_eja" =>	$collun["modalities_eja"], 
+							"modalities_professional" => $collun["modalities_professional"]);
 
 	$result = $ssv->aee($collun["aee"], $collun["complementary_activities"], $modalities, 
-									$classroom[$key]["pedagogical_mediation_type"]);
+									$assistance_type[0]["number_of"]);
 	if(!$result["status"]) array_push($log, array("aee"=>$result["erro"]));
 
 	//campo 91
+	$sql = "SELECT 	COUNT(assistance_type) AS number_of 
+			FROM 	classroom  
+			WHERE 	assistance_type = '4' AND 
+					school_inep_fk = '$school_inep_fk';" ;
+	$assistance_type = tabletToArray($sql, $link);
+
+
 	$result = $ssv->aee($collun["complementary_activities"], $collun["aee"], $modalities, 
-									$classroom[$key]["pedagogical_mediation_type"]);
+									$assistance_type[0]["number_of"]);
 	if(!$result["status"]) array_push($log, array("complementary_activities"=>$result["erro"]));
 
 	//campo 92 à 95
 
-	$sql = "SELECT  modalities, COUNT(se.student_fk) as number_of_students
-			FROM	edcenso_stage_vs_modality_complementary as esmc 
-						INNER JOIN 
-					classroom AS cr
-						ON esmc.fk_edcenso_stage_vs_modality = cr.edcenso_stage_vs_modality_fk
-						INNER JOIN
-					student_enrollment AS se
-						ON cr.id = se.classroom_fk
-			WHERE cr.school_year = '$year'
-			GROUP BY esmc.modalities;";
-	$studens_by_modalitie = tabletToArray($sql, $link);
-
-	$sql = "SELECT  COUNT(itd.instructor_fk) as number_of_instructors, modalities
-			FROM	edcenso_stage_vs_modality_complementary as esmc 
-						INNER JOIN 
-					classroom AS cr
-						ON esmc.fk_edcenso_stage_vs_modality = cr.edcenso_stage_vs_modality_fk
-						INNER JOIN
-					instructor_teaching_data AS itd
-						ON cr.id = itd.classroom_id_fk
-			WHERE cr.school_year = '$year'
-			GROUP BY esmc.modalities;";
-
-	$instructors_by_modalitie = tabletToArray($sql, $link);
-
-
-	$result = $ssv->checkModalities($collun["aee"], $collun["complementary_activities"], $modalities);
+	$result = $ssv->checkModalities($collun["aee"], 
+										$collun["complementary_activities"], 
+										$modalities,
+										$are_there_students_by_modalitie,
+										$are_there_instructors_by_modalitie);
 	if(!$result["status"]) array_push($log, array("modalities"=>$result["erro"]));
+
+	//campo 96
+	$sql = "SELECT 	DISTINCT  COUNT(esm.id) AS number_of, cr.school_inep_fk 
+			FROM 	classroom AS cr 
+						INNER JOIN 
+					edcenso_stage_vs_modality AS esm 
+						ON esm.id = cr.edcenso_stage_vs_modality_fk 
+			WHERE 	stage IN (2,3,7) AND cr.school_inep_fk = '$school_inep_fk';";
+	$number_of_schools = tabletToArray($sql, $link);
+
+	$result = $ssv->schoolCicle($collun["basic_education_cycle_organized"], $number_of_schools);
+	if(!$result["status"]) array_push($log, array("basic_education_cycle_organized"=>$result["erro"]));
 
 	//campo 97
 	$result = $ssv->differentiatedLocation($school_identification[$key]["inep_id"], 
