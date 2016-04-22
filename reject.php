@@ -8,14 +8,13 @@ class SchoolIdentification{
 	 function isRegisterType00($register_type){
 
 	 	if(strlen($register_type) > 2 ){
-	 		echo "Tipo de registro com tamanho invalido";
-			return false;
+	 		return array("status"=>false,"erro"=>"As linhas devem ser iniciadas com o número do registro.");
+	 		
 	 	}
 
-
 	 	if($register_type != 00){
-	 		echo "Tipo de registro invalido";
-	 		return false;
+	 		return array("status"=>false,"erro"=>"O registro declarado <tipo de registro> não faz parte do escopo do educacenso.");
+	 	
 	 	}
 	 	return true;
 
@@ -25,73 +24,68 @@ class SchoolIdentification{
 	 function isInepIdValid($inep_id){
 
 	 	if($inep_id == null)
-	 		return false;
+	 		return array("status"=>false,"erro"=>"O campo Código de escola - Inep é uma informação obrigatória.");
+	 	if(strlen($inep_id) != 8)
+	 		return array("status"=>false,"erro"=>"O campo Código de escola - Inep está com tamanho diferente do especificado.");
+	 	if(!is_numeric($inep_id))
+	 		return array("status"=>false,"erro"=>"O campo Código de escola - Inep foi preenchido com valor inválido");
 	 	
 		return true;
 	 }
 
 	//campo 3
 	 function isManagerCPFValid($manager_cpf){
-
-	 	if(strlen($manager_cpf) > 11 ){
-	 		echo "CPF com tamanho invalido";
-			return false;
-	 	}
+	 	if($manager_cpf == null)
+	 		return array("status"=>false,"erro"=>"O campo Número do CPF do Gestor Escolar é uma informação obrigatória.");
 
 
+	 	if(strlen($manager_cpf) > 11 )
+	 		return array("status"=>false,"erro"=>"O campo Número do CPF do Gestor Escolar está com tamanho diferente do especificado.");
+	
 	 	// se nao for numerico
-		if(!is_numeric($manager_cpf)){
-			echo "CPF deve conter somente numeros";
-			return false;
-		}
+		if(!is_numeric($manager_cpf))
+			return array("status"=>false,"erro"=>"O campo Número do CPF do Gestor Escolar foi preenchido com valor inválido.");
 
 		// se for 0000000000, 1111111
-		if(preg_match('/^(.)\1*$/', $manager_cpf)){  
-			echo "CPF nao pode ser da forma 00000000000";
-			return false;
-		}
+		if(preg_match('/^(.)\1*$/', $manager_cpf))
+			return array("status"=>false,"erro"=>"O campo Número do CPF do Gestor Escolar foi preenchido com valor inválido.");
+	
 
-
-	 	if($manager_cpf == "00000000191"){
-	 		echo "CPF nao pode ser 00000000191";
-	 		return false;
-	 	}
-	 	
+	 	if($manager_cpf == "00000000191")
+	 		return array("status"=>false,"erro"=>"O campo Número do CPF do Gestor Escolar foi preenchido com valor inválido.");
+	 
 
 	 	return true;
 	 }
 
 	//campo 4
 	function isManagerNameValid($manager_name){
+		if($manager_name == null)
+			return array("status"=>false,"erro"=>"O campo Nome do Gestor Escolar é uma informação obrigatória.");
 
-		if(strlen($manager_name) < 4 &&strlen($manager_name) > 100){
-			echo "Nome tem tamanho incorreto";
-
-			return false;
-		}
+		if(strlen($manager_name) > 100)
+			return array("status"=>false,"erro"=>"O campo Nome do Gestor Escolar está maior que o especificado.");
+	
 
 		$regex="/^[a-zA-Z ]+$/";
-		if (!preg_match($regex, $manager_name)){
-			echo "Nome com padrao incorreto";
-
-			return false;
-		}
-
+		if (!preg_match($regex, $manager_name))
+			return array("status"=>false,"erro"=>"O campo Nome do Gestor Escolar foi preenchido com valor inválido.");
+		
 		return true;
-
 
 	 }
 
 	//cargo do gestor campo 5
 	 function isManagerRoleValid($manager_role){
+	 	if($manager_role == null)
+			return array("status"=>false,"erro"=>"O campo Cargo do Gestor Escolar é uma informação obrigatória.");
 
 	 	if($manager_role == 1 || $manager_role == 2){
 	 		
 	 		return true;
 	 	}
 	 	else{
-	 		echo "Cargo do gestor incorreto";
-	 		return false;
+	 		return array("status"=>false,"erro"=>"O campo Cargo do Gestor Escolar foi preenchido com valor inválido.");
 	 	}
 
 	 
@@ -100,20 +94,36 @@ class SchoolIdentification{
 	//address eletronico do gestor campo 6
 	function isManagerEmailValid ($manager_email){
 
-		return isEmailValid($manager_email);
+		if($manager_email == null)
+			return array("status"=>false,"erro"=>"O campo Endereço eletrônico (e-mail) do Gestor Escolar é uma informação obrigatória.");
+
+
+		if(strlen($manager_email) > 50 )
+			return array("status"=>false,"erro"=>"O campo Endereço eletrônico (e-mail) do Gestor Escolar está maior que o especificado.");
+		
+		
+		if(!preg_match('/^[^0-9][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[@][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,4}$/', $manager_email))
+
+			return array("status"=>false,"erro"=>"O campo Endereço eletrônico (e-mail) do Gestor Escolar  foi preenchido com valor inválido.");
+
+
+		return true;
 
 	}
 
 	//situacao de funcionamento campo 7
 	function isSituationValid ($situation){
+
+	if($situation == null)
+		return array("status"=>false,"erro"=>"O campo Situação de funcionamento é uma informação obrigatória.");
+
 		if($situation == 1 || $situation == 2 || 
 			$situation == 3){
 			
 			return true;
 		}
 		else{
-			echo "Situação de funcionamento incorreta";
-			return false;
+			return array("status"=>false,"erro"=>"O campo Situação de funcionamento foi preenchido com valor inválido.");
 		}
 
 	}
@@ -213,15 +223,22 @@ class SchoolIdentification{
 	//campo 10
 	function isNameValid($name){
 		//deve ser no minimo 4
-		if(strlen($name) < 4 || strlen($name) > 100){
-			echo "Nome da escola tem tamanho incorreto";
-			return false;
-		}
+
+		if(strlen($name) == 0)
+			return array("status"=>false,"erro"=>"O campo Nome da escola é uma informação obrigatória.");
+
+		if(strlen($name) < 4 )
+			return array("status"=>false,"erro"=>"O campo Nome da escola não contém o mínimo de caracteres especificado.");
+
+		if(strlen($name) > 100)
+			return array("status"=>false,"erro"=>"O campo Nome da escola está maior que o especificado.");
+			
 
 		$regex="/^[0-9 a-z-ºª ]+$/";
 		if (!preg_match($regex, $name))
-			echo "Nome da escola incorreto";
-			return false;
+			return array("status"=>false,"erro"=>"O campo Nome da escola foi preenchido com valor inválido.");
+
+
 		return true;
 
 	}
@@ -230,47 +247,37 @@ class SchoolIdentification{
 	//campo 11
 	function isLatitudeValid($latitude){
 
-		if(strlen($latitude) > 20 ){
-			echo "Latitude tem tamanho invalido";
-			return false;
-		}
+		if(strlen($latitude) > 20 )
+			return array("status"=>false,"erro"=>"O campo Latitude está maior que o especificado.");
 
 		$regex="/^[0-9.-]+$/";
-		if(!preg_match($regex, $longitude)){
-			echo "Latitude tem padrão invalido";
-			return false;
-		}
+		if(!preg_match($regex, $longitude))
+			return array("status"=>false,"erro"=>"O campo Laitude contém caractere(s) inválido(s).");
+
 
 		if($latitude >= -33.750833 && $latitude <= 5.272222)
 			return true;
 		else{
-			echo "Latitude deve estar entre -33.750833 e 5.272222 ";
-			return false;
+			return array("status"=>false,"erro"=>"O campo Latitude foi preenchido com valor inválido.");
 		}
-
-
+		return true;
 
 	}
 	//campo 12
 
 	function isLongitudeValid($longitude){
 
-		if(strlen($longitude) > 20 ){
-			echo "longitude tem tamanho invalido";
-			return false;
-		}
+		if(strlen($longitude) > 20 )
+			return array("status"=>false,"erro"=>"O campo Longitude está maior que o especificado.");
 
 		$regex="/^[0-9.-]+$/";
-		if(!preg_match($regex, $longitude)){
-			echo "longitude tem padrão invalido";
-			return false;
-		}
+		if(!preg_match($regex, $longitude))
+			return array("status"=>false,"erro"=>"O campo Longitude contém caractere(s) inválido(s).");
 
 		if($longitude >= -73.992222 && $longitude <= -32.411280)
 			return true;
 		else{
-			echo "longitude deve estar entre -73.9922223 e -32.411280 ";
-			return false;
+			return array("status"=>false,"erro"=>"O campo Longitude foi preenchido com valor inválido.");
 		}
 
 		
@@ -279,170 +286,76 @@ class SchoolIdentification{
 
 	//campo 13
 	function isCEPValid($cep){
+
+		if($cep == null)
+			return array("status"=>false,"erro"=>"O campo CEP é uma informação obrigatória.");
+
 		
-		if((count($cep) != 8){
-			echo "CEP tem tamanho invalido";
-			return false;
-		}
+		if((count($cep) != 8)
+			return array("status"=>false,"erro"=>"O campo CEP está com tamanho diferente do especificado.");
 
-		if(!is_numeric($cep)){
-			echo "CEP deve ser somente numerico";
-			return false;
-		}
-
-		if(preg_match('/^(.)\1*$/', $cep)){
-			echo "CEP nao pode ter repeticao do tipo 00000000";
-			return false;
-
-
-		}
+		if(!is_numeric($cep))
+			return array("status"=>false,"erro"=>"O campo CEP foi preenchido com valor inválido.");
 		
-			
 
+		if(preg_match('/^(.)\1*$/', $cep))
+			return array("status"=>false,"erro"=>"O campo CEP foi preenchido com valor inválido.");
+		
+		
 		return true;
 
 	}
 
 	//campo 14,campo 15,campo 16,campo 17,campo 18,campo 19,campo 20
-	function isAddressValid($address,$address_number,$address_complement,$address_neighborhood,$edcenso_edcenso_uf_fk_fk,$edcenso_city_fk,$edcenso_district_fk){
-
+	function isAddressValid($address, $might_be_null, $allowed_lenght){
 		$regex="/^[0-9 a-z.,-ºª ]+$/";
 
-		if(strlen($address) > 100){
-			echo "address com tamanho invalido";
-			return false;
-		}
-		if(!preg_match($regex, $address)){
-			echo "address com padrao invalido";
-			return false;
+		if(!$might_be_null){
+			if($address == null){
+				return array("status"=>false,"erro"=>"O campo de endereço não pode ser nulo.");
+				
+			}
 		}
 
-		if(strlen($address_number) > 10){
-			echo "address Numero com tamanho invalido";
-			return false;
-		}
-		if(!preg_match($regex, $address_number)){
-			echo "address Numero com padrao invalido";
-			return false;
+		if(strlen($address) > $allowed_lenght || strlen($address) <= 0){
+			return array("status"=>false,"erro"=>"O campo de endereço está com tamanho incorreto.");
 		}
 
-		if(strlen($address_complement) > 20){
-			echo "address_complement com tamanho invalido";
-			return false;
+		if(!preg_match($regex, $address){
+			return array("status"=>false,"erro"=>"O campo de endereço foi preenchido com valor inválido.");
 		}
 
-		if(!preg_match($regex, $address_complement)){
-			echo "address_complement com padrao invalido";
-			return false;
-		}
-
-		if(strlen($address_neighborhood) > 50){
-			echo "address_neighborhood com tamanho invalido";
-
-			return false;
-		}
-		if(!preg_match($regex, $address_neighborhood)){
-			echo "address_neighborhood com padrao invalido";
-			return false
-		}
-
-		if(strlen($edcenso_uf_fk) > 2){
-			echo "edcenso_uf_fk com tamanho invalido";
-			return false;
-		}
-		if(!preg_match($regex, $edcenso_uf_fk)){
-			echo "edcenso_uf_fk com padrao invalido";
-			return false
-		}
-
-		if(strlen($edcenso_city_fk) > 7){
-			echo "edcenso_city_fk com tamanho invalido";
-			return false;
-		}
-		if(!preg_match($regex, $edcenso_city_fk)){
-			echo "edcenso_city_fk com padrao invalido";
-			return false
-		}
-
-		if(strlen($edcenso_district_fk) > 2){
-			echo "edcenso_district_fk com tamanho invalido";
-			return false;
-		}
-		if(!preg_match($regex, $edcenso_district_fk))
-			echo "edcenso_district_fk com padrao invalido";
-			return false
-
+		return true;
 	}
 
-	function isPhoneValid($ddd,$phone_number,$public_phone_number,$other_phone_number,$fax_number){
-		//campo 21
-		if(strlen($ddd) > 2){
-			return false;
+	//campo 21,22,23,24,25
+	function isPhoneValid($ddd,$phone_number,$allowed_lenght){
+		
+		if(strlen($ddd) != 2){
+			return array("status"=>false,"erro"=>"DDD incorreto");
 		}
 		else{
-			//campo 22
-			if(phone_number($phone_number) == false){
+			if(strlen($phone_number) != $allowed_lenght)
+				return array("status"=>false,"erro"=>"Telefone com tamanho incorreto");
 
-				return false;
-			}
-			//campo 23
-			if(public_phone_numberEfax_number($public_phone_number) == false)
-			 	return false;
-			 //campo24
-			if(phone_number($other_phone_number) = false)
-				return false;
-			//campo25
-			if(public_phone_numberEfax_number($fax_number) == false);
-			 return false;
+		
+			if(preg_match('/^(.)\1*$/', $phone_number)) {
+				return array("status"=>false,"erro"=>"Telefone com padrao incorreto");
+			} 
 
 		}
 		return true;
 	}
 
-	//para os campos 22 e 24
-	function phone_number($phone_number){
-
-			if(strlen($phone_number) < 8 || strlen($phone_number) > 9 ){
-					return false;
-			}
-			if (strlen($phone_number) == 9){
-				//o primeiro algarismo deve ser 9
-				if($phone_number[0] != 9)
-					return false;
-
-			}
-
-			//se tem repeticao do numero: 11111111, 2222222
-			if(preg_match('/^(.)\1*$/', $phone_number)) {
-				return false;
-			} 
-
-	}
-	//para os campos 23 e 25
-	function public_phone_numberEfax_number($phone_number){
-
-			if(strlen($phone_number) != 8 ){
-				echo "phone_number com tamanho invalido";
-				return false;
-			}
-
-			if(preg_match('/^(.)\1*$/', $phone_number)) {
-				echo "phone_number com padrao invalido";
-				return false;
-			} 
-
-	}
-
 	//campo 26
 	function isEmailValid($email){ 
 		if(strlen($email) > 50 ){
-			echo "Email com tamanho invalido";
-			return false;
+			return array("status"=>false,"erro"=>"Email com tamanho invalido");
+			
 		}
 		
 		if(!preg_match('/^[^0-9][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[@][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,4}$/', $email)){
-			echo "Email com padrao invalido";
-			return false;
+			return array("status"=>false,"erro"=>"Email com padrão invalido");
 		}
 
 
@@ -454,10 +367,11 @@ class SchoolIdentification{
 	function isEdcensoRegionalEducationOrganValid($inepCode, $value){
 		if(isInepIdValid($inepCode) == true){
 			if(strlen($value) != 5 ){
-				return false;
+				return array("status"=>false,"erro"=>"Email com tamanho invalido");
 			}
 		}
-		else return false;
+		else return array("status"=>false,"erro"=>"Codigo inep inválido");
+			
 
 	}
 
@@ -465,14 +379,14 @@ class SchoolIdentification{
 	function isAdministrativeDependenceValid($inep_id,$value){
 
 		if(isInepIdValid($inep_id) == false)
-			return false;
+			return array("status"=>false,"erro"=>"Codigo inep inválido");
 		else{
 
 			if($value == 1 || $value == 2 || $value == 3|| $value == 4){
 				return true;
 
 			else
-				return false;
+				return array("status"=>false,"erro"=>"Dependencia Administrativa inválida");
 		}
 
 	 }
@@ -482,17 +396,17 @@ class SchoolIdentification{
 	function isLocationValid($inep_id,$value){
 
 		if(isInepIdValid($inep_id) == false)
-			return false;
+			return array("status"=>false,"erro"=>"Codigo inep inválido");
 		else{
 				if($value == 1 || $value == 2){
 					return true;
 				else
-					return false;
+					return array("status"=>false,"erro"=>"Lozalização inválida");
 		}
 	 }
 	}
 
-	//para os campos 30,31,32,
+	//auxiliar nos campos 30,31,32
 	function isField7And28Valid($inep_id,$schoolSituation,$dependency){
 
 		//campo 7 deve ser igual a 1.. Campo 28 deve ser igual a 4
@@ -514,7 +428,7 @@ class SchoolIdentification{
 			if($privateSchoolCategory == 1 || $privateSchoolCategory == 2 || 
 			   $privateSchoolCategory == 3 || $privateSchoolCategory == 4)
 				return true;
-			else return false;
+			else return array("status"=>false,"erro"=>"O valor public contrat deve ser 1,2,3 ou 4");
 		}
 		else return false;
 	}
@@ -526,73 +440,39 @@ class SchoolIdentification{
 			if($privateSchoolCategory == 1 || $privateSchoolCategory == 2 || 
 			   $privateSchoolCategory == 3)
 				return true;
-			else return false;
-
+			else return array("status"=>false,"erro"=>"O valor public contrat deve ser 1,2 ou 3");
 		}
+		
 		else return false;
 
 	}
 
 	//campos 32 a 36
-	function isPrivateSchoolMaintainerValid($inep_id,$schoolSituation,$dependency,$business_or_individual,
-		$syndicate_or_association,$ong_or_oscip,$non_profit_institutions,$s_system){
+	function isPrivateSchoolMaintainerValid($inep_id,$schoolSituation,$dependency,$maintainerValue){
 
 		if(isField7And28Valid($inep_id,$schoolSituation,$dependency) == true){
 
 			//campo 32
-			if($business_or_individual == 0 || $business_or_individual == 1){
+			if($maintainerValue == 0 || $maintainerValue == 1){
+				return true;
 
 			}
 				
-			else return false;
-			//campo 33
-			if($syndicate_or_association == 0 || $syndicate_or_association == 1){
-				
-			}
-			else return false;
-			//campo 34
-			if($ong_or_oscip == 0 || $ong_or_oscip == 1){
-				
-			}
-			else return false;
-			//campo 35
-			if($non_profit_institutions == 0 || $non_profit_institutions == 1){
-				
-			}
-			else return false;
-			//campo 36
-			if($s_system == 0 || $s_system == 1){
-				
-			}
-			else return false;
+			else return array("status"=>false,"erro"=>"O valor para mantainer deve ser 0 ou 1");
 		}
-		else
-			return false;
+					
 
 	}
 
-	//campo 37
-	function isPrivateSchoolMaintainerCNPJValid($inep_id,$schoolSituation,$dependency,$cnpj){
-		if(isCNPJValid($inep_id,$schoolSituation,$dependency,$cnpj) == false)
-			return false;
-		return true;
-	}
-
-	//campo 38
-	function isPrivateSchoolCNPJValid($inep_id,$schoolSituation,$dependency,$cnpj){
-		if(isCNPJValid($inep_id,$schoolSituation,$dependency,$cnpj) == false)
-			return false;
-		return true;
-	}
-
+	
 	//para os campos 37 e 38
 	function isCNPJValid($inep_id,$schoolSituation,$dependency,$cnpj){
 		if(!is_numeric($cnpj)){
-			return false;
+			return array("status"=>false,"erro"=>"CNPJ está com padrão inválido");
 		}
 
 		if(strlen($cnpj) != 14 || isField7And28Valid($inep_id,$schoolSituation,$dependency) == false){
-			return false;
+			return array("status"=>false,"erro"=>"O CNPJ está com tamanho errado");
 
 		}
 		return true;
@@ -603,10 +483,10 @@ class SchoolIdentification{
 	function isRegulationValid($schoolSituation,$value){
 		//campo 7 deve ser igual a 1
 		if($schoolSituation != 1)
-			return false;
+			return array("status"=>false,"erro"=>"Situação da escola errada");
 		if($value == 0  || $value == 1  || $value == 2)
 			return true;
-		else return false;
+		else return array("status"=>false,"erro"=>"Regulamentação da escola errada");
 	}
 
 	//campo 40,41 e 42
@@ -624,34 +504,35 @@ class SchoolIdentification{
 
 	}
 
-	//para o campo 41
+	//auxiliar  no campo 41
 	function isInepHeadSchoolValid($InepCode,$HeadSchool,$schoolSituation,
 		$hostedcenso_city_fk,$atualedcenso_city_fk,$hostDependencyAdm,$atualDependencyAdm){
 
 			if(strlen($HeadSchool) != 8)
-				return false;
+				return array("status"=>false,"erro"=>"Situacao da escola inválida");
 
 			//deve ser uma escola em atividade
 			if($schoolSituation != 1)
-				return false;
+				return array("status"=>false,"erro"=>"Deve ser uma escola em atividade");
 
 			//deve ser diferente da atual escola
 			if($InepCode == $HeadSchool)
-				return false;
+				return array("status"=>false,"erro"=>"deve ser diferente da atual escola");
 			//deve ser da mesma dependencia administrativa e mesmo edcenso_city_fk
 			if($hostedcenso_city_fk != $atualedcenso_city_fk || $hostDependencyAdm != $atualDependencyAdm)
-				return false;
+				return array("status"=>false,"erro"=>"deve ser da mesma dependencia administrativa e mesmo edcenso_city_fk");
+				
 	}
 
-	//para o campo 42
+	//auxiliar  no campo 42
 	function isIESCodeValid($IESCode,$schoolSituation){
 			//nao pode ser IES paralisada ou extinta
 			if($schoolSituation == 1 || $schoolSituation == 2)
-				return false;
+				return array("status"=>false,"erro"=>"Situacao da escola inválida");
 
 			//iES VALIDA
 			if(!is_numeric($IESCode) || strlen($IESCode) != 14)
-				return false;
+				return array("status"=>false,"erro"=>"Codigo IES com tamanho inválido");
 
 	}
 
