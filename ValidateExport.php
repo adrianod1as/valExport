@@ -398,7 +398,20 @@ foreach ($school_structure as $key => $collun) {
 	$result = $ssv->isAllowed($collun["open_weekend"], array("0", "1"));
 	if(!$result["status"]) array_push($log, array("open_weekend"=>$result["erro"]));
 
+	//107
+	$sql = "SELECT 	COUNT(esm.id ) AS number_of 
+			FROM 	classroom AS cr  
+						INNER JOIN  
+					edcenso_stage_vs_modality AS esm 
+						ON esm.id = cr.edcenso_stage_vs_modality_fk
+			WHERE 	cr.assistance_type NOT IN (4,5) AND 
+					cr.school_inep_fk =  '$school_inep_id_fk' AND 
+					esm.stage NOT IN (1,2);";
+	$pedagogical_formation_by_alternance = tabletToArray($sql, $link);
 
+	$result = $ssv->pedagogicalFormation($collun["pedagogical_formation_by_alternance"], 
+											$pedagogical_formation_by_alternance[0]["number_of"]);
+	if(!$result["status"]) array_push($log, array("pedagogical_formation_by_alternance"=>$result["erro"]));
 
 	//Adicionando log da row
 	if($log != null) $school_structure_log["row $key"] = $log;

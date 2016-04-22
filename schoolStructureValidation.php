@@ -480,11 +480,22 @@ class SchoolStructureValidation {
 
 	//107
 
-	function pedagogicalFormation(){
+	function pedagogicalFormation($value, $number_of_classrooms){
+		
 		if(!($value == 0 || $value == 1)){
 				$value = $this->ifNull($value);
 				return array("status"=>false, "erro"=>"Valor $value não permitido");
 		}
+		
+		if($number_of_classrooms == 0){
+			if($value != 0) {
+				$value = $this->ifNull($value);
+				return array("status"=>false, "erro"=>"Valor $value não permitido");
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+
 	}
 
 	
