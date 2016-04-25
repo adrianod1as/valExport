@@ -1,6 +1,9 @@
 <?php
+$DS = DIRECTORY_SEPARATOR;
+
+
 //Validações para a tabela school_structure
-require(dirname(__FILE__) . DIRECTORY_SEPARATOR . "register.php");
+require(dirname(__FILE__) . $DS . "register.php");
 
 
 class SchoolStructureValidation extends Register{
@@ -8,15 +11,6 @@ class SchoolStructureValidation extends Register{
 	function __construct() {
 	}
 
-	function isNull($x){
-		if($x == null){
-			echo "Numéro é nulo";
-			return true;
-		}
-		return false;
-	}
-
-	
 
 	//campo 03 à 11, 33 à 38
 	function atLeastOne($operation_locations){
