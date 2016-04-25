@@ -3,7 +3,7 @@ $DS = DIRECTORY_SEPARATOR;
 
 
 //Validações para a tabela school_structure
-require(dirname(__FILE__) . $DS . "register.php");
+require_once(dirname(__FILE__) . $DS . "register.php");
 
 
 class SchoolStructureValidation extends Register{
@@ -252,8 +252,9 @@ class SchoolStructureValidation extends Register{
 												para esta escola deve ser 1 ou 2");
 				}
 			}else{
+				$value = $this->ifNull($value);
 				return array("status"=>false,
-								"erro"=>"Valor deve ser 1 pois a coluna está entre os valores supostos");
+								"erro"=>"Valor $value deve ser 1 pois a coluna está entre os valores supostos");
 			}
 		}else{
 			if($value != "0"){

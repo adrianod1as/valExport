@@ -1,7 +1,13 @@
 <?php
+ini_set('memory_limit', '-1');
+
 $DS = DIRECTORY_SEPARATOR;
 
+require_once(dirname(__FILE__) .  $DS . "db" .  $DS . "database.php");
+require_once(dirname(__FILE__) . $DS . "registros" . $DS . "schoolStructureValidation.php");
+require_once(dirname(__FILE__) . $DS . "registros" . $DS . "InstructorIdentificationValidation.php");
 
+//Recebendo ano via HTTP ou via argumento no console.
 $var = isset($_GET['year']) ? $_GET['year'] : $argv[1];
 
 $year = date('Y');
@@ -12,49 +18,65 @@ if( $var != null
 	$year = $var;
 }
 
-require(dirname(__FILE__) . $DS . "registros" . $DS . "schoolStructureValidation.php");
-
-ini_set('memory_limit', '-1');
-
-//Conexão com o banco
-$hostname="db.ipti.org.br";
-$database="br.org.ipti.tag";
-$username="root";
-$password="";
-
-$link = mysqli_connect($hostname, $username, $password, $database); 
-
-if (!$link) {
-    echo "Error: Unable to connect to MySQL." . PHP_EOL;
-    echo "Debugging errno: " . mysqli_connect_errno() . PHP_EOL;
-    echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
-    exit;
-}
+//Inicializando Objeto de conexão com o banco
+$db = new Db();
 
 
+//Importanto em arrays todas as tabelas referentes ao registros
+
+//Registro 00
+$sql = "SELECT * FROM school_identification ORDER BY inep_id";
+$school_identification = $db->select($sql);
+
+//Registro 10
+$sql = "SELECT * FROM school_structure ORDER BY school_inep_id_fk";
+$school_structure = $db->select($sql);
+
+//Registro 20 
+$sql = "SELECT * FROM classroom";
+$classroom = $db->select($sql);
+
+//Registro 30
+$sql = "SELECT * FROM instructor_identification";
+$instructor_identification = $db->select($sql);
+
+//Registro 40 
+$sql = "SELECT * FROM instructor_documents_and_address";
+$instructor_documents_and_address = $db->select($sql);
+
+//Registro 50
+$sql = "SELECT * FROM instructor_variable_data";
+$instructor_variable_data = $db->select($sql);
+
+//Registro 51
+$sql = "SELECT * FROM instructor_teaching_data";
+$instructor_teaching_data = $db->select($sql);
+
+//Registro 60
+$sql = "SELECT * FROM student_identification";
+$student_identification = $db->select($sql);
+
+//Registro 70
+$sql = "SELECT * FROM student_documents_and_address";
+$student_documents_and_address = $db->select($sql);
+
+//Registro 80
+$sql = "SELECT * FROM student_enrollment";
+$student_enrollment = $db->select($sql);
 
 
-//Conversão da tabela para array
-function tabletToArray($sql, $con){
-	$array = null;
-	$result = $con->query($sql);
-	if ($result->num_rows > 0) {
-		$array = mysqli_fetch_all($result,MYSQLI_ASSOC);
-	}
-	else {
-		echo "empty"."</br>";
-	}
-	return $array;
-}
 
+/*
+*Checa se há o determinado de grupo de pessoas nas modalidades disponíveis
+*uxilia campo 92 à 95 
+*/
 
-
-function areThereByModalitie($students_by_modalitie){
+function areThereByModalitie($people_by_modalitie){
 	$modalities_regular	= false;
 	$modalities_especial = false;
 	$modalities_eja = false;
 	$modalities_professional = false;
-	foreach ($students_by_modalitie as $key => $item) {
+	foreach ($people_by_modalitie as $key => $item) {
 		switch ($item['modalities']) {
 
 			case '1':
@@ -84,36 +106,6 @@ function areThereByModalitie($students_by_modalitie){
 					"modalities_professional" => $modalities_professional);
 }
 
-$sql = "SELECT * FROM school_identification ORDER BY inep_id";
-$school_identification = tabletToArray($sql, $link);
-
-$sql = "SELECT * FROM school_structure ORDER BY school_inep_id_fk";
-$school_structure = tabletToArray($sql, $link);
-
-$sql = "SELECT * FROM classroom";
-$classroom = tabletToArray($sql, $link);
-
-$sql = "SELECT * FROM instructor_identification";
-$instructor_identification = tabletToArray($sql, $link);
-
-$sql = "SELECT * FROM instructor_documents_and_address";
-$instructor_documents_and_address = tabletToArray($sql, $link);
-
-$sql = "SELECT * FROM instructor_variable_data";
-$instructor_variable_data = tabletToArray($sql, $link);
-
-$sql = "SELECT * FROM instructor_teaching_data";
-$instructor_teaching_data = tabletToArray($sql, $link);
-
-$sql = "SELECT * FROM student_identification";
-$student_identification = tabletToArray($sql, $link);
-
-$sql = "SELECT * FROM student_documents_and_address";
-$student_documents_and_address = tabletToArray($sql, $link);
-
-$sql = "SELECT * FROM student_enrollment";
-$student_enrollment = tabletToArray($sql, $link);
-
 $sql = "SELECT  modalities, COUNT(se.student_fk) as number_of
 		FROM	edcenso_stage_vs_modality_complementary as esmc 
 					INNER JOIN 
@@ -124,7 +116,7 @@ $sql = "SELECT  modalities, COUNT(se.student_fk) as number_of
 					ON cr.id = se.classroom_fk
 		WHERE cr.school_year = '$year'
 		GROUP BY esmc.modalities;";
-$students_by_modalitie = tabletToArray($sql, $link);
+$students_by_modalitie = $db->select($sql);
 $are_there_students_by_modalitie = areThereByModalitie($students_by_modalitie);
 
 $sql = "SELECT  modalities, COUNT(itd.instructor_fk) as number_of
@@ -137,8 +129,13 @@ $sql = "SELECT  modalities, COUNT(itd.instructor_fk) as number_of
 					ON cr.id = itd.classroom_id_fk
 		WHERE cr.school_year = '$year'
 		GROUP BY esmc.modalities;";
-$instructors_by_modalitie = tabletToArray($sql, $link);
+$instructors_by_modalitie = $db->select($sql);
 $are_there_instructors_by_modalitie = areThereByModalitie($students_by_modalitie);
+
+/*
+*Validação da tabela school_structure
+*Registro 10
+*/
 
 $ssv = new SchoolStructureValidation();
 $school_structure_log = array();
@@ -147,6 +144,7 @@ foreach ($school_structure as $key => $collun) {
 
 	$school_inep_id_fk = $collun["school_inep_id_fk"];
 	$log = array();
+
 	//campo 1
 	$result = $ssv->isRegister("10", $collun['register_type']);
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
@@ -307,7 +305,7 @@ foreach ($school_structure as $key => $collun) {
 		FROM 	classroom 
 		WHERE 	school_inep_fk = "$school_inep_id_fk" AND
 				(pedagogical_mediation_type =  "1" OR pedagogical_mediation_type =  "2");';
-	$pedagogical_mediation_type = tabletToArray($sql, $link);
+	$pedagogical_mediation_type = $db->select($sql);
 
 
 	$result = $ssv->schoolFeeding($school_identification[$key]["administrative_dependence"],
@@ -320,7 +318,7 @@ foreach ($school_structure as $key => $collun) {
 			FROM 	classroom  
 			WHERE 	assistance_type = '5' AND 
 					school_inep_fk = '$school_inep_fk';" ;
-	$assistance_type = tabletToArray($sql, $link);
+	$assistance_type = $db->select($sql);
 
 
 	$modalities = array("modalities_regular" => $collun["modalities_regular"], 
@@ -337,7 +335,7 @@ foreach ($school_structure as $key => $collun) {
 			FROM 	classroom  
 			WHERE 	assistance_type = '4' AND 
 					school_inep_fk = '$school_inep_fk';" ;
-	$assistance_type = tabletToArray($sql, $link);
+	$assistance_type = $db->select($sql);
 
 
 	$result = $ssv->aee($collun["complementary_activities"], $collun["aee"], $modalities, 
@@ -360,7 +358,7 @@ foreach ($school_structure as $key => $collun) {
 					edcenso_stage_vs_modality AS esm 
 						ON esm.id = cr.edcenso_stage_vs_modality_fk 
 			WHERE 	stage IN (2,3,7) AND cr.school_inep_fk = '$school_inep_fk';";
-	$number_of_schools = tabletToArray($sql, $link);
+	$number_of_schools = $db->select($sql);
 
 	$result = $ssv->schoolCicle($collun["basic_education_cycle_organized"], $number_of_schools);
 	if(!$result["status"]) array_push($log, array("basic_education_cycle_organized"=>$result["erro"]));
@@ -410,7 +408,7 @@ foreach ($school_structure as $key => $collun) {
 			WHERE 	cr.assistance_type NOT IN (4,5) AND 
 					cr.school_inep_fk =  '$school_inep_id_fk' AND 
 					esm.stage NOT IN (1,2);";
-	$pedagogical_formation_by_alternance = tabletToArray($sql, $link);
+	$pedagogical_formation_by_alternance = $db->select($sql);
 
 	$result = $ssv->pedagogicalFormation($collun["pedagogical_formation_by_alternance"], 
 											$pedagogical_formation_by_alternance[0]["number_of"]);
@@ -418,15 +416,36 @@ foreach ($school_structure as $key => $collun) {
 
 	//Adicionando log da row
 	if($log != null) $school_structure_log["row $key"] = $log;
-
-
 }
 
-// print_r($school_structure_log);
+/*
+*Validação da tabela instructor_identification
+*Registro 30
+*/
 
-echo json_encode($school_structure_log);
+$iiv = new InstructorIdentificationValidation();
+$instructor_identification_log = array();
 
-mysqli_close($link);
+
+
+foreach ($instructor_identification as $key => $collun) {
+
+	$school_inep_id_fk = $collun["school_inep_id_fk"];
+	$log = array();
+
+	//campo 1
+	$result = $iiv->isRegister("30", $collun['register_type']);
+	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+	//Adicionando log da row
+	if($log != null) $instructor_identification_log["row $key"] = $log;
+}
+
+$register_log = array('Register 10' => $school_structure_log, 
+						'Register 30' => $instructor_identification_log);
+echo json_encode($register_log);
+
+
 
 
 ?>
