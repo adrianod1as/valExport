@@ -252,8 +252,9 @@ class SchoolStructureValidation extends Register{
 												para esta escola deve ser 1 ou 2");
 				}
 			}else{
+				$value = $this->ifNull($value);
 				return array("status"=>false,
-								"erro"=>"Valor deve ser 1 pois a coluna está entre os valores supostos");
+								"erro"=>"Valor $value deve ser 1 pois a coluna está entre os valores supostos");
 			}
 		}else{
 			if($value != "0"){

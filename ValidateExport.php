@@ -13,40 +13,12 @@ if( $var != null
 }
 
 require(dirname(__FILE__) . $DS . "registros" . $DS . "schoolStructureValidation.php");
+require(dirname(__FILE__) .  $DS . "db" .  $DS . "database.php");
 
 ini_set('memory_limit', '-1');
 
-//Conexão com o banco
-$hostname="db.ipti.org.br";
-$database="br.org.ipti.tag";
-$username="root";
-$password="";
 
-$link = mysqli_connect($hostname, $username, $password, $database); 
-
-if (!$link) {
-    echo "Error: Unable to connect to MySQL." . PHP_EOL;
-    echo "Debugging errno: " . mysqli_connect_errno() . PHP_EOL;
-    echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
-    exit;
-}
-
-
-
-
-//Conversão da tabela para array
-function tabletToArray($sql, $con){
-	$array = null;
-	$result = $con->query($sql);
-	if ($result->num_rows > 0) {
-		$array = mysqli_fetch_all($result,MYSQLI_ASSOC);
-	}
-	else {
-		echo "empty"."</br>";
-	}
-	return $array;
-}
-
+$db = new Db();
 
 
 function areThereByModalitie($students_by_modalitie){
@@ -85,34 +57,34 @@ function areThereByModalitie($students_by_modalitie){
 }
 
 $sql = "SELECT * FROM school_identification ORDER BY inep_id";
-$school_identification = tabletToArray($sql, $link);
+$school_identification = $db->select($sql);
 
 $sql = "SELECT * FROM school_structure ORDER BY school_inep_id_fk";
-$school_structure = tabletToArray($sql, $link);
+$school_structure = $db->select($sql);
 
 $sql = "SELECT * FROM classroom";
-$classroom = tabletToArray($sql, $link);
+$classroom = $db->select($sql);
 
 $sql = "SELECT * FROM instructor_identification";
-$instructor_identification = tabletToArray($sql, $link);
+$instructor_identification = $db->select($sql);
 
 $sql = "SELECT * FROM instructor_documents_and_address";
-$instructor_documents_and_address = tabletToArray($sql, $link);
+$instructor_documents_and_address = $db->select($sql);
 
 $sql = "SELECT * FROM instructor_variable_data";
-$instructor_variable_data = tabletToArray($sql, $link);
+$instructor_variable_data = $db->select($sql);
 
 $sql = "SELECT * FROM instructor_teaching_data";
-$instructor_teaching_data = tabletToArray($sql, $link);
+$instructor_teaching_data = $db->select($sql);
 
 $sql = "SELECT * FROM student_identification";
-$student_identification = tabletToArray($sql, $link);
+$student_identification = $db->select($sql);
 
 $sql = "SELECT * FROM student_documents_and_address";
-$student_documents_and_address = tabletToArray($sql, $link);
+$student_documents_and_address = $db->select($sql);
 
 $sql = "SELECT * FROM student_enrollment";
-$student_enrollment = tabletToArray($sql, $link);
+$student_enrollment = $db->select($sql);
 
 $sql = "SELECT  modalities, COUNT(se.student_fk) as number_of
 		FROM	edcenso_stage_vs_modality_complementary as esmc 
@@ -124,7 +96,7 @@ $sql = "SELECT  modalities, COUNT(se.student_fk) as number_of
 					ON cr.id = se.classroom_fk
 		WHERE cr.school_year = '$year'
 		GROUP BY esmc.modalities;";
-$students_by_modalitie = tabletToArray($sql, $link);
+$students_by_modalitie = $db->select($sql);
 $are_there_students_by_modalitie = areThereByModalitie($students_by_modalitie);
 
 $sql = "SELECT  modalities, COUNT(itd.instructor_fk) as number_of
@@ -137,7 +109,7 @@ $sql = "SELECT  modalities, COUNT(itd.instructor_fk) as number_of
 					ON cr.id = itd.classroom_id_fk
 		WHERE cr.school_year = '$year'
 		GROUP BY esmc.modalities;";
-$instructors_by_modalitie = tabletToArray($sql, $link);
+$instructors_by_modalitie = $db->select($sql);
 $are_there_instructors_by_modalitie = areThereByModalitie($students_by_modalitie);
 
 $ssv = new SchoolStructureValidation();
@@ -307,7 +279,7 @@ foreach ($school_structure as $key => $collun) {
 		FROM 	classroom 
 		WHERE 	school_inep_fk = "$school_inep_id_fk" AND
 				(pedagogical_mediation_type =  "1" OR pedagogical_mediation_type =  "2");';
-	$pedagogical_mediation_type = tabletToArray($sql, $link);
+	$pedagogical_mediation_type = $db->select($sql);
 
 
 	$result = $ssv->schoolFeeding($school_identification[$key]["administrative_dependence"],
@@ -320,7 +292,7 @@ foreach ($school_structure as $key => $collun) {
 			FROM 	classroom  
 			WHERE 	assistance_type = '5' AND 
 					school_inep_fk = '$school_inep_fk';" ;
-	$assistance_type = tabletToArray($sql, $link);
+	$assistance_type = $db->select($sql);
 
 
 	$modalities = array("modalities_regular" => $collun["modalities_regular"], 
@@ -337,7 +309,7 @@ foreach ($school_structure as $key => $collun) {
 			FROM 	classroom  
 			WHERE 	assistance_type = '4' AND 
 					school_inep_fk = '$school_inep_fk';" ;
-	$assistance_type = tabletToArray($sql, $link);
+	$assistance_type = $db->select($sql);
 
 
 	$result = $ssv->aee($collun["complementary_activities"], $collun["aee"], $modalities, 
@@ -360,7 +332,7 @@ foreach ($school_structure as $key => $collun) {
 					edcenso_stage_vs_modality AS esm 
 						ON esm.id = cr.edcenso_stage_vs_modality_fk 
 			WHERE 	stage IN (2,3,7) AND cr.school_inep_fk = '$school_inep_fk';";
-	$number_of_schools = tabletToArray($sql, $link);
+	$number_of_schools = $db->select($sql);
 
 	$result = $ssv->schoolCicle($collun["basic_education_cycle_organized"], $number_of_schools);
 	if(!$result["status"]) array_push($log, array("basic_education_cycle_organized"=>$result["erro"]));
@@ -410,7 +382,7 @@ foreach ($school_structure as $key => $collun) {
 			WHERE 	cr.assistance_type NOT IN (4,5) AND 
 					cr.school_inep_fk =  '$school_inep_id_fk' AND 
 					esm.stage NOT IN (1,2);";
-	$pedagogical_formation_by_alternance = tabletToArray($sql, $link);
+	$pedagogical_formation_by_alternance = $db->select($sql);
 
 	$result = $ssv->pedagogicalFormation($collun["pedagogical_formation_by_alternance"], 
 											$pedagogical_formation_by_alternance[0]["number_of"]);
@@ -426,7 +398,7 @@ foreach ($school_structure as $key => $collun) {
 
 echo json_encode($school_structure_log);
 
-mysqli_close($link);
+
 
 
 ?>
