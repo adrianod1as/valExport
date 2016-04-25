@@ -39,7 +39,7 @@ class Register
 	function isRegister($number, $value){
 		$result = $this->isEqual($value, $number, "Valor $value deveria ser $number");
 		if(!$result["status"]){
-			return array("status"=>false,"erro"=>"Menos de 8 carácteres");
+			return array("status"=>false,"erro"=>$result['erro']);
 		}
 		
 		return array("status"=>true,"erro"=>"");

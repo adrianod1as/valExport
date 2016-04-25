@@ -3,7 +3,7 @@ $DS = DIRECTORY_SEPARATOR;
 
 
 //Validações para a tabela school_structure
-require(dirname(__FILE__) . $DS . "register.php");
+require_once(dirname(__FILE__) . $DS . "register.php");
 
 
 class SchoolStructureValidation extends Register{
