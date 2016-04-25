@@ -1,7 +1,9 @@
 <?php
 //Validações para a tabela school_structure
+require(dirname(__FILE__) . DIRECTORY_SEPARATOR . "register.php");
 
-class SchoolStructureValidation {
+
+class SchoolStructureValidation extends Register{
 
 	function __construct() {
 	}
@@ -14,35 +16,7 @@ class SchoolStructureValidation {
 		return false;
 	}
 
-	function ifNull($value){
-		if($value == null)
-			$value = "nulo";
-		return $value;
-	}
-
-	//campo 01
-	function isRegisterTen($value){
-
-		if($value != "10"){
-			/*echo "valor é diferente de 10"."</br>";
-			return false;*/
-			return array("status"=>false,"erro"=>"valor é diferente de 10");
-		}
-		return array("status"=>true,"erro"=>"");
-	}
-
-
-
-	//campo 02
-	function isEqual($x, $y, $msg){
-		if($this->isNUll($x)){
-			return array("status"=>false,"erro"=>"valor é nulo");
-		}
-		if($x != $y){
-			return array("status"=>false,"erro"=>$msg);
-		}
-		return array("status"=>true,"erro"=>"");
-	}
+	
 
 	//campo 03 à 11, 33 à 38
 	function atLeastOne($operation_locations){

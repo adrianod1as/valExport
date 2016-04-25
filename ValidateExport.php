@@ -145,7 +145,7 @@ foreach ($school_structure as $key => $collun) {
 	$school_inep_id_fk = $collun["school_inep_id_fk"];
 	$log = array();
 	//campo 1
-	$result = $ssv->isRegisterTen($collun['register_type']);
+	$result = $ssv->isRegister("10", $collun['register_type']);
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
 
 	//campo 2

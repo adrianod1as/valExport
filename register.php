@@ -6,9 +6,7 @@
 class Register
 {
 	
-	function __construct()
-	{
-		# code...
+	function __construct(){
 	}
 
 	function isNull($x){
@@ -25,7 +23,6 @@ class Register
 			$value = "nulo";
 		return $value;
 	}
-
 
 	//campo 1002
 	function isEqual($x, $y, $msg){
