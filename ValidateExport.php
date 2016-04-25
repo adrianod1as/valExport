@@ -1,4 +1,7 @@
 <?php
+$DS = DIRECTORY_SEPARATOR;
+
+
 $var = isset($_GET['year']) ? $_GET['year'] : $argv[1];
 
 $year = date('Y');
@@ -9,7 +12,7 @@ if( $var != null
 	$year = $var;
 }
 
-require(dirname(__FILE__) . DIRECTORY_SEPARATOR . "schoolStructureValidation.php");
+require(dirname(__FILE__) . $DS . "registros" . $DS . "schoolStructureValidation.php");
 
 ini_set('memory_limit', '-1');
 
