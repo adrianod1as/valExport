@@ -67,7 +67,7 @@ class SchoolIdentification{
 			return array("status"=>false,"erro"=>"O campo Nome do Gestor Escolar está maior que o especificado.");
 	
 
-		$regex="/^[a-zA-Z ]+$/";
+		$regex="/^[A-Z0-9°ºª\- ]/";
 		if (!preg_match($regex, $manager_name))
 			return array("status"=>false,"erro"=>"O campo Nome do Gestor Escolar foi preenchido com valor inválido.");
 		
@@ -234,7 +234,7 @@ class SchoolIdentification{
 			return array("status"=>false,"erro"=>"O campo Nome da escola está maior que o especificado.");
 			
 
-		$regex="/^[0-9 a-z-ºª ]+$/";
+		$regex="/^[A-Z0-9°ºª\- ]/";
 		if (!preg_match($regex, $name))
 			return array("status"=>false,"erro"=>"O campo Nome da escola foi preenchido com valor inválido.");
 
@@ -308,7 +308,7 @@ class SchoolIdentification{
 
 	//campo 14,campo 15,campo 16,campo 17,campo 18,campo 19,campo 20
 	function isAddressValid($address, $might_be_null, $allowed_lenght){
-		$regex="/^[0-9 a-z.,-ºª ]+$/";
+		$regex="/^[0-9 a-z.,-ºª ]/";
 
 		if(!$might_be_null){
 			if($address == null){
