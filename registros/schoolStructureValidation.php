@@ -158,15 +158,6 @@ class SchoolStructureValidation extends Register{
 		return array("status"=>true,"erro"=>"");
 	}
 
-	//70, 88
-	function isGreaterThan($value, $target){
-
-		if($value <= $target){
-			$value = $this->ifNull($value);
-			return array("status"=>false,"erro"=>"Valor $value não é maior que o alvo.");
-		}
-		return array("status"=>true,"erro"=>"");
-	}
 
 	//71 à 83
 	function equipmentAmounts($amounts){

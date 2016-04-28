@@ -28,6 +28,13 @@ $db = new Db();
 $sql = "SELECT * FROM school_identification ORDER BY inep_id";
 $school_identification = $db->select($sql);
 
+//Inep ids permitidos
+$sql = "SELECT inep_id FROM school_identification;";
+$array = $db->select($sql);
+foreach ($array as $key => $value) {
+	$allowed_inep_ids[] = $value['inep_id'];
+}
+
 //Registro 10
 $sql = "SELECT * FROM school_structure ORDER BY school_inep_id_fk";
 $school_structure = $db->select($sql);
@@ -63,6 +70,7 @@ $student_documents_and_address = $db->select($sql);
 //Registro 80
 $sql = "SELECT * FROM student_enrollment";
 $student_enrollment = $db->select($sql);
+
 
 
 
@@ -150,9 +158,8 @@ foreach ($school_structure as $key => $collun) {
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
 
 	//campo 2
-	$result = $ssv->isEqual($school_inep_id_fk, 
-								$school_identification[$key]["inep_id"], 
-								"Inep id's são diferentes");
+	$result = $ssv->isAllowedInepId($school_inep_id_fk, 
+									$allowed_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
 	//campo 3 à 11
@@ -437,6 +444,26 @@ foreach ($instructor_identification as $key => $collun) {
 	$result = $iiv->isRegister("30", $collun['register_type']);
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
 
+	//campo 2
+	$result = $iiv->isAllowedInepId($school_inep_id_fk, 
+									$allowed_inep_ids);
+	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
+
+		
+	//campo 3
+	$result = $iiv->isNumericOfSize(12, $collun['inep_id']);
+	if(!$result["status"]) array_push($log, array("inep_id"=>$result["erro"]));
+
+	//campo 4
+	$result = $iiv->isNotGreaterThan($collun['id'], 20);
+	if(!$result["status"]) array_push($log, array("id"=>$result["erro"]));
+
+	//campo 5
+	$result = $iiv->isNameValid($collun['name'], 100, 
+								$instructor_documents_and_address[$key]["cpf"]);
+	if(!$result["status"]) array_push($log, array("id"=>$result["name"]));
+
+	
 	//Adicionando log da row
 	if($log != null) $instructor_identification_log["row $key"] = $log;
 }
