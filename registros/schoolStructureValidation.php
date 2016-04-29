@@ -94,18 +94,6 @@ class SchoolStructureValidation extends Register{
 
 	}
 
-	//101, 105, 106
-
-	function isAllowed($value, $allowed_values){
-
-		if(!in_array($value, $allowed_values)){
-				$value = $this->ifNull($value);
-				return array("status"=>false,
-								"erro"=>"Valor $value de ordem $key não está entre as opções");
-		}
-		return array("status"=>true,"erro"=>"");
-	}
-
 	//campo 21 à 25, 26 à 29, 30 à 32, 39 à 68
 	
 
@@ -114,7 +102,7 @@ class SchoolStructureValidation extends Register{
 		foreach ($array as $key => $value) {
 			$result = $this->isAllowed($value, $allowed_values);
 			if(!$result["status"]){
-				return array("status"=>false,"erro"=>$result["erro"]);
+				return array("status"=>false,"erro"=>"Valor $value de ordem $key não está entre as opções");
 			}
 		}
 		return array("status"=>true,"erro"=>"");

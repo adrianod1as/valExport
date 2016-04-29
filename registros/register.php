@@ -12,10 +12,10 @@ class Register
 
 	function isNull($x){
 		if($x == null){
-			echo "Numéro é nulo";
-			return true;
+			return array("status"=>true,"erro"=>"");
 		}
-		return false;
+		return array("status"=>false,"erro"=>"Valor não é nulo");
+		
 	}
 
 
@@ -27,7 +27,10 @@ class Register
 
 	//campo 1002
 	function isEqual($x, $y, $msg){
-		if($this->isNUll($x)){
+		
+		$result = $this->isNUll($x);
+
+		if($result['status']){
 			return array("status"=>false,"erro"=>"valor é nulo");
 		}
 		if($x != $y){
@@ -84,40 +87,103 @@ class Register
 	//3004
 	function isNotGreaterThan($value, $target){
 		
-		if($this->isGreaterThan(strlen($value), $target)){
+		$result = $this->isGreaterThan(strlen($value), $target);
+		if($result['status']){
 			return array("status"=>false,"erro"=>"Valor $value é maior que o alvo.");
 		}
 		
 		return array("status"=>true,"erro"=>"");
 	}
 
-	function isNameValid($value, $target, $cpf){
-		
-		if($this->isGreaterThan(strlen($value), $target)){
-			return array("status"=>false,"erro"=>"Número de caracteres maior que o permitido.");
-		}
+	function onlyAlphabet($value){
 
 		$regex="/^[a-zA-Z ]+$/";
 		if (!preg_match($regex, $value)){
 			return array("status"=>false,"erro"=>"'$value' contém caracteres inválidos");
 		}
 
-		if($cpf == null){
-			
-			if(str_word_count($value) < 2){
-				return array("status"=>false,"erro"=>"'$value' possui cpf nulo e não contém mais que 2 palavras");
-			}
+		return array("status"=>true,"erro"=>"");
 
-			if (preg_match('/(\w)\1{5,}/', $input)) {
-				return array("status"=>false,"erro"=>"'$value' possui cpf nulo e contém mais de 4 caracteres repetidos");
-			}
-			
+	}
 
+	function validateEmailFormat($email){
+
+		if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+			return array("status"=>false,"erro"=>"'$email' contém caracteres inválidos");
 		}
 
 		return array("status"=>true,"erro"=>"");
 
 	}
+
+	function validateDateformart($date){
+
+		//separa data em dia, mês e ano
+		$mdy = explode('/', $date);
+
+		// verifica se a data é valida. Mês-dia-ano
+		if(!checkdate( $mdy[1] , $mdy[0] , $mdy[2] )){
+			return array("status"=>false,"erro"=>"'$date' está inválida");
+		}
+		
+		return array("status"=>true,"erro"=>"");
+		
+	}
+
+	function getAge($birthyear, $currentyear){
+		$age = $currentyear - $birthyear;
+		return $age;
+	}
+
+	function isOlderThan($target_age, $birthyear, $currentyear){
+		
+		$age = $this->getAge($birthyear, $currentyear);
+		$result = $this->isGreaterThan($age, $target_age);
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>"idade $age é menor que o permitido ($target_age)");
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	function isYoungerThan($target_age, $birthyear, $currentyear){
+
+		$age = $this->getAge($birthyear, $currentyear);
+		$result = $this->isNotGreaterThan($age, $target_age);
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>"idade $age é maior que o permitido ($target_age)");
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	//campo 1020, 3009
+	function oneOfTheValues($value){
+		if($value == 1 || $value == 2){
+			return array("status"=>true,"erro"=>"");
+		}
+		$value = $this->ifNull($value);
+		return array("status"=>false,"erro"=>"Valor $value não está entre as opções");
+
+	}
+
+
+	//10101, 10105, 10106, 3010
+
+	function isAllowed($value, $allowed_values){
+
+		if(!in_array($value, $allowed_values)){
+				$value = $this->ifNull($value);
+				return array("status"=>false,
+								"erro"=>"Valor $value não está entre as opções");
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+
+
 
 
 }

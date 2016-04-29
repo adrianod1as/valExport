@@ -158,7 +158,7 @@ foreach ($school_structure as $key => $collun) {
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
 
 	//campo 2
-	$result = $ssv->isAllowedInepId($school_inep_id_fk, 
+	$result = $ssv->isAllowed($school_inep_id_fk, 
 									$allowed_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
@@ -199,7 +199,7 @@ foreach ($school_structure as $key => $collun) {
 	if(!$result["status"]) array_push($log, array("shared_school_inep_ids"=>$result["erro"]));
 
 	//campo 20
-	$result = $ssv->consumedWater($collun["consumed_water_type"]);
+	$result = $ssv->oneOfTheValues($collun["consumed_water_type"]);
 	if(!$result["status"]) array_push($log, array("consumed_water_type"=>$result["erro"]));
 
 	//campos 21 à 25
@@ -461,8 +461,31 @@ foreach ($instructor_identification as $key => $collun) {
 	//campo 5
 	$result = $iiv->isNameValid($collun['name'], 100, 
 								$instructor_documents_and_address[$key]["cpf"]);
-	if(!$result["status"]) array_push($log, array("id"=>$result["name"]));
+	if(!$result["status"]) array_push($log, array("name"=>$result["erro"]));
 
+	//campo 6
+	$result = $iiv->isEmailValid($collun['email'], 100);
+	if(!$result["status"]) array_push($log, array("email"=>$result["erro"]));
+
+	//campo 7
+	$result = $iiv->isNull($collun['nis']);
+	if(!$result["status"]) array_push($log, array("nis"=>$result["erro"]));
+
+	//campo 8
+	$result = $iiv->validateBirthday($collun['birthday_date'], "13", "96", $year);
+	if(!$result["status"]) array_push($log, array("birthday_date"=>$result["erro"]));
+
+	//campo 9
+	$result = $iiv->oneOfTheValues($collun['sex']);
+	if(!$result["status"]) array_push($log, array("sex"=>$result["erro"]));
+
+	//campo 10
+	$result = $iiv->isAllowed($collun['color_race'], array("0", "1", "2", "3", "4", "5"));
+	if(!$result["status"]) array_push($log, array("sex"=>$result["erro"]));
+
+	//campo 11
+	$result = $iiv->filiation($collun['filiation'], $collun['filiation_1'], $collun['filiation_2']);
+	if(!$result["status"]) array_push($log, array("filiation"=>$result["erro"]));
 	
 	//Adicionando log da row
 	if($log != null) $instructor_identification_log["row $key"] = $log;
