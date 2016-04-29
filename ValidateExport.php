@@ -483,9 +483,49 @@ foreach ($instructor_identification as $key => $collun) {
 	$result = $iiv->isAllowed($collun['color_race'], array("0", "1", "2", "3", "4", "5"));
 	if(!$result["status"]) array_push($log, array("sex"=>$result["erro"]));
 
-	//campo 11
-	$result = $iiv->filiation($collun['filiation'], $collun['filiation_1'], $collun['filiation_2']);
+	//campo 11, 12, 13
+	$result = $iiv->validateFiliation($collun['filiation'], $collun['filiation_1'], $collun['filiation_2'], 
+								$instructor_documents_and_address[$key]["cpf"], 100);
 	if(!$result["status"]) array_push($log, array("filiation"=>$result["erro"]));
+
+	//campo 14
+	$result = $iiv->isAllowed($collun['nationality'], array("1", "2", "3"));
+	if(!$result["status"]) array_push($log, array("nationality"=>$result["erro"]));
+
+	//campo 15
+	$result = $iiv->brazil($collun['edcenso_nation_fk'], $collun['nationality']);
+	if(!$result["status"]) array_push($log, array("edcenso_nation_fk"=>$result["erro"]));
+
+	//campo 16
+	$result = $iiv->ufcity($collun['edcenso_uf_fk'], $collun['nationality']);
+	if(!$result["status"]) array_push($log, array("edcenso_uf_fk"=>$result["erro"]));
+
+	//campo 17
+	$result = $iiv->ufcity($collun['edcenso_city_fk'], $collun['nationality']);
+	if(!$result["status"]) array_push($log, array("edcenso_uf_fk"=>$result["erro"]));
+
+	//campo 18
+	$result = $iiv->isAllowed($collun['deficiency'], array("0", "1"));
+	if(!$result["status"]) array_push($log, array("deficiency"=>$result["erro"]));
+
+	//campo 19 à 25
+	$deficiencies = array($collun['deficiency_type_blindness'] => 
+							array($collun['deficiency_type_low_vision'], $collun['deficiency_type_deafness'], $collun['deficiency_type_deafblindness']), 
+						$collun['deficiency_type_low_vision'] => 
+							array($collun['deficiency_type_deafblindness']), 
+						$collun['deficiency_type_deafness'] => 
+							array($collun['deficiency_type_disability_hearing'], $collun['deficiency_type_disability_hearing']), 
+						$collun['deficiency_type_disability_hearing'] => 
+							array($collun['deficiency_type_deafblindness']), 
+						$collun['deficiency_type_deafblindness'] => array(), 
+						$collun['deficiency_type_phisical_disability'] => array(), 
+						$collun['deficiency_type_intelectual_disability'] => array() );
+
+	//26
+
+
+	$result = $iiv->checkDeficiencies($collun['deficiency'], $deficiencies);
+	if(!$result["status"]) array_push($log, array("deficiencies"=>$result["erro"]));
 	
 	//Adicionando log da row
 	if($log != null) $instructor_identification_log["row $key"] = $log;

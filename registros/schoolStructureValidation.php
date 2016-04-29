@@ -11,20 +11,6 @@ class SchoolStructureValidation extends Register{
 	function __construct() {
 	}
 
-
-	//campo 03 à 11, 33 à 38
-	function atLeastOne($operation_locations){
-		$number_of_ones = 0;
-		for($i = 0; $i < sizeof($operation_locations); $i++){
-			if($operation_locations[$i]=="1")
-				$number_of_ones++; 
-		}
-		if($number_of_ones==0){
-			return array("status"=>false,"erro"=>"Não há nenhum valor marcado");
-		}
-		return array("status"=>true,"erro"=>"");
-	}
-
 	//campo 12
 	function buildingOccupationStatus($collun3, $collun8, $value){
 

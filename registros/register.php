@@ -39,6 +39,20 @@ class Register
 		return array("status"=>true,"erro"=>"");
 	}
 
+	//campo 1003 à 1011, 1033 à 1038
+	function atLeastOne($operation_locations){
+		$number_of_ones = 0;
+		for($i = 0; $i < sizeof($operation_locations); $i++){
+			if($operation_locations[$i]=="1")
+				$number_of_ones++; 
+		}
+		if($number_of_ones==0){
+			return array("status"=>false,"erro"=>"Não há nenhum valor marcado");
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
+
 	//campo 1001, 3001
 	function isRegister($number, $value){
 		$result = $this->isEqual($value, $number, "Valor $value deveria ser $number");
@@ -76,7 +90,7 @@ class Register
 
 	//1070, 1088
 	function isGreaterThan($value, $target){
-
+		
 		if($value <= $target){
 			$value = $this->ifNull($value);
 			return array("status"=>false,"erro"=>"Valor $value não é maior que o alvo.");
@@ -99,7 +113,7 @@ class Register
 
 		$regex="/^[a-zA-Z ]+$/";
 		if (!preg_match($regex, $value)){
-			return array("status"=>false,"erro"=>"'$value' contém caracteres inválidos");
+			return array("status"=>false,"erro"=>"aqui'$value' contém caracteres inválidos");
 		}
 
 		return array("status"=>true,"erro"=>"");
@@ -180,6 +194,24 @@ class Register
 								"erro"=>"Valor $value não está entre as opções");
 		}
 		return array("status"=>true,"erro"=>"");
+	}
+
+	function ifCPFNull($cpf, $value){
+
+		if($cpf == null){
+			
+			if(str_word_count($value) < 2){
+				return array("status"=>false,"erro"=>"'$value' possui cpf nulo e não contém mais que 2 palavras");
+			}
+
+			if (preg_match('/(\w)\1{5,}/', $input)) {
+				return array("status"=>false,"erro"=>"'$value' possui cpf nulo e contém mais de 4 caracteres repetidos");
+			}
+			
+		}
+
+		return array("status"=>true,"erro"=>"");
+
 	}
 
 
