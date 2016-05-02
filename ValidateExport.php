@@ -6,6 +6,9 @@ $DS = DIRECTORY_SEPARATOR;
 require_once(dirname(__FILE__) .  $DS . "db" .  $DS . "database.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "schoolStructureValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "InstructorIdentificationValidation.php");
+require_once(dirname(__FILE__) . $DS . "registros" . $DS . "studentIdentificationValidation.php");
+
+
 
 //Recebendo ano via HTTP ou via argumento no console.
 $var = isset($_GET['year']) ? $_GET['year'] : $argv[1];
@@ -530,8 +533,44 @@ foreach ($instructor_identification as $key => $collun) {
 	if($log != null) $instructor_identification_log["row $key"] = $log;
 }
 
+
+$stiv = new studentIdentificationValidation();
+$school_identification_log = array();
+
+
+
+foreach ($school_identification as $key => $collun) {
+
+	$school_inep_id_fk = $collun["school_inep_id_fk"];
+	$log = array();
+
+	//campo 1
+	$result = $stiv->isRegister("60", $collun['register_type']);
+	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+	//campo 2
+	$result = $stiv->isAllowedInepId($school_inep_id_fk, 
+									$allowed_inep_ids);
+	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
+
+	//campo 3
+	$result = $stiv->isNumericOfSize(12, $collun['inep_id']);
+	if(!$result["status"]) array_push($log, array("inep_id"=>$result["erro"]));
+
+	//campo 4
+	$result = $stiv->isNotGreaterThan($collun['id'], 20);
+	if(!$result["status"]) array_push($log, array("id"=>$result["erro"]));
+
+	//campo 5
+	$result = $iiv->isNameValid($collun['name'], 100, 
+								$student_documents_and_address[$key]["cpf"]);
+	if(!$result["status"]) array_push($log, array("name"=>$result["erro"]));
+
+}
+
 $register_log = array('Register 10' => $school_structure_log, 
-						'Register 30' => $instructor_identification_log);
+						'Register 30' => $instructor_identification_log,
+						'Register 60' => $school_identification_log);
 echo json_encode($register_log);
 
 
