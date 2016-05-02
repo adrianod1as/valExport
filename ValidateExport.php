@@ -508,7 +508,7 @@ foreach ($instructor_identification as $key => $collun) {
 	$result = $iiv->isAllowed($collun['deficiency'], array("0", "1"));
 	if(!$result["status"]) array_push($log, array("deficiency"=>$result["erro"]));
 
-	//campo 19 à 25
+	//campo 19 à 25 & 26
 	$deficiencies = array($collun['deficiency_type_blindness'] => 
 							array($collun['deficiency_type_low_vision'], $collun['deficiency_type_deafness'], $collun['deficiency_type_deafblindness']), 
 						$collun['deficiency_type_low_vision'] => 
@@ -519,9 +519,8 @@ foreach ($instructor_identification as $key => $collun) {
 							array($collun['deficiency_type_deafblindness']), 
 						$collun['deficiency_type_deafblindness'] => array(), 
 						$collun['deficiency_type_phisical_disability'] => array(), 
-						$collun['deficiency_type_intelectual_disability'] => array() );
-
-	//26
+						$collun['deficiency_type_intelectual_disability'] => array(),
+						$collun['deficiency_type_multiple_disabilities']);
 
 
 	$result = $iiv->checkDeficiencies($collun['deficiency'], $deficiencies);

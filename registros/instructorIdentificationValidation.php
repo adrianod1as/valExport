@@ -179,7 +179,8 @@ class InstructorIdentificationValidation extends Register
 
 	function exclusiveDeficiency( $deficiency, $excludingdeficiencies){
 
-		if($this->atLeastOne($excludingdeficiency)){
+		$result = $this->atLeastOne($excludingdeficiency);
+		if(!$result['status']){
 			if($deficiency != "0"){
 				return array("status"=>false,"erro"=>"Valor $deficiency deveria ser 0");
 			}
@@ -191,8 +192,12 @@ class InstructorIdentificationValidation extends Register
 
 	function checkDeficiencies($hasdeficiency, $deficiencies){
 
+		$multipleDeficiencies = array_pop($deficiencies);
+
 		if($hasdeficiency == "1"){
-			if(!$this->atLeastOne($deficiencies)){
+
+			$result = $this->atLeastOne($excludingdeficiency);
+			if(!$result['status']){
 				return array("status"=>false,"erro"=>$result['erro']);
 			}
 
@@ -203,11 +208,25 @@ class InstructorIdentificationValidation extends Register
 				}
 			}
 
+			$result = $this->moreThanOne($excludingdeficiency);
+			if($result['status']){
+				if($multipleDeficiencies != "1"){
+					return array("status"=>false,"erro"=>"Valor $multipleDeficiencies deveria ser 1 pois há multiplas deficiências");
+				}
+			}else{
+				if($multipleDeficiencies != "0"){
+					return array("status"=>false,"erro"=>"Valor $multipleDeficiencies deveria ser 0 pois não há multiplas deficiências");
+				}
+			}
+
 		}elseif ($hasdeficiency == "0"){
 			foreach ($deficiencies as $deficiency => $excludingdeficiencies) {
 				if($deficiency != null){
 					return array("status"=>false,"erro"=>"Valor deveria ser nulo");
 				}
+			}
+			if($multipleDeficiencies != null){
+					return array("status"=>false,"erro"=>"multiplas dependências $multipleDeficiencies deveria ser nulo");
 
 			}
 		}
@@ -215,5 +234,7 @@ class InstructorIdentificationValidation extends Register
 		return array("status"=>true,"erro"=>"");
 
 	}
+
+	
 
 }

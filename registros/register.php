@@ -40,16 +40,30 @@ class Register
 	}
 
 	//campo 1003 à 1011, 1033 à 1038
-	function atLeastOne($operation_locations){
+	function atLeastOne($items){
 		$number_of_ones = 0;
-		for($i = 0; $i < sizeof($operation_locations); $i++){
-			if($operation_locations[$i]=="1")
+		for($i = 0; $i < sizeof($items); $i++){
+			if($items[$i]=="1")
 				$number_of_ones++; 
 		}
 		if($number_of_ones==0){
 			return array("status"=>false,"erro"=>"Não há nenhum valor marcado");
 		}
 		return array("status"=>true,"erro"=>"");
+	}
+
+	function moreThanOne($items){
+
+		$number_of_ones = 0;
+		for($i = 0; $i < sizeof($items); $i++){
+			if($items[$i]=="1")
+				$number_of_ones++; 
+		}
+		if($number_of_ones<1){
+			return array("status"=>false,"erro"=>"Não há mais de um valor marcado");
+		}
+		return array("status"=>true,"erro"=>"");
+		
 	}
 
 
