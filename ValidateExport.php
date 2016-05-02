@@ -562,9 +562,13 @@ foreach ($school_identification as $key => $collun) {
 	if(!$result["status"]) array_push($log, array("id"=>$result["erro"]));
 
 	//campo 5
-	$result = $iiv->isNameValid($collun['name'], 100, 
+	$result = $stiv->isNameValid($collun['name'], 100, 
 								$student_documents_and_address[$key]["cpf"]);
 	if(!$result["status"]) array_push($log, array("name"=>$result["erro"]));
+
+	//campo 6
+	$result = $stiv->validateBirthday($collun['birthday'], 1910, $year);
+	if(!$result["status"]) array_push($log, array("birthday"=>$result["erro"]));
 
 }
 

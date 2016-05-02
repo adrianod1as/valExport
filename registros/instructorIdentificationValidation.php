@@ -13,27 +13,6 @@ class InstructorIdentificationValidation extends Register
 		# code...
 	}
 
-	//3005
-	function isNameValid($value, $target, $cpf){
-		
-		$result = $this->isGreaterThan(strlen($value), $target);
-		if($result['status']){
-			return array("status"=>false,"erro"=>"Número de caracteres maior que o permitido.");
-		}
-
-		$result = $this->onlyAlphabet($value);
-		if (!$result['status']){
-			return array("status"=>false,"erro"=>$result['erro']);
-		}
-
-		$result = $this->ifCPFNull($cpf, $value);
-		if(!$result['status']){
-			return array("status"=>false,"erro"=>$result['erro']);
-		}
-
-		return array("status"=>true,"erro"=>"");
-	}
-
 	//3006
 	function isEmailValid($value, $target){
 

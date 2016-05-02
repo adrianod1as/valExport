@@ -63,11 +63,11 @@ class Register
 			return array("status"=>false,"erro"=>"Não há mais de um valor marcado");
 		}
 		return array("status"=>true,"erro"=>"");
-		
+
 	}
 
 
-	//campo 1001, 3001
+	//campo 1001, 3001, 6001
 	function isRegister($number, $value){
 		$result = $this->isEqual($value, $number, "Valor $value deveria ser $number");
 		if(!$result["status"]){
@@ -77,7 +77,7 @@ class Register
 		return array("status"=>true,"erro"=>"");
 	}
 
-	//campo 3002
+	//campo 1002, 3002, 6002
 	function isAllowedInepId($inep_id, $allowed_inep_ids){
 		if(!in_array($inep_id, $allowed_inep_ids)){
 			return array("status"=>false,"erro"=>"inep_id $inep_id não está entre os permitidos");
@@ -87,7 +87,7 @@ class Register
 		return array("status"=>true,"erro"=>"");
 	}
 
-	//campo 3003
+	//campo 3003, 6003
 	function isNumericOfSize($allowed_length, $value){
 		if(is_numeric($value)){
 			$len = strlen($value);
@@ -112,7 +112,7 @@ class Register
 		return array("status"=>true,"erro"=>"");
 	}
 
-	//3004
+	//3004, 6004
 	function isNotGreaterThan($value, $target){
 		
 		$result = $this->isGreaterThan(strlen($value), $target);
@@ -133,6 +133,28 @@ class Register
 		return array("status"=>true,"erro"=>"");
 
 	}
+
+	//3005, 6005
+	function isNameValid($value, $target, $cpf){
+		
+		$result = $this->isGreaterThan(strlen($value), $target);
+		if($result['status']){
+			return array("status"=>false,"erro"=>"Número de caracteres maior que o permitido.");
+		}
+
+		$result = $this->onlyAlphabet($value);
+		if (!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		$result = $this->ifCPFNull($cpf, $value);
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
 
 	function validateEmailFormat($email){
 
