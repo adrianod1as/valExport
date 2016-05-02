@@ -139,11 +139,11 @@ class SchoolIdentification{
 
 		// verifica se a data é valida
 		if(!checkdate( $mes , $dia , $ano )){
-			return false;
+			return array("status"=>false,"erro"=>"Data no formato incorreto");
 		}
+		else 
+			return true;
 		
-
-		return true;
 	}
 
 
@@ -151,8 +151,8 @@ class SchoolIdentification{
 	function isSchoolYearValid($initial_date,$final_date){
 
 		if(isDateValid($initial_date) == false && isDateValid($final_date) == false){
-			echo "Data no formato incorreto";
-			return false;
+			return array("status"=>false,"erro"=>"Data no formato incorreto");
+			
 		}
 
 		else{
@@ -170,52 +170,48 @@ class SchoolIdentification{
 			
 			//A data de inicio nao pode ser inferior a 2014 nem superior a 2015
 			if(!($anoInicial <= "2015" && $anoInicial >= "2014")){
-				echo "Data de inicio do ano letivo deve ser inferior a 2014 e superior a 2015";
-				return false;
+				return array("status"=>false,"erro"=>"Data de inicio do ano letivo nao deve ser inferior a 2014 e superior a 2015");
+				
 			}
 
-			//A data de inicio nao pode ser inferior a data de referencia 
+			//A data de termino nao pode ser inferior a data de referencia 
 			//do Censoem 2015 nem superior a 2016
 			if(!($anoFinal <= "2016" && $anoFinal >= "2015")){
-				echo "O ano de inicio do ano letivo nao pode ser inferior a 2015 nem superior a 2016";
-				return false;
+				return array("status"=>false,"erro"=>"A data de termino do ano letivo nao pode ser inferior a 2015 nem superior a 2016");
+				
 			}
 
 			// se a data inicial do periodo letivo é menor que a data final
-			if($anoInicial <= $anoFinal){
-
+			if($anoInicial < $anoFinal){
+				
+			}
+			else if ($anoInicial == $anoFinal){
 				if($mesInicial < $mesFinal){
-							
-					return true;
-									
-				}
-				else if ($mesInicial > $mesFinal){
-					echo "Data incorreta";
-					return false;
-				}
-							
-				else if ($mesInicial == $mesFinal){
+					
 						
-					if($diaInicial < $diaFinal)
-						return true;
-					else{
-						echo "Data incorreta";
-						return false;
+				}
+				if($mesInicial == $mesFinal){
+					if($diaInicial < $diaFinal){
+						
 					}
-						
+					if($diaInicial >= $diaFinal)
+						return array("status"=>false,"erro"=>"Dia inicial é maior ou igual a Dia Final");
+					
 				}
-								
+							
+				if($mesInicial > $mesFinal){
+					return array("status"=>false,"erro"=>"Mes Inicial está maior que Mes Final");
+							
+				}
 
 			}
+					
 			else{
-				echo "Ano letivo inicial está maior que o ano final";
-				return false;
+				return array("status"=>false,"erro"=>"Ano letivo inicial está maior que o ano final");
+				
 			}
-
-
 
 		}
-		return true;
 
 	}
 
