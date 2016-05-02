@@ -14,7 +14,7 @@ class InstructorDocumentsAndAddress{
 	 	}
 
 
-	 	if($register_type != 30){
+	 	if($register_type != 40){
 	 		echo "Tipo de registro invalido";
 	 		return false;
 	 	}
