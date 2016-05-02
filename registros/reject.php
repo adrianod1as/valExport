@@ -229,9 +229,8 @@ class SchoolIdentification{
 		if(strlen($name) > 100)
 			return array("status"=>false,"erro"=>"O campo Nome da escola está maior que o especificado.");
 			
-
-		$regex="/^[A-Z0-9°ºª\- ]/";
-		if (!preg_match($regex, $name))
+		
+		if (!preg_match('/^[a-z\d°ºª\- ]{4,28}$/i', $name))
 			return array("status"=>false,"erro"=>"O campo Nome da escola foi preenchido com valor inválido.");
 
 
