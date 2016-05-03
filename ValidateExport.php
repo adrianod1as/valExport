@@ -491,13 +491,9 @@ foreach ($instructor_identification as $key => $collun) {
 								$instructor_documents_and_address[$key]["cpf"], 100);
 	if(!$result["status"]) array_push($log, array("filiation"=>$result["erro"]));
 
-	//campo 14
-	$result = $iiv->isAllowed($collun['nationality'], array("1", "2", "3"));
-	if(!$result["status"]) array_push($log, array("nationality"=>$result["erro"]));
-
-	//campo 15
-	$result = $iiv->brazil($collun['edcenso_nation_fk'], $collun['nationality']);
-	if(!$result["status"]) array_push($log, array("edcenso_nation_fk"=>$result["erro"]));
+	//campo 14, 15
+	$result = $iiv->checkNation($collun['edcenso_nation_fk'], $collun['nationality'], array("1", "2", "3") );
+	if(!$result["status"]) array_push($log, array("nationality_nation"=>$result["erro"]));
 
 	//campo 16
 	$result = $iiv->ufcity($collun['edcenso_uf_fk'], $collun['nationality']);
@@ -535,11 +531,11 @@ foreach ($instructor_identification as $key => $collun) {
 
 
 $stiv = new studentIdentificationValidation();
-$school_identification_log = array();
+$student_identification_log = array();
 
 
 
-foreach ($school_identification as $key => $collun) {
+foreach ($student_identification as $key => $collun) {
 
 	$school_inep_id_fk = $collun["school_inep_id_fk"];
 	$log = array();
@@ -570,11 +566,37 @@ foreach ($school_identification as $key => $collun) {
 	$result = $stiv->validateBirthday($collun['birthday'], 1910, $year);
 	if(!$result["status"]) array_push($log, array("birthday"=>$result["erro"]));
 
+	//campo 7
+	$result = $stiv->oneOfTheValues($collun['sex']);
+	if(!$result["status"]) array_push($log, array("sex"=>$result["erro"]));
+
+	//campo 8
+	$result = $stiv->isAllowed($collun['color_race'], array("0", "1", "2", "3", "4", "5"));
+	if(!$result["status"]) array_push($log, array("sex"=>$result["erro"]));
+
+	//campo 9, 10, 11
+	$result = $stiv->validateFiliation($collun['filiation'], $collun['filiation_1'], $collun['filiation_2'], 
+								$student_documents_and_address[$key]["cpf"], 100);
+	if(!$result["status"]) array_push($log, array("filiation"=>$result["erro"]));
+
+	//campo 12, 13
+	$result = $stiv->checkNation($collun['edcenso_nation_fk'], $collun['nationality'], array("1", "2", "3") );
+	if(!$result["status"]) array_push($log, array("nationality_nation"=>$result["erro"]));
+
+	//campo 14
+	$result = $stiv->ufcity($collun['edcenso_uf_fk'], $collun['nationality']);
+	if(!$result["status"]) array_push($log, array("edcenso_uf_fk"=>$result["erro"]));
+
+	//campo 15
+	$result = $stiv->ufcity($collun['edcenso_city_fk'], $collun['nationality']);
+	if(!$result["status"]) array_push($log, array("edcenso_uf_fk"=>$result["erro"]));
+
+
 }
 
 $register_log = array('Register 10' => $school_structure_log, 
 						'Register 30' => $instructor_identification_log,
-						'Register 60' => $school_identification_log);
+						'Register 60' => $student_identification_log);
 echo json_encode($register_log);
 
 
