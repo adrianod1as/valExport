@@ -209,7 +209,7 @@ class Register
 
 	}
 
-	//campo 1020, 3009
+	//campo 1020, 3009, 6007
 	function oneOfTheValues($value){
 		if($value == 1 || $value == 2){
 			return array("status"=>true,"erro"=>"");
@@ -220,7 +220,7 @@ class Register
 	}
 
 
-	//10101, 10105, 10106, 3010
+	//10101, 10105, 10106, 3010, 6008
 
 	function isAllowed($value, $allowed_values){
 
@@ -250,7 +250,198 @@ class Register
 
 	}
 
+	function validateParent($parent, $high_limit, $cpf){
 
+		$result = $this->isGreaterThan(strlen($parent), $high_limit);
+		if($result['status']){
+			return array("status"=>false,"erro"=>"'$filiation_father' $contém número de caracteres maior que o permitido.");
+		}
+
+
+		$result = $this->onlyAlphabet($parent);
+		if (!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+
+		$result = $this->ifCPFNull($cpf, $parent);
+		if (!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+	//3011, 3012, 3013, 6009.6010, 6011
+	function validateFiliation($filiation, $filiation_mother, $filiation_father, $cpf, $high_limit){
+
+		$result = $this->isAllowed($filiation, array("0", "1"));
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		if($filiation == "1"){
+
+			if(!($filiation_mother != "" || $filiation_father != "")){
+				return array("status"=>false,"erro"=>"Uma das filiações deve ser preenchida");
+			}
+
+			if($filiation_mother == $filiation_father){
+				return array("status"=>false,"erro"=>"As filiações não podem ser idênticas");
+			}
+
+			if($filiation_mother != ""){
+
+				$result = $this->validateParent($filiation_mother, $high_limit, $cpf);
+				if(!$result['status']){
+					return array("status"=>false,"erro"=>$result['erro']);
+				}
+				
+			}
+
+			if($filiation_father != ""){
+
+				$result = $this->validateParent($filiation_father, $high_limit, $cpf);
+				if(!$result['status']){
+					return array("status"=>false,"erro"=>$result['erro']);
+				}
+
+			}
+
+		}else{
+
+			if(!($filiation_mother == null && $filiation_father == null)){
+				return array("status"=>false,"erro"=>"Ambas filiãções deveriam ser nulas campo 11 é 0");
+			}
+
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	//3014, 3015, 6012, 6013
+	function checkNation($nationality, $nation, $allowedvalues){
+
+		$result = $this->isAllowed($nationality, $allowedvalues);
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		if($nationality == 1 || $nationality == 2){
+			if($nation != "76"){
+				return array("status"=>false,"erro"=>"País de origem deveria ser Brasil");
+			}
+		}else{
+			if($nation == "76"){
+				return array("status"=>false,"erro"=>"País de origem não deveria ser Brasil");
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	function ufcity($nationality, $city){
+
+		if($nationality == 1){
+			if($nation == "" || $city == null){
+				return array("status"=>false,"erro"=>"Cidade deveria ser preenchida");
+			}
+		}else{
+			if($nation != ""){
+				return array("status"=>false,"erro"=>"Cidade não deveria ser preenchida");
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
+
+		//campo 08
+	function validateBirthday($date, $low_limit, $high_limit, $currentyear){
+
+		$result = $this->validateDateformart($date);
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		$mdy = explode('/', $date);
+
+		$result = $this->isOlderThan($low_limit, $mdy[2], $currentyear);
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		$result = $this->isYoungerThan($high_limit, $mdy[2], $currentyear);
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+
+	
+
+	function exclusiveDeficiency( $deficiency, $excludingdeficiencies){
+
+		$result = $this->atLeastOne($excludingdeficiency);
+		if(!$result['status']){
+			if($deficiency != "0"){
+				return array("status"=>false,"erro"=>"Valor $deficiency deveria ser 0");
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	function checkDeficiencies($hasdeficiency, $deficiencies){
+
+		$multipleDeficiencies = array_pop($deficiencies);
+
+		if($hasdeficiency == "1"){
+
+			$result = $this->atLeastOne($excludingdeficiency);
+			if(!$result['status']){
+				return array("status"=>false,"erro"=>$result['erro']);
+			}
+
+			foreach ($deficiencies as $deficiency => $excludingdeficiencies) {
+				$result = $this->exclusiveDeficiency($deficiency, $excludingdeficiencies);
+				if(!$result['status']){
+					return array("status"=>false,"erro"=>$result['erro']);
+				}
+			}
+
+			$result = $this->moreThanOne($excludingdeficiency);
+			if($result['status']){
+				if($multipleDeficiencies != "1"){
+					return array("status"=>false,"erro"=>"Valor $multipleDeficiencies deveria ser 1 pois há multiplas deficiências");
+				}
+			}else{
+				if($multipleDeficiencies != "0"){
+					return array("status"=>false,"erro"=>"Valor $multipleDeficiencies deveria ser 0 pois não há multiplas deficiências");
+				}
+			}
+
+		}elseif ($hasdeficiency == "0"){
+			foreach ($deficiencies as $deficiency => $excludingdeficiencies) {
+				if($deficiency != null){
+					return array("status"=>false,"erro"=>"Valor deveria ser nulo");
+				}
+			}
+			if($multipleDeficiencies != null){
+					return array("status"=>false,"erro"=>"multiplas dependências $multipleDeficiencies deveria ser nulo");
+
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
 
 
 
