@@ -13,13 +13,11 @@ class InstructorDocumentsAndAddress{
 			return false;
 	 	}
 
-
-	 	if($register_type != 40){
+	 	else if($register_type != 40){
 	 		echo "Tipo de registro invalido";
 	 		return false;
 	 	}
-	 	return true;
-
+	 	else return array("status"=>true,"erro"=>"");
 }
 
 //campo 2 ( deve ser igual ao valor informado no campo 2 do registro 00 antecedente)
@@ -27,12 +25,12 @@ function isInepIdValid($inep_id){
 
 	 	if($inep_id == null)
 	 		return array("status"=>false,"erro"=>"O campo Código de escola - Inep é uma informação obrigatória.");
-	 	if(strlen($inep_id) != 8)
+	 	else if(strlen($inep_id) != 8)
 	 		return array("status"=>false,"erro"=>"O campo Código de escola - Inep está com tamanho diferente do especificado.");
-	 	if(!is_numeric($inep_id))
+	 	else if(!is_numeric($inep_id))
 	 		return array("status"=>false,"erro"=>"O campo Código de escola - Inep foi preenchido com valor inválido");
 	 	
-		return true;
+		else return array("status"=>true,"erro"=>"");
 }
 
 //campo 3 (Deve ser igual ao campo 3 do registro 30)Identicacao Unica do Profissional escolar em sala de aula
@@ -41,8 +39,10 @@ function isInepCodeValid($code){
 
 	if(strlen($code) != 12)
 	 		return array("status"=>false,"erro"=>"O campo Identificação única do Profissional escolar em sala de Aula Inep está com tamanho diferente do especificado.");
-	 	if(!is_numeric($code))
+	else if(!is_numeric($code))
 	 		return array("status"=>false,"erro"=>"O campo Identificação única do Profissional escolar em sala de Aula Inep foi preenchido com valor inválido");
+	 else
+	 		else return array("status"=>true,"erro"=>"");
 
 }
 
@@ -55,8 +55,9 @@ function isInstructorIdValid($code){
 
 	if(strlen($code) > 20)
 	 		return array("status"=>false,"erro"=>"O campo ID unico do instrutor em Sala está com tamanho diferente do especificado.");
-	 	if(!is_numeric($code))
+	 else if(!is_numeric($code))
 	 		return array("status"=>false,"erro"=>"O campo ID unico do instrutor em Sala foi preenchido com valor inválido");
+	 else return array("status"=>true,"erro"=>"");	
 
 }
 
@@ -77,15 +78,14 @@ function isInstructorIdValid($code){
 			return array("status"=>false,"erro"=>"O campo Número do CPF foi preenchido com valor inválido.");
 
 		// se for 0000000000, 1111111
-		if(preg_match('/^(.)\1*$/', $cpf))
+		else if(preg_match('/^(.)\1*$/', $cpf))
 			return array("status"=>false,"erro"=>"O campo Número do CPF foi preenchido com valor inválido.");
 	
 
-	 	if($cpf == "00000000191")
+	 	else if($cpf == "00000000191")
 	 		return array("status"=>false,"erro"=>"O campo Número do CPF foi preenchido com valor inválido.");
 	 
-
-	 	return true;
+	 	else return array("status"=>true,"erro"=>"");
 }
 
 	//campo 6
@@ -96,7 +96,7 @@ function isInstructorIdValid($code){
 	 
 	 	if($area_of_residence == 1 || $area_of_residence == 2){
 	 		
-	 		return true;
+	 		return array("status"=>true,"erro"=>"");
 	 	}
 	 	else{
 	 		return array("status"=>false,"erro"=>"O campo Localizacao/Area de Residencia  foi preenchido com valor inválido.");
@@ -120,11 +120,11 @@ function isInstructorIdValid($code){
 			return array("status"=>false,"erro"=>"O campo CEP foi preenchido com valor inválido.");
 		
 
-		if(preg_match('/^(.)\1*$/', $cep))
+		else if(preg_match('/^(.)\1*$/', $cep))
 			return array("status"=>false,"erro"=>"O campo CEP foi preenchido com valor inválido.");
 		
 		
-		return true;
+		else return array("status"=>true,"erro"=>"");
 
 	}
 
@@ -139,15 +139,15 @@ function isInstructorIdValid($code){
 			}
 		}
 
-		if(strlen($address) > $allowed_lenght || strlen($address) <= 0){
+		else if(strlen($address) > $allowed_lenght || strlen($address) <= 0){
 			return array("status"=>false,"erro"=>"O campo de endereço está com tamanho incorreto.");
 		}
 
-		if(!preg_match($regex, $address){
+		else if(!preg_match($regex, $address){
 			return array("status"=>false,"erro"=>"O campo de endereço foi preenchido com valor inválido.");
 		}
 
-		return true;
+		else return array("status"=>true,"erro"=>"");
 	}
 }
 
