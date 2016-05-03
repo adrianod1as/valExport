@@ -16,7 +16,7 @@ class SchoolIdentification{
 	 		return array("status"=>false,"erro"=>"O registro declarado <tipo de registro> não faz parte do escopo do educacenso.");
 	 	
 	 	}
-	 	return true;
+	 	else return array("status"=>true,"erro"=>"");
 
 	 }
 
@@ -30,7 +30,7 @@ class SchoolIdentification{
 	 	if(!is_numeric($inep_id))
 	 		return array("status"=>false,"erro"=>"O campo Código de escola - Inep foi preenchido com valor inválido");
 	 	
-		return true;
+		else return array("status"=>true,"erro"=>"");
 	 }
 
 	//campo 3
@@ -55,7 +55,7 @@ class SchoolIdentification{
 	 		return array("status"=>false,"erro"=>"O campo Número do CPF do Gestor Escolar foi preenchido com valor inválido.");
 	 
 
-	 	return true;
+	 	else return array("status"=>true,"erro"=>"");
 	 }
 
 	//campo 4
@@ -71,7 +71,7 @@ class SchoolIdentification{
 		if (!preg_match($regex, $manager_name))
 			return array("status"=>false,"erro"=>"O campo Nome do Gestor Escolar foi preenchido com valor inválido.");
 		
-		return true;
+		else return array("status"=>true,"erro"=>"");
 
 	 }
 
@@ -82,7 +82,7 @@ class SchoolIdentification{
 
 	 	if($manager_role == 1 || $manager_role == 2){
 	 		
-	 		return true;
+	 		return array("status"=>true,"erro"=>"");
 	 	}
 	 	else{
 	 		return array("status"=>false,"erro"=>"O campo Cargo do Gestor Escolar foi preenchido com valor inválido.");
@@ -107,7 +107,7 @@ class SchoolIdentification{
 			return array("status"=>false,"erro"=>"O campo Endereço eletrônico (e-mail) do Gestor Escolar  foi preenchido com valor inválido.");
 
 
-		return true;
+		else return array("status"=>true,"erro"=>"");
 
 	}
 
@@ -120,7 +120,7 @@ class SchoolIdentification{
 		if($situation == 1 || $situation == 2 || 
 			$situation == 3){
 			
-			return true;
+			return array("status"=>true,"erro"=>"");
 		}
 		else{
 			return array("status"=>false,"erro"=>"O campo Situação de funcionamento foi preenchido com valor inválido.");
@@ -141,8 +141,7 @@ class SchoolIdentification{
 		if(!checkdate( $mes , $dia , $ano )){
 			return array("status"=>false,"erro"=>"Data no formato incorreto");
 		}
-		else 
-			return true;
+		else return array("status"=>true,"erro"=>"");
 		
 	}
 
@@ -183,15 +182,18 @@ class SchoolIdentification{
 
 			// se a data inicial do periodo letivo é menor que a data final
 			if($anoInicial < $anoFinal){
+				return array("status"=>true,"erro"=>"");
 				
 			}
 			else if ($anoInicial == $anoFinal){
 				if($mesInicial < $mesFinal){
+					return array("status"=>true,"erro"=>"");
 					
 						
 				}
 				if($mesInicial == $mesFinal){
 					if($diaInicial < $diaFinal){
+						return array("status"=>true,"erro"=>"");
 						
 					}
 					if($diaInicial >= $diaFinal)
@@ -234,7 +236,7 @@ class SchoolIdentification{
 			return array("status"=>false,"erro"=>"O campo Nome da escola foi preenchido com valor inválido.");
 
 
-		return true;
+		else return array("status"=>true,"erro"=>"");
 
 	}
 
@@ -251,11 +253,11 @@ class SchoolIdentification{
 
 
 		if($latitude >= -33.750833 && $latitude <= 5.272222)
-			return true;
+			return array("status"=>true,"erro"=>"");
 		else{
 			return array("status"=>false,"erro"=>"O campo Latitude foi preenchido com valor inválido.");
 		}
-		return true;
+		
 
 	}
 	//campo 12
@@ -270,10 +272,11 @@ class SchoolIdentification{
 			return array("status"=>false,"erro"=>"O campo Longitude contém caractere(s) inválido(s).");
 
 		if($longitude >= -73.992222 && $longitude <= -32.411280)
-			return true;
+			 return array("status"=>true,"erro"=>"");
 		else{
 			return array("status"=>false,"erro"=>"O campo Longitude foi preenchido com valor inválido.");
 		}
+		
 
 		
 	}
@@ -297,7 +300,7 @@ class SchoolIdentification{
 			return array("status"=>false,"erro"=>"O campo CEP foi preenchido com valor inválido.");
 		
 		
-		return true;
+		else return array("status"=>true,"erro"=>"");
 
 	}
 
@@ -320,7 +323,7 @@ class SchoolIdentification{
 			return array("status"=>false,"erro"=>"O campo de endereço foi preenchido com valor inválido.");
 		}
 
-		return true;
+		else return array("status"=>true,"erro"=>"");
 	}
 
 	//campo 21,22,23,24,25
@@ -339,7 +342,7 @@ class SchoolIdentification{
 			} 
 
 		}
-		return true;
+		else return array("status"=>true,"erro"=>"");
 	}
 
 	//campo 26
@@ -354,7 +357,7 @@ class SchoolIdentification{
 		}
 
 
-		return true;
+		else return array("status"=>true,"erro"=>"");
 	}
 
 
@@ -378,7 +381,7 @@ class SchoolIdentification{
 		else{
 
 			if($value == 1 || $value == 2 || $value == 3|| $value == 4){
-				return true;
+				return array("status"=>true,"erro"=>"");
 
 			else
 				return array("status"=>false,"erro"=>"Dependencia Administrativa inválida");
@@ -394,7 +397,7 @@ class SchoolIdentification{
 			return array("status"=>false,"erro"=>"Codigo inep inválido");
 		else{
 				if($value == 1 || $value == 2){
-					return true;
+					return array("status"=>true,"erro"=>"");
 				else
 					return array("status"=>false,"erro"=>"Lozalização inválida");
 		}
@@ -422,7 +425,7 @@ class SchoolIdentification{
 		if(isField7And28Valid($inep_id,$schoolSituation,$dependency) == true){
 			if($privateSchoolCategory == 1 || $privateSchoolCategory == 2 || 
 			   $privateSchoolCategory == 3 || $privateSchoolCategory == 4)
-				return true;
+				return array("status"=>true,"erro"=>"");
 			else return array("status"=>false,"erro"=>"O valor public contrat deve ser 1,2,3 ou 4");
 		}
 		else return false;
@@ -434,7 +437,7 @@ class SchoolIdentification{
 		if(isField7And28Valid($inep_id,$schoolSituation,$dependency) == true){
 			if($privateSchoolCategory == 1 || $privateSchoolCategory == 2 || 
 			   $privateSchoolCategory == 3)
-				return true;
+					return array("status"=>true,"erro"=>"");
 			else return array("status"=>false,"erro"=>"O valor public contrat deve ser 1,2 ou 3");
 		}
 		
@@ -449,7 +452,7 @@ class SchoolIdentification{
 
 			//campo 32
 			if($maintainerValue == 0 || $maintainerValue == 1){
-				return true;
+				return array("status"=>true,"erro"=>"");
 
 			}
 				
@@ -470,7 +473,7 @@ class SchoolIdentification{
 			return array("status"=>false,"erro"=>"O CNPJ está com tamanho errado");
 
 		}
-		return true;
+			return array("status"=>true,"erro"=>"");
 
 	}
 
@@ -480,7 +483,7 @@ class SchoolIdentification{
 		if($schoolSituation != 1)
 			return array("status"=>false,"erro"=>"Situação da escola errada");
 		if($value == 0  || $value == 1  || $value == 2)
-			return true;
+			return array("status"=>true,"erro"=>"");
 		else return array("status"=>false,"erro"=>"Regulamentação da escola errada");
 	}
 
@@ -516,6 +519,8 @@ class SchoolIdentification{
 			//deve ser da mesma dependencia administrativa e mesmo edcenso_city_fk
 			if($hostedcenso_city_fk != $atualedcenso_city_fk || $hostDependencyAdm != $atualDependencyAdm)
 				return array("status"=>false,"erro"=>"deve ser da mesma dependencia administrativa e mesmo edcenso_city_fk");
+
+			else return array("status"=>true,"erro"=>"");
 				
 	}
 
@@ -528,6 +533,8 @@ class SchoolIdentification{
 			//iES VALIDA
 			if(!is_numeric($IESCode) || strlen($IESCode) != 14)
 				return array("status"=>false,"erro"=>"Codigo IES com tamanho inválido");
+
+			else return array("status"=>true,"erro"=>"");
 
 	}
 
