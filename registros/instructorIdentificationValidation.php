@@ -35,6 +35,30 @@ class InstructorIdentificationValidation extends Register
 
 	}
 
+			//campo 08
+	function validateBirthday($date, $low_limit, $high_limit, $currentyear){
+
+		$result = $this->validateDateformart($date);
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		$mdy = explode('/', $date);
+
+		$result = $this->isOlderThan($low_limit, $mdy[2], $currentyear);
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		$result = $this->isYoungerThan($high_limit, $mdy[2], $currentyear);
+		if(!$result['status']){
+			return array("status"=>false,"erro"=>$result['erro']);
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
 
 	
 

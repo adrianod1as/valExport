@@ -507,23 +507,32 @@ foreach ($instructor_identification as $key => $collun) {
 	$result = $iiv->isAllowed($collun['deficiency'], array("0", "1"));
 	if(!$result["status"]) array_push($log, array("deficiency"=>$result["erro"]));
 
-	//campo 19 à 25 & 26
-	$deficiencies = array($collun['deficiency_type_blindness'] => 
-							array($collun['deficiency_type_low_vision'], $collun['deficiency_type_deafness'], $collun['deficiency_type_deafblindness']), 
-						$collun['deficiency_type_low_vision'] => 
-							array($collun['deficiency_type_deafblindness']), 
-						$collun['deficiency_type_deafness'] => 
-							array($collun['deficiency_type_disability_hearing'], $collun['deficiency_type_disability_hearing']), 
-						$collun['deficiency_type_disability_hearing'] => 
-							array($collun['deficiency_type_deafblindness']), 
-						$collun['deficiency_type_deafblindness'] => array(), 
-						$collun['deficiency_type_phisical_disability'] => array(), 
-						$collun['deficiency_type_intelectual_disability'] => array(),
-						$collun['deficiency_type_multiple_disabilities']);
+	//campo 19 à 25
+	$deficiencies = array($collun['deficiency_type_blindness'],
+							$collun['deficiency_type_low_vision'],
+							$collun['deficiency_type_deafness'],
+							$collun['deficiency_type_disability_hearing'],
+							$collun['deficiency_type_deafblindness'],
+							$collun['deficiency_type_phisical_disability'],
+							$collun['deficiency_type_intelectual_disability']);
 
+	$excludingdeficiencies = array($collun['deficiency_type_blindness'] => 
+								array($collun['deficiency_type_low_vision'], $collun['deficiency_type_deafness'], 
+										$collun['deficiency_type_deafblindness']), 
+							$collun['deficiency_type_low_vision'] => 
+								array($collun['deficiency_type_deafblindness']), 
+							$collun['deficiency_type_deafness'] => 
+								array($collun['deficiency_type_disability_hearing'], $collun['deficiency_type_disability_hearing']), 
+							$collun['deficiency_type_disability_hearing'] => 
+								array($collun['deficiency_type_deafblindness']));
 
-	$result = $iiv->checkDeficiencies($collun['deficiency'], $deficiencies);
+	$result = $iiv->checkDeficiencies($collun['deficiency'], $deficiencies, $excludingdeficiencies);
 	if(!$result["status"]) array_push($log, array("deficiencies"=>$result["erro"]));
+
+	//campo 26
+	
+	$result = $iiv->checkMultiple($collun['deficiency'], $collun['deficiency_type_multiple_disabilities'], $deficiencies);
+	if(!$result["status"]) array_push($log, array("deficiency_type_multiple_disabilities"=>$result["erro"]));
 	
 	//Adicionando log da row
 	if($log != null) $instructor_identification_log["row $key"] = $log;
@@ -590,6 +599,75 @@ foreach ($student_identification as $key => $collun) {
 	//campo 15
 	$result = $stiv->ufcity($collun['edcenso_city_fk'], $collun['nationality']);
 	if(!$result["status"]) array_push($log, array("edcenso_uf_fk"=>$result["erro"]));
+
+	//campo 16
+	$student_id = $collun['id'];
+
+	$sql = "SELECT 	COUNT(cr.id) AS status
+			FROM 	student_identification as si 
+						INNER JOIN 
+					STUDENT_ENROLLMENT AS se 
+						ON si.id = se.student_fk
+          				INNER JOIN  
+          			classroom AS cr 
+          				ON se.classroom_fk = cr.id
+			WHERE si.id = '$student_id' AND (cr.assistance_type = 5 OR cr.modality = 2)
+			GROUP BY si.id;";
+
+	$hasspecialneeds = $db->select($sql);
+
+	$result = $stiv->specialNeeds($collun['deficiency'], array("0", "1"),
+										$hasspecialneeds[0]["status"]);
+	if(!$result["status"]) array_push($log, array("pedagogical_formation_by_alternance"=>$result["erro"]));
+
+	//campo 17 à 24 e 26 à 29
+
+	$deficiencies_whole = array($collun['deficiency_type_blindness'],
+								$collun['deficiency_type_low_vision'],
+								$collun['deficiency_type_deafness'],
+								$collun['deficiency_type_disability_hearing'],
+								$collun['deficiency_type_deafblindness'],
+								$collun['deficiency_type_phisical_disability'],
+								$collun['deficiency_type_intelectual_disability'],
+								$collun['deficiency_type_autism'],
+								$collun['deficiency_type_aspenger_syndrome'], 
+								$collun['deficiency_type_rett_syndrome'],
+								$collun['deficiency_type_childhood_disintegrative_disorder'],
+								$collun['deficiency_type_gifted']);
+
+	$excludingdeficiencies = array(	$collun['deficiency_type_blindness'] => 
+										array($collun['deficiency_type_low_vision'], $collun['deficiency_type_deafness'], 
+												$collun['deficiency_type_deafblindness']), 
+									$collun['deficiency_type_low_vision'] => 
+										array($collun['deficiency_type_deafblindness']), 
+									$collun['deficiency_type_deafness'] => 
+										array($collun['deficiency_type_disability_hearing'], $collun['deficiency_type_disability_hearing']), 
+									$collun['deficiency_type_disability_hearing'] => 
+										array($collun['deficiency_type_deafblindness']), 
+									$collun['deficiency_type_autism'] => 
+										array($collun['deficiency_type_aspenger_syndrome'], $collun['deficiency_type_rett_syndrome'], 
+												$collun['deficiency_type_childhood_disintegrative_disorder']),  
+									$collun['deficiency_type_aspenger_syndrome'] => 
+										array($collun['deficiency_type_rett_syndrome'], $collun['deficiency_type_childhood_disintegrative_disorder']), 
+									$collun['deficiency_type_rett_syndrome'] => 
+										array($collun['deficiency_type_childhood_disintegrative_disorder']));
+
+	$result = $stiv->checkDeficiencies($collun['deficiency'], $deficiencies_whole, $excludingdeficiencies);
+	if(!$result["status"]) array_push($log, array("deficiencies"=>$result["erro"]));
+
+	//campo 25	
+
+	$deficiencies_sample = array($collun['deficiency_type_blindness'],
+									$collun['deficiency_type_low_vision'],
+									$collun['deficiency_type_deafness'],
+									$collun['deficiency_type_disability_hearing'],
+									$collun['deficiency_type_deafblindness'],
+									$collun['deficiency_type_phisical_disability'],
+									$collun['deficiency_type_intelectual_disability']);
+
+	$result = $stiv->checkMultiple($collun['deficiency'], $collun['deficiency_type_multiple_disabilities'], $deficiencies_sample);
+	if(!$result["status"]) array_push($log, array("deficiency_type_multiple_disabilities"=>$result["erro"]));
+			
 
 
 }

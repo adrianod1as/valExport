@@ -357,34 +357,6 @@ class Register
 		return array("status"=>true,"erro"=>"");
 	}
 
-
-		//campo 08
-	function validateBirthday($date, $low_limit, $high_limit, $currentyear){
-
-		$result = $this->validateDateformart($date);
-		if(!$result['status']){
-			return array("status"=>false,"erro"=>$result['erro']);
-		}
-
-		$mdy = explode('/', $date);
-
-		$result = $this->isOlderThan($low_limit, $mdy[2], $currentyear);
-		if(!$result['status']){
-			return array("status"=>false,"erro"=>$result['erro']);
-		}
-
-		$result = $this->isYoungerThan($high_limit, $mdy[2], $currentyear);
-		if(!$result['status']){
-			return array("status"=>false,"erro"=>$result['erro']);
-		}
-
-		return array("status"=>true,"erro"=>"");
-
-	}
-
-
-	
-
 	function exclusiveDeficiency( $deficiency, $excludingdeficiencies){
 
 		$result = $this->atLeastOne($excludingdeficiency);
@@ -398,25 +370,39 @@ class Register
 
 	}
 
-	function checkDeficiencies($hasdeficiency, $deficiencies){
-
-		$multipleDeficiencies = array_pop($deficiencies);
+	function checkDeficiencies($hasdeficiency, $deficiencies, $excludingdeficiencies){
 
 		if($hasdeficiency == "1"){
 
-			$result = $this->atLeastOne($excludingdeficiency);
+			$result = $this->atLeastOne($deficiencies);
 			if(!$result['status']){
 				return array("status"=>false,"erro"=>$result['erro']);
 			}
 
-			foreach ($deficiencies as $deficiency => $excludingdeficiencies) {
-				$result = $this->exclusiveDeficiency($deficiency, $excludingdeficiencies);
+			foreach ($excludingdeficiencies as $deficiency => $excluded) {
+				$result = $this->exclusiveDeficiency($deficiency, $excluded);
 				if(!$result['status']){
 					return array("status"=>false,"erro"=>$result['erro']);
 				}
 			}
 
-			$result = $this->moreThanOne($excludingdeficiency);
+		}elseif ($hasdeficiency == "0"){
+			foreach ($deficiencies as $key => $value) {
+				if($value != null){
+					return array("status"=>false,"erro"=>"Valor deveria ser nulo");
+				}
+			}
+		
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	function checkMultiple($hasdeficiency, $multipleDeficiencies, $deficiencies){
+
+		if($hasdeficiency == "1"){
+			$result = $this->moreThanOne($deficiencies);
 			if($result['status']){
 				if($multipleDeficiencies != "1"){
 					return array("status"=>false,"erro"=>"Valor $multipleDeficiencies deveria ser 1 pois há multiplas deficiências");
@@ -426,13 +412,8 @@ class Register
 					return array("status"=>false,"erro"=>"Valor $multipleDeficiencies deveria ser 0 pois não há multiplas deficiências");
 				}
 			}
-
 		}elseif ($hasdeficiency == "0"){
-			foreach ($deficiencies as $deficiency => $excludingdeficiencies) {
-				if($deficiency != null){
-					return array("status"=>false,"erro"=>"Valor deveria ser nulo");
-				}
-			}
+			
 			if($multipleDeficiencies != null){
 					return array("status"=>false,"erro"=>"multiplas dependências $multipleDeficiencies deveria ser nulo");
 
@@ -440,7 +421,7 @@ class Register
 		}
 
 		return array("status"=>true,"erro"=>"");
-
+		
 	}
 
 
