@@ -47,7 +47,6 @@ function isInepCodeValid($code){
 }
 
 //campo 4
-
 function isStudentSchoolCodeValid($code){
 
 	if(strlen($code) > 20)
@@ -57,7 +56,6 @@ function isStudentSchoolCodeValid($code){
 }
 
 //campo 5
-
 function isRgNumberValid($rg,$Reg60Field12){
 
 		if($Reg60Field12 == 1 || $Reg60Field12 == 2 ){
@@ -76,7 +74,6 @@ function isRgNumberValid($rg,$Reg60Field12){
 }
 
 //campo 6
-
 function isRgEmissorOrganValid($EmissorOrgan,$Reg60Field12,$Reg70Field5){
 
 	if(strlen($Reg70Field5) != 0){
@@ -100,7 +97,6 @@ function isRgEmissorOrganValid($EmissorOrgan,$Reg60Field12,$Reg70Field5){
 
 
 //campo 7
-
 function isRgUfValid($rgUF,$Reg60Field12,$Reg70Field5,$Reg70Field6){
 
 	if($Reg60Field12 == 1 || $Reg60Field12 == 2 ){
@@ -126,10 +122,13 @@ function isRgUfValid($rgUF,$Reg60Field12,$Reg70Field5,$Reg70Field6){
 		return array("status"=>false,"erro"=>" Campo 12 do registro 60 deve ser igual a 1 ou 2");	
 }
 
-//campo 8
-function isRgExpedictionDateValid($$Reg60Field12,$expeDate,$birthDate,$currentDate){
+//campos 8 e 14
+function isDateValid($$Reg60Field12,$expeDate,$birthDate,$currentDate,$Reg70Field9,$currentField){
 
-	if($Reg60Field12 == 1 || $Reg60Field12 == 2 ){
+	if($Reg60Field12 == 1 ||  $Reg60Field12 == 2){
+
+		//SE FOR PARA O CAMPO 8 OU PARA O CAMPO 14 COM CAMPO 9 SENDO 1
+	  if(($currentField == 8) || ( $currentField == 14 && $Reg70Field9 == 1)){
 
 		if($isDateValid($expeDate) == true){
 
@@ -179,7 +178,6 @@ function isRgExpedictionDateValid($$Reg60Field12,$expeDate,$birthDate,$currentDa
 				}
 				if($anoExpedicao < $anoNasceu){
 					return array("status"=>false,"erro"=>"Data de expedicao inferior a data de nascimento");
-
 				}
 				if($anoExpedicao == $anoNasceu){
 					//comparar os meses
@@ -197,7 +195,10 @@ function isRgExpedictionDateValid($$Reg60Field12,$expeDate,$birthDate,$currentDa
 		}
 		else
 			return array("status"=>false,"erro"=>"Data de expedicao no formato incorreto");
-	}
+	 }
+	 else
+	 	return array("status"=>false,"erro"=>"Campo 9 deve ser 1");
+    }
 	else
 		return array("status"=>false,"erro"=>" Campo 12 do registro 60 deve ser igual a 1 ou 2");
 }
@@ -233,13 +234,41 @@ function isCivilCertificationValid($Reg70Field5,$Reg60Field12){
 }
 
 //campo 10
-function isCivilCertificationTypeValid($type,$Reg70Field5,$Reg60Field12){
+function isCivilCertificationTypeValid($type,$Reg70Field5,$Reg60Field12,$birthday,$currentDate){
 
 	if($Reg60Field12 == 1 || $Reg60Field12 == 2 ){
 		if($Reg70Field5 == 1){
-			if($type == 1 || $type == 2){
+			if($type == 1){
 				return array("status"=>true,"erro"=>"");
 			}
+			else if ($type == 2){
+				//data
+
+					$data = explode('/', $currentDate);
+					$diaAtual = $data[0];
+					$mesAtual = $data[1];
+					$anoAtual = $data[2];
+
+					$dataNiver = explode('/', $birthday);
+					$diaNiver = $dataNiver[0];
+					$mesNiver= $dataNiver[1];
+					$anoNiver = $dataNiver[2];
+
+					$idade = $anoAtual - $anoNiver;
+
+					if($mesAtual < $mesNiver){
+						$idade--;
+						echo $idade;
+					}
+					else if($mesAtual == $mesNiver and $diaAtual < $diaNiver){
+						$idade--;
+					}
+					else{}
+				
+					if($birthday < 10)
+						return array("status"=>false,"erro"=>"Aluno com menos de 10 anos não pode ter certidão de casamento.");
+					return array("status"=>true,"erro"=>"");
+			} 
 			else
 				return array("status"=>false,"erro"=>"O Tipo de Certificacao Civil deve ser igual a 1");
 		}
@@ -267,8 +296,6 @@ function isFieldValid($$allowedSize,$value,$Reg60Field12,$Reg70Field5){
 	else
 		return array("status"=>false,"erro"=>" Campo 12 do registro 60 deve ser igual a 1 ou 2");
 }
-
-//campo 14 FAZER
 
 //campo 18
 function isCivilRegisterNumberValid($value,Reg60Field12,Reg70Field5){
@@ -301,7 +328,6 @@ function isCivilRegisterNumberValid($value,Reg60Field12,Reg70Field5){
 		else if(preg_match('/^(.)\1*$/', $cpf))
 			return array("status"=>false,"erro"=>"O campo Número do CPF foi preenchido com valor inválido.");
 	
-
 	 	else if($cpf == "00000000191")
 	 		return array("status"=>false,"erro"=>"O campo Número do CPF foi preenchido com valor inválido.");
 
@@ -327,7 +353,6 @@ function isNISValid($nis){
 		return array("status"=>false,"erro"=>"NIS tem tamanho inválido");
 	
 	else return array("status"=>true,"erro"=>"");
-
 }
 
 //campo 22
