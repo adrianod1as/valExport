@@ -265,7 +265,7 @@ function isCivilCertificationTypeValid($type,$Reg70Field5,$Reg60Field12,$birthda
 					}
 					else{}
 				
-					if($birthday < 10)
+					if($idade < 10)
 						return array("status"=>false,"erro"=>"Aluno com menos de 10 anos não pode ter certidão de casamento.");
 					return array("status"=>true,"erro"=>"");
 			} 
