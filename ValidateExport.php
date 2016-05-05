@@ -589,7 +589,7 @@ foreach ($student_identification as $key => $collun) {
 	if(!$result["status"]) array_push($log, array("filiation"=>$result["erro"]));
 
 	//campo 12, 13
-	$result = $stiv->checkNation($collun['edcenso_nation_fk'], $collun['nationality'], array("1", "2", "3") );
+	$result = $stiv->checkNation($collun['nationality'], $collun['edcenso_nation_fk'], array("1", "2", "3") );
 	if(!$result["status"]) array_push($log, array("nationality_nation"=>$result["erro"]));
 
 	//campo 14
@@ -606,7 +606,7 @@ foreach ($student_identification as $key => $collun) {
 	$sql = "SELECT 	COUNT(cr.id) AS status
 			FROM 	student_identification as si 
 						INNER JOIN 
-					STUDENT_ENROLLMENT AS se 
+					student_enrollment AS se 
 						ON si.id = se.student_fk
           				INNER JOIN  
           			classroom AS cr 
@@ -668,7 +668,29 @@ foreach ($student_identification as $key => $collun) {
 	$result = $stiv->checkMultiple($collun['deficiency'], $collun['deficiency_type_multiple_disabilities'], $deficiencies_sample);
 	if(!$result["status"]) array_push($log, array("deficiency_type_multiple_disabilities"=>$result["erro"]));
 			
+	//campo 30 à 39
+	$sql = "SELECT  COUNT(si.id) AS status
+			FROM 	student_identification AS si 
+						INNER JOIN 
+					student_enrollment AS se 
+						ON si.id = se.student_fk
+			WHERE 	se.edcenso_stage_vs_modality_fk in (16, 7, 18, 11, 41, 27, 28, 32, 33, 37, 38)  
+					AND si.id = '$student_id';";
+	$demandresources = $db->select($sql);
+	
+	$resources = array($collun['deficiency_type_blindness'],
+						$collun['deficiency_type_low_vision'],
+						$collun['deficiency_type_deafness'],
+						$collun['deficiency_type_disability_hearing'],
+						$collun['deficiency_type_deafblindness'],
+						$collun['deficiency_type_phisical_disability'],
+						$collun['deficiency_type_intelectual_disability']);
 
+	$result = $stiv->inNeedOfResources(array_pop($deficiencies_whole), $demandresources, $resources);
+	if(!$result["status"]) array_push($log, array("resources"=>$result["erro"]));
+
+	//Adicionando log da row
+	if($log != null) $student_identification_log["row $key"] = $log;
 
 }
 

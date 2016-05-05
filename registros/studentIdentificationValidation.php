@@ -45,6 +45,12 @@ class studentIdentificationValidation extends Register{
 		return array("status"=>true,"erro"=>"");
 
 	}
+
+	function inNeedOfResources($deficiencies, $demandresources, $resources){
+
+		$result = $this->atLeastOne($deficiencies)
+
+	}
 }
 
 ?>

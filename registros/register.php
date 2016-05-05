@@ -127,7 +127,7 @@ class Register
 
 		$regex="/^[a-zA-Z ]+$/";
 		if (!preg_match($regex, $value)){
-			return array("status"=>false,"erro"=>"aqui'$value' contém caracteres inválidos");
+			return array("status"=>false,"erro"=>"'$value' contém caracteres inválidos");
 		}
 
 		return array("status"=>true,"erro"=>"");
