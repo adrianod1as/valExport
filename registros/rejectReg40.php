@@ -9,13 +9,11 @@ class InstructorDocumentsAndAddress{
  function isRegisterType40($register_type){
 
 	 	if(strlen($register_type) > 2 ){
-	 		echo "Tipo de registro com tamanho invalido";
-			return false;
+	 		return array("status"=>false,"erro"=>"Tipo de registro com tamanho invalido");
 	 	}
 
 	 	else if($register_type != 40){
-	 		echo "Tipo de registro invalido";
-	 		return false;
+	 		return array("status"=>false,"erro"=>"Tipo de registro invalido");
 	 	}
 	 	else return array("status"=>true,"erro"=>"");
 }
