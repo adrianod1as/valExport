@@ -7,6 +7,7 @@ require_once(dirname(__FILE__) .  $DS . "db" .  $DS . "database.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "schoolStructureValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "InstructorIdentificationValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "studentIdentificationValidation.php");
+require_once(dirname(__FILE__) . $DS . "registros" . $DS . "studentEnrollmentValidation.php");
 
 
 
@@ -702,9 +703,31 @@ foreach ($student_identification as $key => $collun) {
 
 }
 
+$sev = new studentEnrollmentValidation();
+$student_enrollment_log = array();
+
+
+foreach ($student_enrollment as $key => $collun) {
+
+	$school_inep_id_fk = $collun["school_inep_id_fk"];
+	$log = array();
+
+	//campo 1
+	$result = $sev->isRegister("80", $collun['register_type']);
+	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+	//Adicionando log da row
+	if($log != null) $student_enrollment_log["row $key"] = $log;
+
+}
+
+
+
+
 $register_log = array('Register 10' => $school_structure_log, 
 						'Register 30' => $instructor_identification_log,
-						'Register 60' => $student_identification_log);
+						'Register 60' => $student_identification_log,
+						'Register 80' => $student_enrollment_log);
 echo json_encode($register_log);
 
 

@@ -1,5 +1,9 @@
 <?php
 
+$DS = DIRECTORY_SEPARATOR;
+
+require_once(dirname(__FILE__) .  $DS . "register.php");
+
 class studentIdentificationValidation extends Register{
 	
 	function __construct() {
