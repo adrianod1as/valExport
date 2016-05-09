@@ -18,7 +18,6 @@ class StudentDocumentsAndAddress{
 	 		return array("status"=>false,"erro"=>"Tipo de registro invalido");
 	  	}
 		 return array("status"=>true,"erro"=>"");
-
 }
 
 //campo 2 
@@ -258,7 +257,7 @@ function isCivilCertificationTypeValid($type,$Reg70Field5,$Reg60Field12,$birthda
 
 					if($mesAtual < $mesNiver){
 						$idade--;
-						echo $idade;
+						
 					}
 					else if($mesAtual == $mesNiver and $diaAtual < $diaNiver){
 						$idade--;
