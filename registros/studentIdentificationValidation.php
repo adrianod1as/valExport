@@ -46,10 +46,24 @@ class studentIdentificationValidation extends Register{
 
 	}
 
-	function inNeedOfResources($deficiencies, $demandresources, $resources){
+	function inNeedOfResources($deficiencies, $demandresources, $resources, $deficiency_type_blindness, $deficiency_type_deafblindness){
 
-		$result = $this->atLeastOne($deficiencies)
+		$first_result = $this->atLeastOne($deficiencies);
+		if($first_result['status'] && $demandresources > '0'){
+			$second_result = $this->atLeastOne($resources);
+			if(!$second_result['status']){
+				return array("status"=>false,"erro"=>$second_result['erro']);
+			}
+		}
+		if($deficiency_type_deafblindness == '1' || $deficiency_type_blindness == '1'){
+			$resource_aid_transcription = array_pop($resources);
+			$result = $this->atLeastOne($resources);
+			if(!($resource_aid_transcription == '1' && $result['status'])){
+				return array("status"=>false,"erro"=>"Campo 31 vale 0 ou ".$result['erro']);
+			}
+		}
 
+		return array("status"=>true,"erro"=>"");
 	}
 }
 

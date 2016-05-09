@@ -678,15 +678,23 @@ foreach ($student_identification as $key => $collun) {
 					AND si.id = '$student_id';";
 	$demandresources = $db->select($sql);
 	
-	$resources = array($collun['deficiency_type_blindness'],
-						$collun['deficiency_type_low_vision'],
-						$collun['deficiency_type_deafness'],
-						$collun['deficiency_type_disability_hearing'],
-						$collun['deficiency_type_deafblindness'],
-						$collun['deficiency_type_phisical_disability'],
-						$collun['deficiency_type_intelectual_disability']);
+	$resources = array($collun['resource_aid_lector'],
+						$collun['resource_interpreter_guide'],
+						$collun['resource_interpreter_libras'],
+						$collun['resource_lip_reading'],
+						$collun['resource_zoomed_test_16'],
+						$collun['resource_zoomed_test_20'],
+						$collun['resource_zoomed_test_24'],
+						$collun['resource_braille_test'],
+						$collun['resource_none'],
+						$collun['resource_aid_transcription']);
 
-	$result = $stiv->inNeedOfResources(array_pop($deficiencies_whole), $demandresources, $resources);
+	array_pop($deficiencies_whole);
+	$result = $stiv->inNeedOfResources($deficiencies_whole, 
+										$demandresources, 
+										$resources, 
+										$collun['deficiency_type_blindness'],
+										$collun['deficiency_type_deafblindness']);
 	if(!$result["status"]) array_push($log, array("resources"=>$result["erro"]));
 
 	//Adicionando log da row
