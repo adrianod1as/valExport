@@ -424,7 +424,22 @@ class Register
 		
 	}
 
+	function ifDemandsCheckValues($demand, $value, $allowed_values){
 
+		if($demand == '1'){
+			$result = $this->isAllowed($value, $allowed_values);
+			if(!$result['status']){
+				return array("status"=>false,"erro"=>$result['erro']);
+			}
+		}else{
+			if($value != null){
+				return array("status"=>false,"erro"=>"value $value deveria ser nulo");
+			}	
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
 
 }
 

@@ -36,7 +36,7 @@ $school_identification = $db->select($sql);
 $sql = "SELECT inep_id FROM school_identification;";
 $array = $db->select($sql);
 foreach ($array as $key => $value) {
-	$allowed_inep_ids[] = $value['inep_id'];
+	$allowed_school_inep_ids[] = $value['inep_id'];
 }
 
 //Registro 10
@@ -66,6 +66,13 @@ $instructor_teaching_data = $db->select($sql);
 //Registro 60
 $sql = "SELECT * FROM student_identification";
 $student_identification = $db->select($sql);
+
+//Inep ids permitidos
+$sql = "SELECT inep_id FROM student_identification;";
+$array = $db->select($sql);
+foreach ($array as $key => $value) {
+	$allowed_students_inep_ids[] = $value['inep_id'];
+}
 
 //Registro 70
 $sql = "SELECT * FROM student_documents_and_address";
@@ -163,7 +170,7 @@ foreach ($school_structure as $key => $collun) {
 
 	//campo 2
 	$result = $ssv->isAllowed($school_inep_id_fk, 
-									$allowed_inep_ids);
+									$allowed_school_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
 	//campo 3 à 11
@@ -450,7 +457,7 @@ foreach ($instructor_identification as $key => $collun) {
 
 	//campo 2
 	$result = $iiv->isAllowedInepId($school_inep_id_fk, 
-									$allowed_inep_ids);
+									$allowed_school_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
 		
@@ -556,7 +563,7 @@ foreach ($student_identification as $key => $collun) {
 
 	//campo 2
 	$result = $stiv->isAllowedInepId($school_inep_id_fk, 
-									$allowed_inep_ids);
+									$allowed_school_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
 	//campo 3
@@ -710,11 +717,64 @@ $student_enrollment_log = array();
 foreach ($student_enrollment as $key => $collun) {
 
 	$school_inep_id_fk = $collun["school_inep_id_fk"];
+	$student_inep_id_fk = $collun["student_inep_id"];
+	$classroom_fk = $collun['classroom_fk'];
 	$log = array();
 
 	//campo 1
 	$result = $sev->isRegister("80", $collun['register_type']);
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+	//campo 2
+	$result = $sev->isAllowedInepId($school_inep_id_fk, 
+									$allowed_school_inep_ids);
+	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
+
+	//campo 3
+	$result = $sev->isAllowedInepId($student_inep_id_fk, 
+									$allowed_students_inep_ids);
+	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
+
+	//campo 4
+	$sql = "SELECT COUNT(inep_id) AS status FROM student_identification WHERE inep_id = '$student_inep_id';";
+	$check = $db->select($sql);
+
+	$result = $sev->isEqual($check[0]['status'],'1', 'Não há tal student_inep_id $student_inep_id');
+	if(!$result["status"]) array_push($log, array("student_inep_id"=>$result["erro"]));
+
+	//campo 05
+	$result = $sev->isNull($collun['classroom_inep_id']);
+	if(!$result["status"]) array_push($log, array("classroom_inep_id"=>$result["erro"]));
+	
+	//campo 6
+	
+	$sql = "SELECT COUNT(id) AS status FROM classroom WHERE id = '$classroom_fk';";
+	$check = $db->select($sql);
+
+	$result = $sev->isEqual($check[0]['status'],'1', 'Não há tal classroom_id $classroom_fk');
+	if(!$result["status"]) array_push($log, array("student_inep_id"=>$result["erro"]));
+
+	//campo 07
+	$result = $sev->isNull($collun['enrollment_id']);
+	if(!$result["status"]) array_push($log, array("enrollment_id"=>$result["erro"]));
+
+	//campo 8
+	
+	$sql = "SELECT COUNT(id) AS status FROM classroom WHERE id = '$classroom_fk' AND edcenso_stage_vs_modality_fk = '3';";
+	$check = $db->select($sql);
+
+	$result = $sev->ifDemandsCheckValues($check[0]['status'], $collun['unified_class'], array('1', '2'));
+	if(!$result["status"]) array_push($log, array("student_inep_id"=>$result["erro"]));
+
+	//campo 9
+
+	$sql = "SELECT edcenso_stage_vs_modality_fk FROM classroom WHERE id = '$classroom_fk';";
+	$check = $db->select($sql);
+
+	$edcenso_svm = $check[0]['edcenso_stage_vs_modality_fk'];
+
+	$result = $sev->multiLevel($collun['edcenso_stage_vs_modality_fk'], $edcenso_svm);
+	if(!$result["status"]) array_push($log, array("edcenso_stage_vs_modality_fk"=>$result["erro"]));
 
 	//Adicionando log da row
 	if($log != null) $student_enrollment_log["row $key"] = $log;
