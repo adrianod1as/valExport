@@ -56,9 +56,6 @@ class studentEnrollmentValidation extends Register{
 				}
 			}
 
-
-
-
 		}else{
 			if($value != null){
 				return array("status"=>false,"erro"=>"value $value deveria ser nulo");
@@ -68,6 +65,94 @@ class studentEnrollmentValidation extends Register{
 		return array("status"=>true,"erro"=>"");
 
 	}
+
+	function anotherScholarizationPlace($value, $assistance_type, $pedagogical_mediation_type){
+		
+		if($assistance_type != '4' && $assistance_type != '5' && $pedagogical_mediation_type == '1'){
+			$result = $this->isAllowed($value, array("1", "2", "3"));
+			if(!$result['status']){
+				return array("status"=>false,"erro"=>$result['erro']);
+			}
+		}else{
+			if($value != null){
+				return array("status"=>false,"erro"=>"value $value deveria ser nulo");
+			}
+		}
+
+		if($assistance_type == '1'){
+			if($value != '1'){
+				return array("status"=>false,"erro"=>"value $value deveria ser 1");
+			}	
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	function publicTransportation($value, $pedagogical_mediation_type){
+
+		if($assistance_type == '1' || $assistance_type == '2'){
+			if(!($value == '1' || $value == '0')){
+				return array("status"=>false,"erro"=>"value $value não é disponível");
+			}
+		}else{
+			if($value != null){
+				return array("status"=>false,"erro"=>"value $value deveria ser nulo");
+			}	
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	function vehiculesTypes($public_transport, $types){
+
+		if($public_transport == '1'){
+
+			$result = $this->checkRangeOfArray($types, array("0", "1"));
+			if(!$result['status']){
+				return array("status"=>false,"erro"=>$result['erro']);
+			}
+
+			$result = $this->allowedNumberOfTypes($types, '1', 3);
+			if(!$result['status']){
+				return array("status"=>false,"erro"=>$result['erro']);
+			}
+		}else{
+			foreach ($types as $key => $value) {
+				if($value != null){
+					return array("status"=>false,"erro"=>"value $value deveria ser nulo");
+				}	
+			}
+		}
+
+		return array("status"=>true,"erro"=>"");
+
+	}
+
+	function studentEntryForm($value, $administrative_dependence, $edcenso_svm){
+
+		$edcenso_svm_allowed_values = array('39', '40', '64', '30', '31', '32', '33', '34', '74');
+		$first_result = $this->isAllowed($edcenso_svm, $edcenso_svm_allowed_values);
+
+		if($administrative_dependence == '1' && $first_result['status']){
+
+			$allowed_values = array('1', '2', '3', '4', '5', '6', '7', '8','9');
+			$second_result = $this->isAllowed($value, $allowed_values);
+			if(!$result['status']){
+				return array("status"=>false,"erro"=>$result['erro']);
+			}
+
+		}else{
+			if($value != null){
+					return array("status"=>false,"erro"=>"value $value deveria ser nulo");
+			}	
+		}
+
+		return array("status"=>true,"erro"=>"");
+	}
+
+
 
 }
 

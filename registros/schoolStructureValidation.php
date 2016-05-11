@@ -80,19 +80,7 @@ class SchoolStructureValidation extends Register{
 
 	}
 
-	//campo 21 à 25, 26 à 29, 30 à 32, 39 à 68
-	
 
-	function checkRangeOfArray($array, $allowed_values){
-
-		foreach ($array as $key => $value) {
-			$result = $this->isAllowed($value, $allowed_values);
-			if(!$result["status"]){
-				return array("status"=>false,"erro"=>"Valor $value de ordem $key não está entre as opções");
-			}
-		}
-		return array("status"=>true,"erro"=>"");
-	}
 
 	function supply($supply_locations){
 

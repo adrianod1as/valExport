@@ -733,14 +733,14 @@ foreach ($student_enrollment as $key => $collun) {
 	//campo 3
 	$result = $sev->isAllowedInepId($student_inep_id_fk, 
 									$allowed_students_inep_ids);
-	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
+	if(!$result["status"]) array_push($log, array("student_inep_id"=>$result["erro"]));
 
 	//campo 4
 	$sql = "SELECT COUNT(inep_id) AS status FROM student_identification WHERE inep_id = '$student_inep_id';";
 	$check = $db->select($sql);
 
 	$result = $sev->isEqual($check[0]['status'],'1', 'Não há tal student_inep_id $student_inep_id');
-	if(!$result["status"]) array_push($log, array("student_inep_id"=>$result["erro"]));
+	if(!$result["status"]) array_push($log, array("student_fk"=>$result["erro"]));
 
 	//campo 05
 	$result = $sev->isNull($collun['classroom_inep_id']);
@@ -752,7 +752,7 @@ foreach ($student_enrollment as $key => $collun) {
 	$check = $db->select($sql);
 
 	$result = $sev->isEqual($check[0]['status'],'1', 'Não há tal classroom_id $classroom_fk');
-	if(!$result["status"]) array_push($log, array("student_inep_id"=>$result["erro"]));
+	if(!$result["status"]) array_push($log, array("classroom_fk"=>$result["erro"]));
 
 	//campo 07
 	$result = $sev->isNull($collun['enrollment_id']);
@@ -764,7 +764,7 @@ foreach ($student_enrollment as $key => $collun) {
 	$check = $db->select($sql);
 
 	$result = $sev->ifDemandsCheckValues($check[0]['status'], $collun['unified_class'], array('1', '2'));
-	if(!$result["status"]) array_push($log, array("student_inep_id"=>$result["erro"]));
+	if(!$result["status"]) array_push($log, array("unified_class"=>$result["erro"]));
 
 	//campo 9
 
@@ -775,6 +775,57 @@ foreach ($student_enrollment as $key => $collun) {
 
 	$result = $sev->multiLevel($collun['edcenso_stage_vs_modality_fk'], $edcenso_svm);
 	if(!$result["status"]) array_push($log, array("edcenso_stage_vs_modality_fk"=>$result["erro"]));
+
+	//campo 10
+	$sql = "SELECT assistance_type, pedagogical_mediation_type FROM classroom WHERE id = '$classroom_fk';";
+	$check = $db->select($sql);
+	$assistance_type = $check[0]['assistance_type'];
+	$pedagogical_mediation_type = $check[0]['pedagogical_mediation_type'];
+
+	$result = $sev->anotherScholarizationPlace($collun['another_scholarization_place'], $assistance_type, $pedagogical_mediation_type);
+	if(!$result["status"]) array_push($log, array("another_scholarization_place"=>$result["erro"]));
+
+	//campo 11
+	$result = $sev->publicTransportation($collun['public_transport'], $pedagogical_mediation_type);
+	if(!$result["status"]) array_push($log, array("public_transport"=>$result["erro"]));
+
+	//campo 12
+	$result = $sev->ifDemandsCheckValues($collun['public_transport'], $collun['transport_responsable_government'], array('1', '2'));
+	if(!$result["status"]) array_push($log, array("transport_responsable_government"=>$result["erro"]));
+
+	//campo 13 à 23
+	
+	$vehicules_types = array($collun['vehicle_type_van'],
+								$collun['vehicle_type_microbus'],
+								$collun['vehicle_type_bus'],
+								$collun['vehicle_type_bike'],
+								$collun['vehicle_type_other_vehicle'],
+								$collun['vehicle_type_waterway_boat_5'],
+								$collun['vehicle_type_waterway_boat_5_15'],
+								$collun['vehicle_type_waterway_boat_15_35'],
+								$collun['vehicle_type_waterway_boat_35'],
+								$collun['vehicle_type_metro_or_train']);
+
+	$result = $sev->vehiculesTypes($collun['public_transport'], $vehicules_types);
+	if(!$result["status"]) array_push($log, array("vehicules_types"=>$result["erro"]));
+
+
+	//24
+
+	$sql = "SELECT se.administrative_dependence
+			FROM school_identification AS se 
+			WHERE se.inep_id = '$school_inep_id_fk';";
+
+	$check = $db->select($sql);
+
+	$administrative_dependence = $check[0]['administrative_dependence'];
+
+	$result = $sev->studentEntryForm($collun['student_entry_form'], $administrative_dependence, $edcenso_svm);
+	if(!$result["status"]) array_push($log, array("student_entry_form"=>$result["erro"]));
+
+	
+	
+
 
 	//Adicionando log da row
 	if($log != null) $student_enrollment_log["row $key"] = $log;
