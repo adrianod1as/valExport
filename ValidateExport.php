@@ -835,13 +835,45 @@ $instructor_teaching_data_log = array();
 foreach ($instructor_teaching_data as $key => $collun) {
 
 	$school_inep_id_fk = $collun["school_inep_id_fk"];
-	$student_inep_id_fk = $collun["instructor_inep_id"];
+	$instructor_inep_id = $collun["instructor_inep_id"];
+	$instructor_fk = $collun['instructor_fk'];
 	$classroom_fk = $collun['classroom_id_fk'];
 	$log = array();
 
 	//campo 1
 	$result = $itdv->isRegister("51", $collun['register_type']);
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+	//campo 2
+	$result = $itdv->isAllowedInepId($school_inep_id_fk, 
+									$allowed_school_inep_ids);
+	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
+
+	//campo 03
+	$sql = "SELECT COUNT(inep_id) AS status FROM instructor_identification WHERE inep_id =  '$instructor_inep_id'";
+	$check = $db->select($sql);
+
+	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal instructor_inep_id $instructor_inep_id');
+	if(!$result["status"]) array_push($log, array("instructor_inep_id"=>$result["erro"]));
+
+	//campo 4
+	$sql = "SELECT COUNT(id) AS status FROM instructor_identification WHERE id =  '$instructor_fk'";
+	$check = $db->select($sql);
+
+	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal instructor_fk $instructor_fk');
+	if(!$result["status"]) array_push($log, array("instructor_inep_id"=>$result["erro"]));
+
+	//campo 5
+	$result = $iiv->isNull($collun['classroom_inep_id']);
+	if(!$result["status"]) array_push($log, array("nis"=>$result["erro"]));
+
+	//campo 6
+	$sql = "SELECT COUNT(id) AS status FROM classroom WHERE id = '$classroom_fk';";
+	$check = $db->select($sql);
+
+	$result = $iiv->isEqual($check[0]['status'],'1', 'Não há tal classroom_id $classroom_fk');
+	if(!$result["status"]) array_push($log, array("classroom_fk"=>$result["erro"]));
+
 
 	//Adicionando log da row
 	if($log != null) $instructor_teaching_data_log["row $key"] = $log;
