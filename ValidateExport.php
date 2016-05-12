@@ -6,9 +6,9 @@ $DS = DIRECTORY_SEPARATOR;
 require_once(dirname(__FILE__) .  $DS . "db" .  $DS . "database.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "schoolStructureValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "InstructorIdentificationValidation.php");
+require_once(dirname(__FILE__) . $DS . "registros" . $DS . "instructorTeachingDataValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "studentIdentificationValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "studentEnrollmentValidation.php");
-
 
 
 //Recebendo ano via HTTP ou via argumento no console.
@@ -823,20 +823,35 @@ foreach ($student_enrollment as $key => $collun) {
 	$result = $sev->studentEntryForm($collun['student_entry_form'], $administrative_dependence, $edcenso_svm);
 	if(!$result["status"]) array_push($log, array("student_entry_form"=>$result["erro"]));
 
-	
-	
-
-
 	//Adicionando log da row
 	if($log != null) $student_enrollment_log["row $key"] = $log;
 
 }
 
+$itdv = new instructorTeachingDataValidation();
+$instructor_teaching_data_log = array();
+
+
+foreach ($instructor_teaching_data as $key => $collun) {
+
+	$school_inep_id_fk = $collun["school_inep_id_fk"];
+	$student_inep_id_fk = $collun["instructor_inep_id"];
+	$classroom_fk = $collun['classroom_id_fk'];
+	$log = array();
+
+	//campo 1
+	$result = $itdv->isRegister("51", $collun['register_type']);
+	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+	//Adicionando log da row
+	if($log != null) $instructor_teaching_data_log["row $key"] = $log;
+}
 
 
 
 $register_log = array('Register 10' => $school_structure_log, 
 						'Register 30' => $instructor_identification_log,
+						'Register 51' => $instructor_teaching_data_log,
 						'Register 60' => $student_identification_log,
 						'Register 80' => $student_enrollment_log);
 echo json_encode($register_log);
