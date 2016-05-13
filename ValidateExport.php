@@ -102,7 +102,6 @@ function areThereByModalitie($people_by_modalitie){
 				if($item['number_of'] > '0')
 					$modalities_regular = true;
 				break;
-			
 			case '2':
 				if($item['number_of'] > '0')
 					$modalities_especial = true;
@@ -139,8 +138,8 @@ $students_by_modalitie = $db->select($sql);
 $are_there_students_by_modalitie = areThereByModalitie($students_by_modalitie);
 
 $sql = "SELECT  modalities, COUNT(itd.instructor_fk) as number_of
-		FROM	edcenso_stage_vs_modality_complementary as esmc 
-					INNER JOIN 
+		FROM	edcenso_stage_vs_modality_complementary as esmc
+					INNER JOIN
 				classroom AS cr
 					ON esmc.fk_edcenso_stage_vs_modality = cr.edcenso_stage_vs_modality_fk
 					INNER JOIN
@@ -456,11 +455,10 @@ foreach ($instructor_identification as $key => $collun) {
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
 
 	//campo 2
-	$result = $iiv->isAllowedInepId($school_inep_id_fk, 
+	$result = $iiv->isAllowedInepId($school_inep_id_fk,
 									$allowed_school_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
-		
 	//campo 3
 	$result = $iiv->isNumericOfSize(12, $collun['inep_id']);
 	if(!$result["status"]) array_push($log, array("inep_id"=>$result["erro"]));
@@ -470,7 +468,7 @@ foreach ($instructor_identification as $key => $collun) {
 	if(!$result["status"]) array_push($log, array("id"=>$result["erro"]));
 
 	//campo 5
-	$result = $iiv->isNameValid($collun['name'], 100, 
+	$result = $iiv->isNameValid($collun['name'], 100,
 								$instructor_documents_and_address[$key]["cpf"]);
 	if(!$result["status"]) array_push($log, array("name"=>$result["erro"]));
 
@@ -794,7 +792,7 @@ foreach ($student_enrollment as $key => $collun) {
 	if(!$result["status"]) array_push($log, array("transport_responsable_government"=>$result["erro"]));
 
 	//campo 13 à 23
-	
+
 	$vehicules_types = array($collun['vehicle_type_van'],
 								$collun['vehicle_type_microbus'],
 								$collun['vehicle_type_bus'],
@@ -829,6 +827,8 @@ foreach ($student_enrollment as $key => $collun) {
 }
 
 $itdv = new instructorTeachingDataValidation();
+
+
 $instructor_teaching_data_log = array();
 
 
@@ -861,20 +861,63 @@ foreach ($instructor_teaching_data as $key => $collun) {
 	$check = $db->select($sql);
 
 	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal instructor_fk $instructor_fk');
-	if(!$result["status"]) array_push($log, array("instructor_inep_id"=>$result["erro"]));
+	if(!$result["status"]) array_push($log, array("instructor_fk"=>$result["erro"]));
 
 	//campo 5
-	$result = $iiv->isNull($collun['classroom_inep_id']);
-	if(!$result["status"]) array_push($log, array("nis"=>$result["erro"]));
+	$result = $itdv->isNull($collun['classroom_inep_id']);
+	if(!$result["status"]) array_push($log, array("classroom_inep_id"=>$result["erro"]));
 
 	//campo 6
 	$sql = "SELECT COUNT(id) AS status FROM classroom WHERE id = '$classroom_fk';";
 	$check = $db->select($sql);
 
-	$result = $iiv->isEqual($check[0]['status'],'1', 'Não há tal classroom_id $classroom_fk');
-	if(!$result["status"]) array_push($log, array("classroom_fk"=>$result["erro"]));
 
 
+	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal classroom_id_fk $classroom_fk');
+	if(!$result["status"]) array_push($log, array("classroom_id_fk"=>$result["erro"]));
+
+	//campo 7
+
+	$sql = "SELECT assistance_type, pedagogical_mediation_type FROM classroom WHERE id = '$classroom_fk';";
+	$check = $db->select($sql);
+	$assistance_type = $check[0]['assistance_type'];
+	$pedagogical_mediation_type = $check[0]['pedagogical_mediation_type'];
+
+	$sql = "SELECT count(cr.id) AS status_instructor
+			FROM 	classroom as cr 
+						INNER JOIN 
+					instructor_teaching_data AS itd
+						ON itd.classroom_id_fk = cr.id
+			WHERE 	cr.id = '$classroom_fk' AND itd.id != 'instructor_fk';";
+	$check = $db->select($sql);
+	$status_instructor = $check[0]['status_instructor'];
+
+
+	$sql = "SELECT count(si.id) AS status_student
+			FROM 	classroom AS cr 
+						INNER JOIN 
+					instructor_teaching_data AS itd
+						ON itd.classroom_id_fk = cr.id
+						INNER JOIN
+					instructor_identification as ii
+						ON ii.id = itd.instructor_fk
+						INNER JOIN
+					student_enrollment AS se
+						ON se.classroom_fk =cr.id 
+						INNER JOIN 
+					student_identification AS si
+					 	on si.id = se.student_fk
+			WHERE 	cr.id = '$classroom_fk' AND ii.id = 'instructor_fk'
+					AND 
+					(ii.deficiency_type_deafness = '1' OR ii.deficiency_type_disability_hearing = '1' OR
+					ii.deficiency_type_deafblindness = '1' OR si.deficiency_type_deafness = '1' OR
+					si.deficiency_type_deafblindness = '1');";
+	$check = $db->select($sql);
+	$status_instructor = $check[0]['status_student'];
+
+	$result = $itdv->checkRole($collun['role'], $pedagogical_mediation_type, 
+								$assistance_type, $status_instructor, $status_student );
+	if(!$result["status"]) array_push($log, array("role"=>$result["erro"]));
 	//Adicionando log da row
 	if($log != null) $instructor_teaching_data_log["row $key"] = $log;
 }
