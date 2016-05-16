@@ -469,15 +469,36 @@ class Register
 		return array("status"=>true,"erro"=>"");
 	}
 
-	//1098 à 10100
-	function exclusive($itens){
+	function adaptedArrayCount($items){
+		$result = array();
 
-		$count = array_count_values($itens);
-		if (max($count) > 1) 
-			return array("status"=>false,"erro"=>"Há mais de um valor marcado");
+		foreach ($items as $key => $value) {
+			if($value != null){
+				if (array_key_exists($value, $result)){
+					$result[$value] += 1;
+				}else{
+					$result[$value] = 1;
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	//1098 à 10100
+	function exclusive($items){
+
+		$count = $this->adaptedArrayCount($items);
+		if(!empty($count)){
+			if (max($count) > 1) 
+				return array("status"=>false,"erro"=>"Há mais de um valor marcado");
+		}
+		
 		return array("status"=>true,"erro"=>"");
 
 	}
+
+	
 }
 
 ?>

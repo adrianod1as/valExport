@@ -64,7 +64,7 @@ class instructorTeachingDataValidation extends Register{
 		return array("status"=>true,"erro"=>"");
 	}
 
-	function disciplineOne($discipline_code_one){
+	function disciplineOne($discipline_code_one, $role, $assistance_type, $edcenso_svm){
 
 		if(	!(in_array($role, array('1', '5', '6')) && 
 			in_array($assistance_type, array('4', '5')) &&
@@ -81,9 +81,11 @@ class instructorTeachingDataValidation extends Register{
 
 	function checkDisciplineCode($disciplines_codes, $role, $assistance_type, $edcenso_svm, $disciplines){
 
-		$result = $this->exclusive($disciplines_codes);
-		if(!$result['status']){
-				return array("status"=>false,"erro"=>$result['erro']);
+		if(!empty($disciplines_codes)){
+			$result = $this->exclusive($disciplines_codes);
+			if(!$result['status']){
+					return array("status"=>false,"erro"=>$result['erro']);
+			}			
 		}
 
 		if(	!(in_array($role, array('1', '5', '6')) && 
@@ -92,7 +94,7 @@ class instructorTeachingDataValidation extends Register{
 
 			foreach ($disciplines_codes as $key => $value) {
 				if($value != null){
-					return array("status"=>false,"erro"=>"value $value deveria ser nulo");
+					return array("status"=>false,"erro"=>"value de $value de ordem $key deveria ser nulo");
 				}	
 			}
 		}
