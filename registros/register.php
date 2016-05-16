@@ -468,6 +468,16 @@ class Register
 		}
 		return array("status"=>true,"erro"=>"");
 	}
+
+	//1098 à 10100
+	function exclusive($itens){
+
+		$count = array_count_values($itens);
+		if (max($count) > 1) 
+			return array("status"=>false,"erro"=>"Há mais de um valor marcado");
+		return array("status"=>true,"erro"=>"");
+
+	}
 }
 
 ?>

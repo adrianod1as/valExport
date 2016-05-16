@@ -918,6 +918,9 @@ foreach ($instructor_teaching_data as $key => $collun) {
 	$result = $itdv->checkRole($collun['role'], $pedagogical_mediation_type, 
 								$assistance_type, $status_instructor, $status_student );
 	if(!$result["status"]) array_push($log, array("role"=>$result["erro"]));
+
+	//campo 08
+
 	//Adicionando log da row
 	if($log != null) $instructor_teaching_data_log["row $key"] = $log;
 }

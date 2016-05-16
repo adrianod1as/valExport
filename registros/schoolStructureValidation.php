@@ -324,16 +324,6 @@ class SchoolStructureValidation extends Register{
 		return array("status"=>true,"erro"=>"");
 	}
 
-	//98 à 100
-	function exclusive($itens){
-
-		$count = array_count_values($itens);
-		if ($count["1"] > 1) 
-			return array("status"=>false,"erro"=>"Há mais de um valor marcado");
-		return array("status"=>true,"erro"=>"");
-
-	}
-
 	function materials($itens){
 
 		$len = sizeof($itens);
