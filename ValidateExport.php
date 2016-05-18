@@ -4,6 +4,7 @@ ini_set('memory_limit', '-1');
 $DS = DIRECTORY_SEPARATOR;
 
 require_once(dirname(__FILE__) .  $DS . "db" .  $DS . "database.php");
+require_once(dirname(__FILE__) .  $DS . "exportation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "schoolStructureValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "InstructorIdentificationValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "instructorTeachingDataValidation.php");
@@ -23,107 +24,29 @@ if( $var != null
 	$year = $var;
 }
 
+$export = new Exportation();
+
 //Inicializando Objeto de conexão com o banco
 $db = new Db();
 
 
 //Importanto em arrays todas as tabelas referentes ao registros
+list($school_identification,
+		$school_structure,
+		$classroom,
+		$instructor_identification,
+		$instructor_documents_and_address,
+		$instructor_variable_data,
+		$instructor_teaching_data,
+		$student_identification,
+		$student_documents_and_address,
+		$student_enrollment) = $export->getTables();
 
-//Registro 00
-$sql = "SELECT * FROM school_identification ORDER BY inep_id";
-$school_identification = $db->select($sql);
 
 //Inep ids permitidos
-$sql = "SELECT inep_id FROM school_identification;";
-$array = $db->select($sql);
-foreach ($array as $key => $value) {
-	$allowed_school_inep_ids[] = $value['inep_id'];
-}
+$allowed_school_inep_ids = $export->getAllowedInepIds("school_identification");
+$allowed_students_inep_ids = $export->getAllowedInepIds("student_identification");
 
-//Registro 10
-$sql = "SELECT * FROM school_structure ORDER BY school_inep_id_fk";
-$school_structure = $db->select($sql);
-
-//Registro 20 
-$sql = "SELECT * FROM classroom";
-$classroom = $db->select($sql);
-
-//Registro 30
-$sql = "SELECT * FROM instructor_identification";
-$instructor_identification = $db->select($sql);
-
-//Registro 40 
-$sql = "SELECT * FROM instructor_documents_and_address";
-$instructor_documents_and_address = $db->select($sql);
-
-//Registro 50
-$sql = "SELECT * FROM instructor_variable_data";
-$instructor_variable_data = $db->select($sql);
-
-//Registro 51
-$sql = "SELECT * FROM instructor_teaching_data";
-$instructor_teaching_data = $db->select($sql);
-
-//Registro 60
-$sql = "SELECT * FROM student_identification";
-$student_identification = $db->select($sql);
-
-//Inep ids permitidos
-$sql = "SELECT inep_id FROM student_identification;";
-$array = $db->select($sql);
-foreach ($array as $key => $value) {
-	$allowed_students_inep_ids[] = $value['inep_id'];
-}
-
-//Registro 70
-$sql = "SELECT * FROM student_documents_and_address";
-$student_documents_and_address = $db->select($sql);
-
-//Registro 80
-$sql = "SELECT * FROM student_enrollment";
-$student_enrollment = $db->select($sql);
-
-
-
-
-/*
-*Checa se há o determinado de grupo de pessoas nas modalidades disponíveis
-*uxilia campo 92 à 95 
-*/
-
-function areThereByModalitie($people_by_modalitie){
-	$modalities_regular	= false;
-	$modalities_especial = false;
-	$modalities_eja = false;
-	$modalities_professional = false;
-	foreach ($people_by_modalitie as $key => $item) {
-		switch ($item['modalities']) {
-
-			case '1':
-				if($item['number_of'] > '0')
-					$modalities_regular = true;
-				break;
-			case '2':
-				if($item['number_of'] > '0')
-					$modalities_especial = true;
-				break;
-
-			case '3':
-				if($item['number_of'] > '0')
-					$modalities_eja = true;
-				break;
-
-			case '4':
-				if($item['number_of'] > '0')
-					$modalities_professional = true;
-				break;
-		}
-	}
-	return array("modalities_regular" => $modalities_regular, 
-					"modalities_especial" => $modalities_especial, 
-					"modalities_eja" => $modalities_eja,
-					"modalities_professional" => $modalities_professional);
-}
 
 $sql = "SELECT  modalities, COUNT(se.student_fk) as number_of
 		FROM	edcenso_stage_vs_modality_complementary as esmc 
@@ -135,8 +58,7 @@ $sql = "SELECT  modalities, COUNT(se.student_fk) as number_of
 					ON cr.id = se.classroom_fk
 		WHERE cr.school_year = '$year'
 		GROUP BY esmc.modalities;";
-$students_by_modalitie = $db->select($sql);
-$are_there_students_by_modalitie = areThereByModalitie($students_by_modalitie);
+$are_there_students_by_modalitie = $export->areThereByModalitie($sql);
 
 $sql = "SELECT  modalities, COUNT(itd.instructor_fk) as number_of
 		FROM	edcenso_stage_vs_modality_complementary as esmc
@@ -148,8 +70,7 @@ $sql = "SELECT  modalities, COUNT(itd.instructor_fk) as number_of
 					ON cr.id = itd.classroom_id_fk
 		WHERE cr.school_year = '$year'
 		GROUP BY esmc.modalities;";
-$instructors_by_modalitie = $db->select($sql);
-$are_there_instructors_by_modalitie = areThereByModalitie($students_by_modalitie);
+$are_there_instructors_by_modalitie = $export->areThereByModalitie($sql);
 
 
 /*
@@ -166,6 +87,10 @@ foreach ($school_identification as $key => $collumn) {
 	//campo 1
 	$result = $siv->isRegister("00", $collumn['register_type']);
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+	//campo 2
+	$result = $siv->isInepIdValid($collumn['inep_id']);
+	if(!$result["status"]) array_push($log, array("inep_id"=>$result["erro"]));
 
 
 	//Adicionando log da row
