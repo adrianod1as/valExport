@@ -9,6 +9,7 @@ require_once(dirname(__FILE__) . $DS . "registros" . $DS . "InstructorIdentifica
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "instructorTeachingDataValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "studentIdentificationValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "studentEnrollmentValidation.php");
+require_once(dirname(__FILE__) . $DS . "registros" . $DS . "schoolIdentificationValidation.php");
 
 
 //Recebendo ano via HTTP ou via argumento no console.
@@ -149,6 +150,27 @@ $sql = "SELECT  modalities, COUNT(itd.instructor_fk) as number_of
 		GROUP BY esmc.modalities;";
 $instructors_by_modalitie = $db->select($sql);
 $are_there_instructors_by_modalitie = areThereByModalitie($students_by_modalitie);
+
+
+/*
+*Validação da tabela school_identification
+*Registro 00
+*/
+
+$siv = new SchoolIdentificationValidation();
+$school_identification_log = array();
+
+foreach ($school_identification as $key => $collumn) {
+	$log = array();
+
+	//campo 1
+	$result = $siv->isRegister("00", $collumn['register_type']);
+	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+
+	//Adicionando log da row
+	if($log != null) $school_structure_log["row $key"] = $log;
+}
 
 /*
 *Validação da tabela school_structure
@@ -544,6 +566,165 @@ foreach ($instructor_identification as $key => $collumn) {
 	if($log != null) $instructor_identification_log["row $key"] = $log;
 }
 
+/*
+*Validação da tabela instructor_teaching_data
+*Registro 51
+*/
+
+
+$itdv = new instructorTeachingDataValidation();
+$instructor_teaching_data_log = array();
+
+foreach ($instructor_teaching_data as $key => $collumn) {
+
+	$school_inep_id_fk = $collumn["school_inep_id_fk"];
+	$instructor_inep_id = $collumn["instructor_inep_id"];
+	$instructor_fk = $collumn['instructor_fk'];
+	$classroom_fk = $collumn['classroom_id_fk'];
+	$log = array();
+
+	//campo 1
+	$result = $itdv->isRegister("51", $collumn['register_type']);
+	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+	//campo 2
+	$result = $itdv->isAllowedInepId($school_inep_id_fk, 
+									$allowed_school_inep_ids);
+	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
+
+	//campo 03
+	$sql = "SELECT COUNT(inep_id) AS status FROM instructor_identification WHERE inep_id =  '$instructor_inep_id'";
+	$check = $db->select($sql);
+
+	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal instructor_inep_id $instructor_inep_id');
+	if(!$result["status"]) array_push($log, array("instructor_inep_id"=>$result["erro"]));
+
+	//campo 4
+	$sql = "SELECT COUNT(id) AS status FROM instructor_identification WHERE id =  '$instructor_fk'";
+	$check = $db->select($sql);
+
+	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal instructor_fk $instructor_fk');
+	if(!$result["status"]) array_push($log, array("instructor_fk"=>$result["erro"]));
+
+	//campo 5
+	$result = $itdv->isNull($collumn['classroom_inep_id']);
+	if(!$result["status"]) array_push($log, array("classroom_inep_id"=>$result["erro"]));
+
+	//campo 6
+	$sql = "SELECT COUNT(id) AS status FROM classroom WHERE id = '$classroom_fk';";
+	$check = $db->select($sql);
+
+
+
+	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal classroom_id_fk $classroom_fk');
+	if(!$result["status"]) array_push($log, array("classroom_id_fk"=>$result["erro"]));
+
+	//campo 7
+	$sql = "SELECT assistance_type, pedagogical_mediation_type, edcenso_stage_vs_modality_fk 
+			FROM classroom
+			WHERE id = '$classroom_fk';";
+	$check = $db->select($sql);
+	$assistance_type = $check[0]['assistance_type'];
+	$pedagogical_mediation_type = $check[0]['pedagogical_mediation_type'];
+	$edcenso_svm = $check[0]['edcenso_stage_vs_modality_fk'];
+
+	$sql = "SELECT count(cr.id) AS status_instructor
+			FROM 	classroom as cr 
+						INNER JOIN 
+					instructor_teaching_data AS itd
+						ON itd.classroom_id_fk = cr.id
+			WHERE 	cr.id = '$classroom_fk' AND itd.id != 'instructor_fk';";
+	$check = $db->select($sql);
+	$status_instructor = $check[0]['status_instructor'];
+
+
+	$sql = "SELECT count(si.id) AS status_student
+			FROM 	classroom AS cr 
+						INNER JOIN 
+					instructor_teaching_data AS itd
+						ON itd.classroom_id_fk = cr.id
+						INNER JOIN
+					instructor_identification as ii
+						ON ii.id = itd.instructor_fk
+						INNER JOIN
+					student_enrollment AS se
+						ON se.classroom_fk =cr.id 
+						INNER JOIN 
+					student_identification AS si
+					 	on si.id = se.student_fk
+			WHERE 	cr.id = '$classroom_fk' AND ii.id = 'instructor_fk'
+					AND 
+					(ii.deficiency_type_deafness = '1' OR ii.deficiency_type_disability_hearing = '1' OR
+					ii.deficiency_type_deafblindness = '1' OR si.deficiency_type_deafness = '1' OR
+					si.deficiency_type_deafblindness = '1');";
+	$check = $db->select($sql);
+	$status_instructor = $check[0]['status_student'];
+
+	$result = $itdv->checkRole($collumn['role'], $pedagogical_mediation_type, 
+								$assistance_type, $status_instructor, $status_student );
+	if(!$result["status"]) array_push($log, array("role"=>$result["erro"]));
+
+	//campo 08
+	$sql = "SELECT se.administrative_dependence
+			FROM school_identification AS se 
+			WHERE se.inep_id = '$school_inep_id_fk';";
+
+	$check = $db->select($sql);
+
+	$administrative_dependence = $check[0]['administrative_dependence'];
+
+	$result = $itdv->checkContactType($collumn['contract_type'], $collumn['role'], $administrative_dependence);
+	if(!$result["status"]) array_push($log, array("contract_type"=>$result["erro"]));
+
+	//campo 09
+	$result = $itdv->disciplineOne($collumn['discipline_1_fk'], $collumn['role'], $assistance_type, $edcenso_svm);
+	if(!$result["status"]) array_push($log, array("discipline_1_fk"=>$result["erro"]));
+
+	//campo 09 à 21
+
+	$disciplines_codes = array(	$collumn['discipline_1_fk'],
+								$collumn['discipline_2_fk'],
+								$collumn['discipline_3_fk'],
+								$collumn['discipline_4_fk'],
+								$collumn['discipline_5_fk'],
+								$collumn['discipline_6_fk'],
+								$collumn['discipline_7_fk'],
+								$collumn['discipline_8_fk'],
+								$collumn['discipline_9_fk'],
+								$collumn['discipline_10_fk'],
+								$collumn['discipline_11_fk'],
+								$collumn['discipline_12_fk'],
+								$collumn['discipline_13_fk']);
+
+
+	$sql = "SELECT 		discipline_chemistry, discipline_physics, discipline_mathematics, discipline_biology,
+						discipline_science, discipline_language_portuguese_literature,
+						discipline_foreign_language_english, discipline_foreign_language_spanish,
+						discipline_foreign_language_franch, discipline_foreign_language_other,
+						discipline_arts, discipline_physical_education, discipline_history, discipline_geography,
+						discipline_philosophy, discipline_social_study, discipline_sociology, discipline_informatics,
+						discipline_professional_disciplines, discipline_special_education_and_inclusive_practices,
+						discipline_sociocultural_diversity, discipline_libras, discipline_pedagogical,
+						discipline_religious, discipline_native_language, discipline_others
+			FROM 		classroom
+			WHERE 	id = '$classroom_fk';";
+
+	$check = $db->select($sql);
+
+	$disciplines = array_values($check[0]);
+
+	$result = $itdv->checkDisciplineCode($disciplines_codes, $collumn['role'], $assistance_type, 
+											$edcenso_svm, $disciplines);
+	if(!$result["status"]) array_push($log, array("disciplines_codes"=>$result["erro"]));
+
+	//Adicionando log da row
+	if($log != null) $instructor_teaching_data_log["row $key"] = $log;
+}
+
+/*
+*Validação da tabela student_identification
+*Registro 60
+*/
 
 $stiv = new studentIdentificationValidation();
 $student_identification_log = array();
@@ -708,6 +889,11 @@ foreach ($student_identification as $key => $collumn) {
 
 }
 
+/*
+*Validação da tabela student_enrollment
+*Registro 80
+*/
+
 $sev = new studentEnrollmentValidation();
 $student_enrollment_log = array();
 
@@ -822,161 +1008,12 @@ foreach ($student_enrollment as $key => $collumn) {
 
 }
 
-$itdv = new instructorTeachingDataValidation();
-
-
-$instructor_teaching_data_log = array();
-
-
-foreach ($instructor_teaching_data as $key => $collumn) {
-
-	$school_inep_id_fk = $collumn["school_inep_id_fk"];
-	$instructor_inep_id = $collumn["instructor_inep_id"];
-	$instructor_fk = $collumn['instructor_fk'];
-	$classroom_fk = $collumn['classroom_id_fk'];
-	$log = array();
-
-	//campo 1
-	$result = $itdv->isRegister("51", $collumn['register_type']);
-	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
-
-	//campo 2
-	$result = $itdv->isAllowedInepId($school_inep_id_fk, 
-									$allowed_school_inep_ids);
-	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
-
-	//campo 03
-	$sql = "SELECT COUNT(inep_id) AS status FROM instructor_identification WHERE inep_id =  '$instructor_inep_id'";
-	$check = $db->select($sql);
-
-	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal instructor_inep_id $instructor_inep_id');
-	if(!$result["status"]) array_push($log, array("instructor_inep_id"=>$result["erro"]));
-
-	//campo 4
-	$sql = "SELECT COUNT(id) AS status FROM instructor_identification WHERE id =  '$instructor_fk'";
-	$check = $db->select($sql);
-
-	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal instructor_fk $instructor_fk');
-	if(!$result["status"]) array_push($log, array("instructor_fk"=>$result["erro"]));
-
-	//campo 5
-	$result = $itdv->isNull($collumn['classroom_inep_id']);
-	if(!$result["status"]) array_push($log, array("classroom_inep_id"=>$result["erro"]));
-
-	//campo 6
-	$sql = "SELECT COUNT(id) AS status FROM classroom WHERE id = '$classroom_fk';";
-	$check = $db->select($sql);
 
 
 
-	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal classroom_id_fk $classroom_fk');
-	if(!$result["status"]) array_push($log, array("classroom_id_fk"=>$result["erro"]));
 
-	//campo 7
-	$sql = "SELECT assistance_type, pedagogical_mediation_type, edcenso_stage_vs_modality_fk 
-			FROM classroom
-			WHERE id = '$classroom_fk';";
-	$check = $db->select($sql);
-	$assistance_type = $check[0]['assistance_type'];
-	$pedagogical_mediation_type = $check[0]['pedagogical_mediation_type'];
-	$edcenso_svm = $check[0]['edcenso_stage_vs_modality_fk'];
-
-	$sql = "SELECT count(cr.id) AS status_instructor
-			FROM 	classroom as cr 
-						INNER JOIN 
-					instructor_teaching_data AS itd
-						ON itd.classroom_id_fk = cr.id
-			WHERE 	cr.id = '$classroom_fk' AND itd.id != 'instructor_fk';";
-	$check = $db->select($sql);
-	$status_instructor = $check[0]['status_instructor'];
-
-
-	$sql = "SELECT count(si.id) AS status_student
-			FROM 	classroom AS cr 
-						INNER JOIN 
-					instructor_teaching_data AS itd
-						ON itd.classroom_id_fk = cr.id
-						INNER JOIN
-					instructor_identification as ii
-						ON ii.id = itd.instructor_fk
-						INNER JOIN
-					student_enrollment AS se
-						ON se.classroom_fk =cr.id 
-						INNER JOIN 
-					student_identification AS si
-					 	on si.id = se.student_fk
-			WHERE 	cr.id = '$classroom_fk' AND ii.id = 'instructor_fk'
-					AND 
-					(ii.deficiency_type_deafness = '1' OR ii.deficiency_type_disability_hearing = '1' OR
-					ii.deficiency_type_deafblindness = '1' OR si.deficiency_type_deafness = '1' OR
-					si.deficiency_type_deafblindness = '1');";
-	$check = $db->select($sql);
-	$status_instructor = $check[0]['status_student'];
-
-	$result = $itdv->checkRole($collumn['role'], $pedagogical_mediation_type, 
-								$assistance_type, $status_instructor, $status_student );
-	if(!$result["status"]) array_push($log, array("role"=>$result["erro"]));
-
-	//campo 08
-	$sql = "SELECT se.administrative_dependence
-			FROM school_identification AS se 
-			WHERE se.inep_id = '$school_inep_id_fk';";
-
-	$check = $db->select($sql);
-
-	$administrative_dependence = $check[0]['administrative_dependence'];
-
-	$result = $itdv->checkContactType($collumn['contract_type'], $collumn['role'], $administrative_dependence);
-	if(!$result["status"]) array_push($log, array("contract_type"=>$result["erro"]));
-
-	//campo 09
-	$result = $itdv->disciplineOne($collumn['discipline_1_fk'], $collumn['role'], $assistance_type, $edcenso_svm);
-	if(!$result["status"]) array_push($log, array("discipline_1_fk"=>$result["erro"]));
-
-	//campo 09 à 21
-
-	$disciplines_codes = array(	$collumn['discipline_1_fk'],
-								$collumn['discipline_2_fk'],
-								$collumn['discipline_3_fk'],
-								$collumn['discipline_4_fk'],
-								$collumn['discipline_5_fk'],
-								$collumn['discipline_6_fk'],
-								$collumn['discipline_7_fk'],
-								$collumn['discipline_8_fk'],
-								$collumn['discipline_9_fk'],
-								$collumn['discipline_10_fk'],
-								$collumn['discipline_11_fk'],
-								$collumn['discipline_12_fk'],
-								$collumn['discipline_13_fk']);
-
-
-	$sql = "SELECT 		discipline_chemistry, discipline_physics, discipline_mathematics, discipline_biology,
-						discipline_science, discipline_language_portuguese_literature,
-						discipline_foreign_language_english, discipline_foreign_language_spanish,
-						discipline_foreign_language_franch, discipline_foreign_language_other,
-						discipline_arts, discipline_physical_education, discipline_history, discipline_geography,
-						discipline_philosophy, discipline_social_study, discipline_sociology, discipline_informatics,
-						discipline_professional_disciplines, discipline_special_education_and_inclusive_practices,
-						discipline_sociocultural_diversity, discipline_libras, discipline_pedagogical,
-						discipline_religious, discipline_native_language, discipline_others
-			FROM 		classroom
-			WHERE 	id = '$classroom_fk';";
-
-	$check = $db->select($sql);
-
-	$disciplines = array_values($check[0]);
-
-	$result = $itdv->checkDisciplineCode($disciplines_codes, $collumn['role'], $assistance_type, 
-											$edcenso_svm, $disciplines);
-	if(!$result["status"]) array_push($log, array("disciplines_codes"=>$result["erro"]));
-
-	//Adicionando log da row
-	if($log != null) $instructor_teaching_data_log["row $key"] = $log;
-}
-
-
-
-$register_log = array('Register 10' => $school_structure_log, 
+$register_log = array('Register 00' => $school_identification_log,
+						'Register 10' => $school_structure_log,
 						'Register 30' => $instructor_identification_log,
 						'Register 51' => $instructor_teaching_data_log,
 						'Register 60' => $student_identification_log,
