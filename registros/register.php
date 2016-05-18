@@ -167,6 +167,10 @@ class Register
 	}
 
 	function validateDateformart($date){
+	
+		if($date == '' || $date == null){
+            return array("status" => false,"erro" =>"Data no formato incorreto");   
+        }
 
 		//separa data em dia, mês e ano
 		$mdy = explode('/', $date);

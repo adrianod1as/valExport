@@ -92,9 +92,83 @@ foreach ($school_identification as $key => $collumn) {
 	$result = $siv->isInepIdValid($collumn['inep_id']);
 	if(!$result["status"]) array_push($log, array("inep_id"=>$result["erro"]));
 
+	//campo 3
+	$result = $siv->isManagerCPFValid($collumn['manager_cpf']);
+	if(!$result["status"]) array_push($log, array("manager_cpf"=>$result["erro"]));
+
+	//campo 4
+	$result = $siv->isManagerNameValid($collumn['manager_name']);
+	if(!$result["status"]) array_push($log, array("manager_name"=>$result["erro"]));
+
+	//campo 5
+	$result = $siv->isManagerRoleValid($collumn['manager_role']);
+	if(!$result["status"]) array_push($log, array("manager_role"=>$result["erro"]));
+
+	//campo 6
+	$result = $siv->isManagerEmailValid($collumn['manager_email']);
+	if(!$result["status"]) array_push($log, array("manager_email"=>$result["erro"]));
+
+	//campo 7
+	$result = $siv->isSituationValid($collumn['situation']);
+	if(!$result["status"]) array_push($log, array("situation"=>$result["erro"]));
+
+	//campo 8 e 9
+	$result = $siv->isSchoolYearValid($collumn['initial_date'], $collumn['final_date']);
+	if(!$result["status"]) array_push($log, array("date"=>$result["erro"]));
+
+	//campo 10
+	$result = $siv->isSchoolNameValid($collumn['name']);
+	if(!$result["status"]) array_push($log, array("name"=>$result["erro"]));
+
+	//campo 11
+	$result = $siv->isLatitudeValid($collumn['latitude']);
+	if(!$result["status"]) array_push($log, array("latitude"=>$result["erro"]));
+
+	//campo 12
+	$result = $siv->isLongitudeValid($collumn['longitude']);
+	if(!$result["status"]) array_push($log, array("longitude"=>$result["erro"]));
+
+	//campo 13
+	$result = $siv->isCEPValid($collumn['cep']);
+	if(!$result["status"]) array_push($log, array("longitude"=>$result["erro"]));
+
+	//campo 14
+	$might_be_null = true;
+	$might_not_be_null = false;
+
+
+	$result = $siv->isAddressValid($collumn['address'], $might_not_be_null, 100);
+	if(!$result["status"]) array_push($log, array("address"=>$result["erro"]));
+
+	//campo 15
+	$result = $siv->isAddressValid($collumn['address_number'], $might_be_null, 10);
+	if(!$result["status"]) array_push($log, array("address_number"=>$result["erro"]));
+
+	//campo 16
+	$result = $siv->isAddressValid($collumn['address_complement'], $might_be_null, 20);
+	if(!$result["status"]) array_push($log, array("address_complement"=>$result["erro"]));;
+
+	//campo 17
+	$result = $siv->isAddressValid($collumn['address_neighborhood'], $might_be_null, 50);
+	if(!$result["status"]) array_push($log, array("address_neighborhood"=>$result["erro"]));
+
+	//campo 18
+	$result = $siv->isAddressValid($collumn['edcenso_uf_fk'], $might_not_be_null, 100);
+	if(!$result["status"]) array_push($log, array("edcenso_uf_fk"=>$result["erro"]));
+
+	//campo 19
+	$result = $siv->isAddressValid($collumn['edcenso_city_fk'], $might_not_be_null, 100);
+	if(!$result["status"]) array_push($log, array("edcenso_city_fk"=>$result["erro"]));
+
+	//campo 20
+	$result = $siv->isAddressValid($collumn['edcenso_district_fk'], $might_not_be_null, 100);
+	if(!$result["status"]) array_push($log, array("edcenso_district_fk"=>$result["erro"]));
+
+
+
 
 	//Adicionando log da row
-	if($log != null) $school_structure_log["row $key"] = $log;
+	if($log != null) $school_identification_log["row $key"] = $log;
 }
 
 /*

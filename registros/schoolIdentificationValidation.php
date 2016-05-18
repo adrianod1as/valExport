@@ -149,6 +149,11 @@
 
         //auxiliar dos campos 8 e 9
         function isDateValid($date) {
+
+            if($date == '' || $date == null){
+                return array("status" => false,"erro" =>"Data no formato incorreto");   
+            }
+
             $data = explode('/', $date);
             $dia = $data[0];
             $mes = $data[1];
@@ -165,7 +170,9 @@
 
         //campo 8 e 9
         function isSchoolYearValid($initial_date, $final_date) {
-            if (isDateValid($initial_date) == false && isDateValid($final_date) == false) {
+            $first_result =  $this->isDateValid($initial_date);
+            $second_result = $this->isDateValid($final_date);
+            if (!($first_result['status'] && $second_result['status'])) {
                 return array("status" => false,"erro" =>"Data no formato incorreto");
             } else {
                 $dataInicial = explode('/', $initial_date);
@@ -220,7 +227,7 @@
 
 
         //campo 10
-       /* function isNameValid($name) {
+        function isSchoolNameValid($name) {
             //deve ser no minimo 4
             if (strlen($name) == 0) {
                 return array("status" => false,"erro" =>
@@ -240,7 +247,7 @@
             }
 
             return array("status" => true,"erro" =>"");
-        }*/
+        }
 
         //campo 11
         function isLatitudeValid($latitude) {
