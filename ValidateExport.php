@@ -1,5 +1,6 @@
 <?php
 ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 0);
 
 $DS = DIRECTORY_SEPARATOR;
 
@@ -11,6 +12,8 @@ require_once(dirname(__FILE__) . $DS . "registros" . $DS . "instructorTeachingDa
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "studentIdentificationValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "studentEnrollmentValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "schoolIdentificationValidation.php");
+require_once(dirname(__FILE__) . $DS . "registros" . $DS . "studentDocumentsAndAddressValidation.php");
+require_once(dirname(__FILE__) . $DS . "registros" . $DS . "instructorDocumentsAndAddressValidation.php");
 
 
 //Recebendo ano via HTTP ou via argumento no console.
@@ -29,7 +32,6 @@ $export = new Exportation();
 //Inicializando Objeto de conexão com o banco
 $db = new Db();
 
-
 //Importanto em arrays todas as tabelas referentes ao registros
 list($school_identification,
 		$school_structure,
@@ -46,7 +48,7 @@ list($school_identification,
 //Inep ids permitidos
 $allowed_school_inep_ids = $export->getAllowedInepIds("school_identification");
 $allowed_students_inep_ids = $export->getAllowedInepIds("student_identification");
-
+$allowed_instructor_inep_ids = $export->getAllowedInepIds("instructor_identification");
 
 $sql = "SELECT  modalities, COUNT(se.student_fk) as number_of
 		FROM	edcenso_stage_vs_modality_complementary as esmc 
@@ -564,6 +566,29 @@ foreach ($instructor_identification as $key => $collumn) {
 	//Adicionando log da row
 	if($log != null) $instructor_identification_log["row $key"] = $log;
 }
+
+/*
+*Validação da tabela instructor_documents_and_address
+*Registro 40
+*/
+
+$idav = new InstructorDocumentsAndAddressValidation();
+$instructor_documents_and_address_log = array();
+
+foreach ($instructor_documents_and_address as $key => $collumn) {
+	$log = array();
+
+	$school_inep_id_fk = $collumn["school_inep_id_fk"];
+
+	//campo 1
+	$result = $idav->isRegister("40", $collumn['register_type']);
+	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+	//campo 2
+	$result = $idav->isAllowedInepId($school_inep_id_fk, $allowed_instructor_inep_ids);
+	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
+}
+
 
 /*
 *Validação da tabela instructor_teaching_data

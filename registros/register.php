@@ -67,7 +67,7 @@ class Register
 	}
 
 
-	//campo 1001, 3001, 6001
+	//campo 1001, 3001, 4001, 6001
 	function isRegister($number, $value){
 		$result = $this->isEqual($value, $number, "Valor $value deveria ser $number");
 		if(!$result["status"]){
@@ -77,7 +77,7 @@ class Register
 		return array("status"=>true,"erro"=>"");
 	}
 
-	//campo 1002, 3002, 6002
+	//campo 1002, 3002, 4002, 6002
 	function isAllowedInepId($inep_id, $allowed_inep_ids){
 		if(!in_array($inep_id, $allowed_inep_ids)){
 			return array("status"=>false,"erro"=>"inep_id $inep_id não está entre os permitidos");
