@@ -20,7 +20,7 @@ class SchoolStructureValidation extends Register{
 								"erro"=>"operation_location_building é 1. Valor $value não está enre as õpções");
 			}
 		}elseif($collun3 != 1 && $collun8 != 1){
-			if(!$value == null){
+			if($value != null){
 				return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
 			}
 		}

@@ -193,6 +193,24 @@ foreach ($school_identification as $key => $collumn) {
 													$collumn['administrative_dependence']);
 	if(!$result["status"]) array_push($log, array("private_school_category"=>$result["erro"]));
 
+	//campo 31
+	$result = $siv->isPublicContractValid($collumn['public_contract'],
+													$collumn['situation'], 
+													$collumn['administrative_dependence']);
+	if(!$result["status"]) array_push($log, array("public_contract"=>$result["erro"]));
+
+	//campo 32 - 36
+	$phones = array($collumn['private_school_business_or_individual'],
+					$collumn['private_school_syndicate_or_association'],
+					$collumn['private_school_ong_or_oscip'],
+					$collumn['private_school_non_profit_institutions'],
+					$collumn['private_school_s_system']);
+
+	$result = $siv->checkPrivateSchoolCategory($keepers,
+													$collumn['situation'], 
+													$collumn['administrative_dependence']);
+	if(!$result["status"]) array_push($log, array("keepers"=>$result["erro"]));
+
 	//Adicionando log da row
 	if($log != null) $school_identification_log["row $key"] = $log;
 }
