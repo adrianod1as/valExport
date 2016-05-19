@@ -331,18 +331,44 @@
     }
 
     //campo 21,22,23,24,25
-    function isPhoneValid($ddd, $phone_number, $allowed_lenght) {
-        if (strlen($ddd) != 2) {
-            return array("status" => false,"erro" =>"DDD incorreto");
-        } else {
-            if (strlen($phone_number) != $allowed_lenght) {
-                return array("status" => false,"erro" =>"Telefone com tamanho incorreto");
-            }
-            if (preg_match('/^(.)\1*$/', $phone_number)) {
-                return array("status" => false,"erro" =>"Telefone com padrao incorreto");
-            }
+
+    function isPhoneValid($phone, $low_limit, $high_limit){
+
+        if($phone != ""){
+            return array("status" => false,"erro" =>"Telefone vazio");
+        }
+        if (preg_match('/^(.)\1*$/', $phone_number)) {
+            return array("status" => false,"erro" =>"Telefone $phone com padrao incorreto");
         }
 
+        $len = strlen($phone_number);
+        if ($len < $allowed_lenght || $len > $high_limit) {
+            return array("status" => false,"erro" =>"Telefone $phone com tamanho incorreto");
+        }
+        if($len == $high_limit){
+           if(!(substr($phone,0, 1) != '9')){
+                return array("status" => false,"erro" =>"Telefone $phone deveria iniciar com $high_limit");
+           }
+        }
+        return array("status" => true,"erro" =>"");
+    }
+
+    function checkPhoneNumbers($ddd, $phones){
+         if($ddd != ''){
+            if (strlen($ddd) != 2) {
+                return array("status" => false,"erro" =>"DDD incorreto");
+            }
+            $valid_numbers = 0;
+            foreach ($phones as $key => $phone_number) {
+                $result = $this->isPhoneValid($phone, 8, 9);
+                if($result['status']){
+                    $valid_numbers++;
+                }
+            }
+            if($valid_numbers < 1){
+                return array("status" => false,"erro" =>"Ná há numéros validos preechidos");
+            }
+        }
         return array("status" => true,"erro" =>"");
     }
 
@@ -352,45 +378,35 @@
             return array("status" => false,"erro" =>"Email com tamanho invalido");
         }
 
-        if (!preg_match('/^[^0-9][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[@][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,4}$/', $email)) {
+        if (!preg_match('/^[^0-9][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[@][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,4}$/', 
+                        $email)) {
             return array("status" => false,"erro" =>"Email com padrão invalido");
         }
 
         return array("status" => true,"erro" =>"");
     }
 
-    //campo 27
-    function isEdcensoRegionalEducationOrganValid($inepCode, $value) {
-        if (isInepIdValid($inepCode) == true) {
-            if (strlen($value) != 5) {
-                return array("status" => false,"erro" =>"Email com tamanho invalido");
-            }
-        } else {
-            return array("status" => false,"erro" =>"Codigo inep inválido");
-        }
-    }
 
     //campo 28
-    function isAdministrativeDependenceValid($inep_id, $value) {
-        if (isInepIdValid($inep_id) == false) {
-            return array("status" => false,"erro" =>"Codigo inep inválido");
-        } else {
-            if ($value != 1 || $value != 2 || $value != 3 || $value != 4) {
+    function isAdministrativeDependenceValid($value, $uf) {
+
+        $result = $this->isAllowed($value, array('1', '2', '3', '4'));
+        if(!$result['status']){
+            return array("status"=>false,"erro"=>$result['erro']);
+        }
+
+        if($uf == '53'){
+            if($value == '3'){
                 return array("status" => false,"erro" =>"Dependencia Administrativa inválida");
             }
         }
-
         return array("status" => true,"erro" =>"");
     }
 
     //campo 29
-    function isLocationValid($inep_id, $value) {
-        if (isInepIdValid($inep_id) == false) {
-            return array("status" => false,"erro" =>"Codigo inep inválido");
-        } else {
-            if ($value != 1 || $value != 2) {
-                return array("status" => false,"erro" =>"Lozalização inválida");
-            }
+    function isLocationValid($value) {
+        if ($value != 1 || $value != 2) {
+            return array("status" => false,"erro" =>"Lozalização inválida");
         }
 
         return array("status" => true,"erro" =>"");
@@ -408,15 +424,16 @@
     }
 
     //campo 30
-    function isPrivateSchoolCategoryValid($inep_id, $schoolSituation, $dependency, $privateSchoolCategory) {
-        if (isField7And28Valid($inep_id, $schoolSituation, $dependency) != true) {
-            if ($privateSchoolCategory != 1 || $privateSchoolCategory != 2 ||
-                    $privateSchoolCategory != 3 || $privateSchoolCategory != 4) {
-                return array("status" => false,"erro" =>
-                "O valor public contrat deve ser 1, 2, 3 ou 4");
+    function checkPrivateSchoolCategory($value, $situation, $administrative_dependence){
+        if($situation == '1' && $administrative_dependence == '4'){
+            $result = $this->isAllowed($value, array('1', '2', '3', '4'));
+            if(!$result['status']){
+                return array("status"=>false,"erro"=>$result['erro']);
             }
-        } else {
-            return false;
+        }else{
+            if(!$value == null){
+                return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
+            }
         }
 
         return array("status" => true,"erro" =>"");
