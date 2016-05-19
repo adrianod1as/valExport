@@ -621,6 +621,7 @@ foreach ($instructor_documents_and_address as $key => $collumn) {
 	$log = array();
 
 	$school_inep_id_fk = $collumn["school_inep_id_fk"];
+	$instructor_inep_id = $collumn["inep_id"];
 
 	//campo 1
 	$result = $idav->isRegister("40", $collumn['register_type']);
@@ -629,6 +630,32 @@ foreach ($instructor_documents_and_address as $key => $collumn) {
 	//campo 2
 	$result = $idav->isAllowedInepId($school_inep_id_fk, $allowed_instructor_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
+
+	//campo 3
+	$sql = "SELECT COUNT(inep_id) AS status FROM instructor_documents_and_address WHERE inep_id =  '$instructor_inep_id'";
+	$check = $db->select($sql);
+
+	$result = $idav->isEqual($check[0]['status'],'1', 'Não há tal inep_id $instructor_inep_id');
+	if(!$result["status"]) array_push($log, array("inep_id"=>$result["erro"]));
+
+	//campo 4
+	$result = $idav->isNotGreaterThan($collumn['id'], 20);
+	if(!$result["status"]) array_push($log, array("id"=>$result["erro"]));
+
+	//campo 5
+	$result = $idav->isCPFValid($collumn['cpf']);
+	if(!$result["status"]) array_push($log, array("cpf"=>$result["erro"]));
+
+	//campo 6
+	$result = $idav->isAreaOfResidenceValid($collumn['area_of_residence']);
+	if(!$result["status"]) array_push($log, array("area_of_residence"=>$result["erro"]));
+
+	//campo 7
+	$result = $idav->isCEPValid($collumn['cep']);
+	if(!$result["status"]) array_push($log, array("cep"=>$result["erro"]));	
+
+	//campo 8
+	//$resul = $idav->isAddressValid($collumn['address'])
 }
 
 
