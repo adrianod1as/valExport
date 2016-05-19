@@ -7,30 +7,6 @@
     //registro 40
     class InstructorDocumentsAndAddressValidation extends Register {
         
-        //campo 3 (Deve ser igual ao campo 3 do registro 30)Identicacao Unica do Profissional escolar em sala de aula
-        function isInepCodeValid($code) {
-            if (strlen($code) != 12) {
-                return array("status" => false,"erro" => "O campo Identificação única do Profissional escolar em sala de Aula Inep está com tamanho diferente do especificado.");
-            } else if (!is_numeric($code)) {
-                return array("status" => false,"erro" => "O campo Identificação única do Profissional escolar em sala de Aula Inep foi preenchido com valor inválido");
-            }
-            return array("status" => true,"erro" =>"");
-        }
-        
-        //campo 4 (deve ser igual ao campo 4 do registro 30)
-        function isInstructorIdValid($code) {
-            if ($code == null) {
-                return array("status" => false,"erro" => "O campo ID unico do instrutor em Sala é uma informação obrigatória.");
-            }
-            if (strlen($code) > 20) {
-                return array("status" => false,"erro" => "O campo ID unico do instrutor em Sala está com tamanho diferente do especificado.")
-                ;
-            } else if (!is_numeric($code)) {
-                return array("status" => false,"erro" => "O campo ID unico do instrutor em Sala foi preenchido com valor inválido");
-            }
-            return array("status" => true,"erro" =>"");
-        }
-        
         //campo 5
         function isCPFValid($cpf) {
             if ($cpf == null) {
@@ -78,9 +54,9 @@
     }
 
     //campo 8,9,10,11,12,13
-    function isAddressValid($address, $might_be_null, $allowed_lenght) {
+    function isAddressValid($address, $cep, $allowed_lenght) {
         $regex = "/^[0-9 a-z.,-ºª ]+$/";
-        if (!$might_be_null == true) {
+        if ($cep == null) {
             if ($address == null) {
                 return array("status" => false,"erro" => "O campo de endereço não pode ser nulo.");
             }
