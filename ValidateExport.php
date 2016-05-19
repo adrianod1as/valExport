@@ -166,8 +166,32 @@ foreach ($school_identification as $key => $collumn) {
 	$result = $siv->isAddressValid($collumn['edcenso_district_fk'], $might_not_be_null, 100);
 	if(!$result["status"]) array_push($log, array("edcenso_district_fk"=>$result["erro"]));
 
+	//campo 21-25
 
+	$phones = array($collumn['phone_number'],
+					$collumn['public_phone_number'],
+					$collumn['other_phone_number'],
+					$collumn['fax_number']);
+	$result = $siv->checkPhoneNumbers($collumn['ddd'], $phones);
+	if(!$result["status"]) array_push($log, array("phones"=>$result["erro"]));
 
+	//campo 26
+	$result = $siv->isEmailValid($collumn['email']);
+	if(!$result["status"]) array_push($log, array("email"=>$result["erro"]));
+
+	//campo 28
+	$result = $siv->isAdministrativeDependenceValid($collumn['administrative_dependence'], $collumn['edcenso_uf_fk']);
+	if(!$result["status"]) array_push($log, array("administrative_dependence"=>$result["erro"]));
+
+	//campo 29
+	$result = $siv->isLocationValid($collumn['location']);
+	if(!$result["status"]) array_push($log, array("location"=>$result["erro"]));
+
+	//campo 30
+	$result = $siv->checkPrivateSchoolCategory($collumn['private_school_category'],
+													$collumn['situation'], 
+													$collumn['administrative_dependence']);
+	if(!$result["status"]) array_push($log, array("private_school_category"=>$result["erro"]));
 
 	//Adicionando log da row
 	if($log != null) $school_identification_log["row $key"] = $log;

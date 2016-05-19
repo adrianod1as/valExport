@@ -52,6 +52,18 @@ class Register
 		return array("status"=>true,"erro"=>"");
 	}
 
+	function atLeastOneNotEmpty($items){
+		$number_of_not_empty = 0;
+		for($i = 0; $i < sizeof($items); $i++){
+			if($items[$i] != "")
+				$number_of_not_empty++; 
+		}
+		if($number_of_not_empty==0){
+			return array("status"=>false,"erro"=>"Não há nenhum valor preenchido");
+		}
+		return array("status"=>true,"erro"=>"");
+	}
+
 	function moreThanOne($items){
 
 		$number_of_ones = 0;
