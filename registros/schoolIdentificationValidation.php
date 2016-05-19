@@ -431,7 +431,7 @@
                 return array("status"=>false,"erro"=>$result['erro']);
             }
         }else{
-            if(!$value == null){
+            if($value != null){
                 return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
             }
         }
@@ -476,11 +476,18 @@
     }
 
     //para os campos 37 e 38
-    function isCNPJValid($inep_id, $schoolSituation, $dependency, $cnpj) {
+     function isCNPJValid($cnpj, $situation, $administrative_dependence) {
+
+        if(!($situation == '1' && $administrative_dependence == '4')){
+            if($cnpj != null){
+                return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
+            }
+        }
+
         if (!is_numeric($cnpj)) {
             return array("status" => false,"erro" =>"CNPJ está com padrão inválido");
         }
-        if (strlen($cnpj) != 14 || isField7And28Valid($inep_id, $schoolSituation, $dependency) == false) {
+        if (strlen($cnpj) != 14) {
             return array("status" => false,"erro" =>"O CNPJ está com tamanho errado");
         }
 
@@ -488,13 +495,16 @@
     }
 
     //campo 39
-    function isRegulationValid($schoolSituation, $value) {
+    function isRegulationValid($value, $schoolSituation) {
         //campo 7 deve ser igual a 1
-        if ($schoolSituation != 1) {
-            return array("status" => false,"erro" =>"Situação da escola errada");
-        }
-        if ($value != 0 || $value != 1 || $value != 2) {
-            return array("status" => false,"erro" =>"Regulamentação da escola errada");
+        if ($schoolSituation == 1) {
+            if ($value != 0 || $value != 1 || $value != 2) {
+                return array("status" => false,"erro" =>"Regulamentação da escola errada");
+            }
+        }else{
+            if($value != null){
+                return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
+            }
         }
 
         return array("status" => true,"erro" =>"");

@@ -211,6 +211,24 @@ foreach ($school_identification as $key => $collumn) {
 													$collumn['administrative_dependence']);
 	if(!$result["status"]) array_push($log, array("keepers"=>$result["erro"]));
 
+	//campo 37
+	$result = $siv->isCNPJValid($collumn['private_school_maintainer_cnpj'],
+									$collumn['situation'], 
+									$collumn['administrative_dependence']);
+	if(!$result["status"]) array_push($log, array("private_school_maintainer_cnpj"=>$result["erro"]));
+
+	//campo 38
+	$result = $siv->isCNPJValid($collumn['private_school_cnpj'],
+									$collumn['situation'], 
+									$collumn['administrative_dependence']);
+	if(!$result["status"]) array_push($log, array("private_school_cnpj"=>$result["erro"]));
+
+	//campo 39
+	$result = $siv->isRegulationValid($collumn['offer_or_linked_unity'],
+													$collumn['situation']);
+	if(!$result["status"]) array_push($log, array("offer_or_linked_unity"=>$result["erro"]));
+
+
 	//Adicionando log da row
 	if($log != null) $school_identification_log["row $key"] = $log;
 }
