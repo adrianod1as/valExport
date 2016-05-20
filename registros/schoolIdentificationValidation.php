@@ -521,38 +521,58 @@
         }
     }
 
-    //auxiliar  no campo 41
-    function isInepHeadSchoolValid($InepCode, $HeadSchool, $schoolSituation,
-                                   $hostedcenso_city_fk, $atualedcenso_city_fk, $hostDependencyAdm, $atualDependencyAdm) {
-        if (strlen($HeadSchool) != 8) {
-            return array("status" => false,"erro" =>"Situacao da escola inválida");
-        }
-        //deve ser uma escola em atividade
-        if ($schoolSituation != 1) {
-            return array("status" => false,"erro" =>"Deve ser uma escola em atividade");
-        }
-        //deve ser diferente da atual escola
-        if ($InepCode == $HeadSchool) {
-            return array("status" => false,"erro" =>"deve ser diferente da atual escola");
-        }
-        //deve ser da mesma dependencia administrativa e mesmo edcenso_city_fk
-        if ($hostedcenso_city_fk != $atualedcenso_city_fk || $hostDependencyAdm != $atualDependencyAdm) {
-            return array("status" => false,"erro" =>
-            "deve ser da mesma dependencia administrativa e mesmo edcenso_city_fk");
+    //41
+    function inepHeadSchool($value, $offer_or_linked_unity, $current_inep_id,
+                            $head_school_situation, $head_of_head_school){
+
+        if($offer_or_linked_unity == '1'){
+            if(!is_numeric($value)){
+                return array("status" => false,"erro" =>"Apenas números são permitidos");
+            }
+            if(strlen($value) != 8){
+                return array("status" => false,"erro" =>"Deve conter 8 caracteres");
+            }
+            if($value == $current_inep_id){
+                return array("status" => false,"erro" =>"Inep ids não podem ser idênticos");
+            }
+            if($head_school_situation != '1'){
+                return array("status" => false,"erro" =>"Escola sede não está em atividade");
+            }
+            if($administrative_dependence != $head_school_administrative_dependence){
+                return array("status" => false,"erro" =>"Escola sede e atual diferem em dependência administrativa");
+            }
+            if(substr($current_inep_id, 0, 2) != substr($value, 0, 2){
+                return array("status" => false,"erro" =>"Escolas não são do mesmo estado");
+            }
+            if($current_inep_id == $head_of_head_school){
+                return array("status" => false,"erro" =>"Escola sede não pode ter atual como sede");
+            }
+
+        }else{
+            if($value != null){
+                return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
+            }
         }
 
         return array("status" => true,"erro" =>"");
+
     }
 
-    //auxiliar  no campo 42
-    function isIESCodeValid($IESCode, $schoolSituation) {
-        //nao pode ser IES paralisada ou extinta
-        if ($schoolSituation == 1 || $schoolSituation == 2) {
-            return array("status" => false,"erro" =>"Situacao da escola inválida");
-        }
-        //iES VALIDA
-        if (!is_numeric($IESCode) || strlen($IESCode) != 14) {
-            return array("status" => false,"erro" =>"Codigo IES com tamanho inválido");
+    //42
+    function iesCode($value, $status){
+
+        if($offer_or_linked_unity == '1'){
+            if(!is_numeric($value)){
+                return array("status" => false,"erro" =>"Apenas números são permitidos");
+            }
+            if($status != '1'){
+                return array("status" => false,"erro" =>"IES deve ser existir, está ativa e ser da mesma dependência administrativa");
+            }
+
+        }else{
+            if($value != null){
+                return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
+            }
         }
 
         return array("status" => true,"erro" =>"");
