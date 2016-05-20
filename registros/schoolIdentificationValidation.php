@@ -431,7 +431,7 @@
                 return array("status"=>false,"erro"=>$result['erro']);
             }
         }else{
-            if(!$value == null){
+            if($value != null){
                 return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
             }
         }
@@ -440,26 +440,35 @@
     }
 
     //campo 31
-    function isPublicContractValid($inep_id, $schoolSituation, $dependency, $publicSchool) {
-        if (isField7And28Valid($inep_id, $schoolSituation, $dependency) != true) {
-            if ($privateSchoolCategory != 1 || $privateSchoolCategory != 2 ||
-                    $privateSchoolCategory != 3) {
-                return array("status" => false,"erro" =>"O valor public contrat deve ser 1,2 ou 3")
-                ;
+
+     function isPublicContractValid($value, $situation, $administrative_dependence){
+        $result = $this->isAllowed($value, array('1', '2', '3'));
+        if(!$result['status']){
+            return array("status"=>false,"erro"=>$result['erro']);
+        }
+        if(!($situation == '1' && $administrative_dependence == '4')){
+            if($value != null){
+                return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
             }
-        } else {
-            return false;
         }
 
         return array("status" => true,"erro" =>"");
     }
 
     //campos 32 a 36
-    function isPrivateSchoolMaintainerValid($inep_id, $schoolSituation, $dependency, $maintainerValue) {
-        if (isField7And28Valid($inep_id, $schoolSituation, $dependency) != true) {
-            //campo 32
-            if ($maintainerValue != 0 || $maintainerValue != 1) {
-                return array("status" => false,"erro" =>"O valor para mantainer deve ser 0 ou 1");
+
+    function isPrivateSchoolMaintainerValid($keepers,  $situation, $administrative_dependence){
+
+        if($situation == '1' && $administrative_dependence == '4'){
+            $result = $this->atLeastOne($keepers);
+            if(!$result['status']){
+                return array("status"=>false,"erro"=>$result['erro']);
+            }
+        }else{
+            foreach ($keepers as $key => $value) {
+                if($value != null){
+                    return array("status"=>false, "erro"=>"Valor deveria ser nulo");
+                }
             }
         }
 
@@ -467,11 +476,18 @@
     }
 
     //para os campos 37 e 38
-    function isCNPJValid($inep_id, $schoolSituation, $dependency, $cnpj) {
+     function isCNPJValid($cnpj, $situation, $administrative_dependence) {
+
+        if(!($situation == '1' && $administrative_dependence == '4')){
+            if($cnpj != null){
+                return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
+            }
+        }
+
         if (!is_numeric($cnpj)) {
             return array("status" => false,"erro" =>"CNPJ está com padrão inválido");
         }
-        if (strlen($cnpj) != 14 || isField7And28Valid($inep_id, $schoolSituation, $dependency) == false) {
+        if (strlen($cnpj) != 14) {
             return array("status" => false,"erro" =>"O CNPJ está com tamanho errado");
         }
 
@@ -479,13 +495,16 @@
     }
 
     //campo 39
-    function isRegulationValid($schoolSituation, $value) {
+    function isRegulationValid($value, $schoolSituation) {
         //campo 7 deve ser igual a 1
-        if ($schoolSituation != 1) {
-            return array("status" => false,"erro" =>"Situação da escola errada");
-        }
-        if ($value != 0 || $value != 1 || $value != 2) {
-            return array("status" => false,"erro" =>"Regulamentação da escola errada");
+        if ($schoolSituation == 1) {
+            if ($value != 0 || $value != 1 || $value != 2) {
+                return array("status" => false,"erro" =>"Regulamentação da escola errada");
+            }
+        }else{
+            if($value != null){
+                return array("status"=>false,"erro"=>"Valor $value deveria ser nulo");
+            }
         }
 
         return array("status" => true,"erro" =>"");
