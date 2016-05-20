@@ -541,7 +541,7 @@
             if($administrative_dependence != $head_school_administrative_dependence){
                 return array("status" => false,"erro" =>"Escola sede e atual diferem em dependência administrativa");
             }
-            if(substr($current_inep_id, 0, 2) != substr($value, 0, 2){
+            if(substr($current_inep_id, 0, 2) != substr($value, 0, 2)){
                 return array("status" => false,"erro" =>"Escolas não são do mesmo estado");
             }
             if($current_inep_id == $head_of_head_school){
