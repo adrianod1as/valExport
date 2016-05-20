@@ -53,17 +53,17 @@
         return array("status" => true,"erro" =>"");
     }
 
-    //campo 8,9,10,11,12,13
-    function isAddressValid($address, $cep, $allowed_lenght) {
+    //campo 8, 9, 10, 11, 12, 13
+    function isAdressValid($field, $cep, $allowed_lenght) {
         $regex = "/^[0-9 a-z.,-ºª ]+$/";
         if ($cep == null) {
-            if ($address == null) {
-                return array("status" => false,"erro" => "O campo de endereço não pode ser nulo.");
+            if ($field == null) {
+                return array("status" => false,"erro" => "O campo não pode ser nulo.");
             }
-        } else if (strlen($address) > $allowed_lenght || strlen($address) <= 0) {
-            return array("status" => false,"erro" => "O campo de endereço está com tamanho incorreto.");
-        } else if (!preg_match($regex, $address)) {
-            return array("status" => false,"erro" => "O campo de endereço foi preenchido com valor inválido.");
+        } else if (strlen($field) > $allowed_lenght || strlen($field) <= 0) {
+            return array("status" => false,"erro" => "O campo está com tamanho incorreto.");
+        } else if (!preg_match($regex, $field)) {
+            return array("status" => false,"erro" => "O campo foi preenchido com valor inválido.");
         }
         return array("status" => true,"erro" =>"");
     }
