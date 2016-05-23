@@ -58,8 +58,5 @@ class InstructorIdentificationValidation extends Register
 		return array("status"=>true,"erro"=>"");
 
 	}
-
-
-	
-
 }
+?>

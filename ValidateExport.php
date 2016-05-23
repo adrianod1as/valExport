@@ -644,15 +644,15 @@ foreach ($instructor_documents_and_address as $key => $collumn) {
 	//campo 1
 	$result = $idav->isRegister("40", $collumn['register_type']);
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
-
+	
 	//campo 2
-	$result = $idav->isAllowedInepId($school_inep_id_fk, $allowed_instructor_inep_ids);
+	$result = $idav->isAllowedInepId($school_inep_id_fk,
+									$allowed_school_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
 	//campo 3
 	$sql = "SELECT COUNT(inep_id) AS status FROM instructor_documents_and_address WHERE inep_id =  '$instructor_inep_id'";
 	$check = $db->select($sql);
-
 	$result = $idav->isEqual($check[0]['status'],'1', 'Não há tal inep_id $instructor_inep_id');
 	if(!$result["status"]) array_push($log, array("inep_id"=>$result["erro"]));
 
@@ -665,7 +665,7 @@ foreach ($instructor_documents_and_address as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("cpf"=>$result["erro"]));
 
 	//campo 6
-	$result = $idav->isAreaOfResidenceValid($collumn['area_of_residence']);
+	$result = $idav->isAllowed($collumn['area_of_residence'], array("1", "2"));
 	if(!$result["status"]) array_push($log, array("area_of_residence"=>$result["erro"]));
 
 	//campo 7
@@ -673,27 +673,27 @@ foreach ($instructor_documents_and_address as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("cep"=>$result["erro"]));	
 
 	//campo 8
-	$resul = $idav->isAdressValid($collumn['address'], $collumn['cep'], 100);
+	$result = $idav->isAdressValid($collumn['address'], $collumn['cep'], 100);
 	if(!$result["status"]) array_push($log, array("address"=>$result["erro"]));
 
 	//campo 9
-	$resul = $idav->isAdressValid($collumn['address_number'], $collumn['cep'], 10);
+	$result = $idav->isAdressValid($collumn['address_number'], $collumn['cep'], 10);
 	if(!$result["status"]) array_push($log, array("address_number"=>$result["erro"]));
 
 	//campo 10
-	$resul = $idav->isAdressValid($collumn['complement'], $collumn['cep'], 20);
+	$result = $idav->isAdressValid($collumn['complement'], $collumn['cep'], 20);
 	if(!$result["status"]) array_push($log, array("complement"=>$result["erro"]));
 
 	//campo 11
-	$resul = $idav->isAdressValid($collumn['neighborhood'], $collumn['cep'], 50);
+	$result = $idav->isAdressValid($collumn['neighborhood'], $collumn['cep'], 50);
 	if(!$result["status"]) array_push($log, array("neighborhood"=>$result["erro"]));
 
 	//campo 12
-	$resul = $idav->isAdressValid($collumn['edcenso_uf_fk'], $collumn['cep'], 2);
+	$result = $idav->isAdressValid($collumn['edcenso_uf_fk'], $collumn['cep'], 2);
 	if(!$result["status"]) array_push($log, array("edcenso_uf_fk"=>$result["erro"]));
 
 	//campo 13
-	$resul = $idav->isAdressValid($collumn['edcenso_city_fk'], $collumn['cep'], 7);
+	$result = $idav->isAdressValid($collumn['edcenso_city_fk'], $collumn['cep'], 7);
 	if(!$result["status"]) array_push($log, array("edcenso_city_fk"=>$result["erro"]));
 
 	//Adicionando log da row
@@ -1023,6 +1023,19 @@ foreach ($student_identification as $key => $collumn) {
 	if($log != null) $student_identification_log["row $key"] = $log;
 
 }
+
+/*
+*Validação da tabela student_documents_and_address
+*Registro 70
+*/
+
+$sda = new studentDocumentsAndAddressValidation();
+$student_documents_and_address_log = array();
+
+foreach ($student_documents_and_address as $key => $collumn) {
+	
+}
+
 
 /*
 *Validação da tabela student_enrollment

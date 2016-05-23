@@ -5,7 +5,27 @@
     require_once(dirname(__FILE__) .  $DS . "register.php");
 
     //registro 40
-    class InstructorDocumentsAndAddressValidation extends Register {
+  class InstructorDocumentsAndAddressValidation extends Register {
+
+      //campo 2
+        function isInepIdValid($inep_id) {
+            if ($inep_id == null) {
+                return array("status" => false,"erro" =>
+                "O campo Código de escola - Inep é uma informação obrigatória.");
+            }
+
+            if (strlen($inep_id) != 8) {
+                return array("status" => false,"erro" =>
+                "O campo Código de escola - Inep está com tamanho diferente do especificado.");
+            }
+
+            if (!is_numeric($inep_id)) {
+                return array("status" => false,"erro" =>
+                "O campo Código de escola - Inep foi preenchido com valor inválido");
+            }
+
+            return array("status" => true,"erro" =>"");
+        }
         
         //campo 5
         function isCPFValid($cpf) {
@@ -26,30 +46,23 @@
             return array("status"=>true,"erro"=>"");
         }
 
-    //campo 6
-    function isAreaOfResidenceValid($area_of_residence) {
-        if (strlen($area_of_residence) != 1) {
-            return array("status" => false,"erro" => "O campo Localizacao/Area de Residencia foi preenchido com tamanho invalido");
-        }
-        if ($area_of_residence != 1 || $area_of_residence != 2) {
-            return array("status" => false,"erro" => "O campo Localizacao/Area de Residencia  foi preenchido com valor inválido.");
-        }
-        return array("status" => true,"erro" =>"");
-    }
-
     //campo 7
     function isCEPValid($cep) {
+        // retira espacos em branco
+        $cep = trim($cep);
+        // expressao regular para avaliar o cep
+        $avaliaCep = preg_match('/^[0-9]{5,5}([- ]?[0-9]{4,4})?$/', $cep);
+        
         if ($cep == null) {
             return array("status" => false,"erro" => "O campo CEP é uma informação obrigatória.");
         }
-        if ((count($cep) != 8)) {
+        if (count($cep) != 8 || !$avaliaCep) {
             return array("status" => false,"erro" => "O campo CEP está com tamanho diferente do especificado.");
         }
         if (!is_numeric($cep)) {
             return array("status" => false,"erro" => "O campo CEP foi preenchido com valor inválido.");
-        } else if (preg_match('/^(.)\1*$/', $cep)) {
-            return array("status" => false,"erro" => "O campo CEP foi preenchido com valor inválido.");
         }
+
         return array("status" => true,"erro" =>"");
     }
 
@@ -64,6 +77,8 @@
             return array("status" => false,"erro" => "O campo está com tamanho incorreto.");
         } else if (!preg_match($regex, $field)) {
             return array("status" => false,"erro" => "O campo foi preenchido com valor inválido.");
+        } else if ($field == null) {
+          return array("status" => false,"erro" => "O campo não pode ser nulo.");
         }
         return array("status" => true,"erro" =>"");
     }
