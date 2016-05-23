@@ -224,10 +224,41 @@ foreach ($school_identification as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("private_school_cnpj"=>$result["erro"]));
 
 	//campo 39
+	$result = $siv->isRegulationValid($collumn['regulation'],
+													$collumn['situation']);
+	if(!$result["status"]) array_push($log, array("regulation"=>$result["erro"]));
+
+	//campo 40
 	$result = $siv->isRegulationValid($collumn['offer_or_linked_unity'],
 													$collumn['situation']);
 	if(!$result["status"]) array_push($log, array("offer_or_linked_unity"=>$result["erro"]));
 
+	//campo 41
+	$inep_head_school = $collumn['inep_head_school'];
+	$sql = "SELECT 	si.inep_head_school, si.situation
+			FROM 	school_identification AS si
+			WHERE 	inep_id = '$inep_head_school';";
+
+	$check = $db->select($sql);
+
+
+	$result = $siv->inepHeadSchool($collumn['inep_head_school'], $collumn['offer_or_linked_unity'],
+									$collumn['inep_id'], $check[0]['situation'],
+									$check[0]['inep_head_school']);
+	if(!$result["status"]) array_push($log, array("inep_head_school"=>$result["erro"]));
+
+	//campo 42
+	$ies_code = $collumn['ies_code'];
+	$administrative_dependence = $collumn['administrative_dependence'];
+	$sql = "SELECT 	COUNT(id) AS status
+			FROM 	edcenso_ies
+			WHERE 	id = '$ies_code' AND working_status = 'ATIVA'
+					AND administrative_dependency_code = '$administrative_dependence';";
+	$check = $db->select($sql);
+
+
+	$result = $siv->iesCode($ies_code, $check[0]["status"]);
+	if(!$result["status"]) array_push($log, array("ies_code"=>$result["erro"]));
 
 	//Adicionando log da row
 	if($log != null) $school_identification_log["row $key"] = $log;
@@ -619,10 +650,10 @@ foreach ($instructor_identification as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("deficiencies"=>$result["erro"]));
 
 	//campo 26
-	
+
 	$result = $iiv->checkMultiple($collumn['deficiency'], $collumn['deficiency_type_multiple_disabilities'], $deficiencies);
 	if(!$result["status"]) array_push($log, array("deficiency_type_multiple_disabilities"=>$result["erro"]));
-	
+
 	//Adicionando log da row
 	if($log != null) $instructor_identification_log["row $key"] = $log;
 }
