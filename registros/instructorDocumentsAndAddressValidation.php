@@ -7,43 +7,23 @@
     //registro 40
   class InstructorDocumentsAndAddressValidation extends Register {
 
-      //campo 2
-        function isInepIdValid($inep_id) {
-            if ($inep_id == null) {
-                return array("status" => false,"erro" =>
-                "O campo Código de escola - Inep é uma informação obrigatória.");
-            }
-
-            if (strlen($inep_id) != 8) {
-                return array("status" => false,"erro" =>
-                "O campo Código de escola - Inep está com tamanho diferente do especificado.");
-            }
-
-            if (!is_numeric($inep_id)) {
-                return array("status" => false,"erro" =>
-                "O campo Código de escola - Inep foi preenchido com valor inválido");
-            }
-
-            return array("status" => true,"erro" =>"");
-        }
-        
         //campo 5
         function isCPFValid($cpf) {
             if ($cpf == null) {
                 return array("status" => false,"erro" => "O campo Número do CPF é uma informação obrigatória.");
-            }
-            if (strlen($cpf) > 11) {
+            } else if (strlen($cpf) > 11) {
                 return array("status" => false,"erro" => "O campo Número do CPF está com tamanho diferente do especificado.");
-            }
-            // se nao for numerico
-            if (!is_numeric($cpf)) {
+            } // se nao for numerico
+            else if (!is_numeric($cpf)) {
                 return array("status" => false,"erro" => "O campo Número do CPF foi preenchido com valor inválido.");
-            } else if(preg_match('/^(.)\1*$/',$cpf)) {
-            return array("status" => false,"erro" => "O campo Número do CPF foi preenchido com valor inválido.");
-            } else if($cpf=="00000000191") {
-            return array("status" => false,"erro" => "O campo Número do CPF foi preenchido com valor inválido.");
+            } // se for 0000000000, 1111111
+            else if (preg_match('/^(.)\1*$/', $cpf)) {
+                return array("status" => false,"erro" => "O campo Número do CPF foi preenchido com valor inválido.");
+            } else if ($cpf == "00000000191") {
+                return array("status" => false,"erro" => "O campo Número do CPF foi preenchido com valor inválido.");
             }
-            return array("status"=>true,"erro"=>"");
+
+            return array("status" => true,"erro" =>"");
         }
 
     //campo 7
@@ -52,7 +32,7 @@
         $cep = trim($cep);
         // expressao regular para avaliar o cep
         $avaliaCep = preg_match('/^[0-9]{5,5}([- ]?[0-9]{4,4})?$/', $cep);
-        
+
         if ($cep == null) {
             return array("status" => false,"erro" => "O campo CEP é uma informação obrigatória.");
         }

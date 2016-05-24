@@ -20,9 +20,9 @@ require_once(dirname(__FILE__) . $DS . "registros" . $DS . "instructorDocumentsA
 $var = isset($_GET['year']) ? $_GET['year'] : $argv[1];
 
 $year = date('Y');
-if( $var != null 
-	&& is_int(intval($var)) 
-	&& $var > 2010 
+if( $var != null
+	&& is_int(intval($var))
+	&& $var > 2010
 	&& $var < $year){
 	$year = $var;
 }
@@ -51,8 +51,8 @@ $allowed_students_inep_ids = $export->getAllowedInepIds("student_identification"
 $allowed_instructor_inep_ids = $export->getAllowedInepIds("instructor_identification");
 
 $sql = "SELECT  modalities, COUNT(se.student_fk) as number_of
-		FROM	edcenso_stage_vs_modality_complementary as esmc 
-					INNER JOIN 
+		FROM	edcenso_stage_vs_modality_complementary as esmc
+					INNER JOIN
 				classroom AS cr
 					ON esmc.fk_edcenso_stage_vs_modality = cr.edcenso_stage_vs_modality_fk
 					INNER JOIN
@@ -189,13 +189,13 @@ foreach ($school_identification as $key => $collumn) {
 
 	//campo 30
 	$result = $siv->checkPrivateSchoolCategory($collumn['private_school_category'],
-													$collumn['situation'], 
+													$collumn['situation'],
 													$collumn['administrative_dependence']);
 	if(!$result["status"]) array_push($log, array("private_school_category"=>$result["erro"]));
 
 	//campo 31
 	$result = $siv->isPublicContractValid($collumn['public_contract'],
-													$collumn['situation'], 
+													$collumn['situation'],
 													$collumn['administrative_dependence']);
 	if(!$result["status"]) array_push($log, array("public_contract"=>$result["erro"]));
 
@@ -207,19 +207,19 @@ foreach ($school_identification as $key => $collumn) {
 					$collumn['private_school_s_system']);
 
 	$result = $siv->checkPrivateSchoolCategory($keepers,
-													$collumn['situation'], 
+													$collumn['situation'],
 													$collumn['administrative_dependence']);
 	if(!$result["status"]) array_push($log, array("keepers"=>$result["erro"]));
 
 	//campo 37
 	$result = $siv->isCNPJValid($collumn['private_school_maintainer_cnpj'],
-									$collumn['situation'], 
+									$collumn['situation'],
 									$collumn['administrative_dependence']);
 	if(!$result["status"]) array_push($log, array("private_school_maintainer_cnpj"=>$result["erro"]));
 
 	//campo 38
 	$result = $siv->isCNPJValid($collumn['private_school_cnpj'],
-									$collumn['situation'], 
+									$collumn['situation'],
 									$collumn['administrative_dependence']);
 	if(!$result["status"]) array_push($log, array("private_school_cnpj"=>$result["erro"]));
 
@@ -282,14 +282,14 @@ foreach ($school_structure as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
 
 	//campo 2
-	$result = $ssv->isAllowed($school_inep_id_fk, 
+	$result = $ssv->isAllowed($school_inep_id_fk,
 									$allowed_school_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
 	//campo 3 à 11
-	$operation_locations = array($collumn["operation_location_building"], 
+	$operation_locations = array($collumn["operation_location_building"],
 									$collumn["operation_location_temple"],
-									$collumn["operation_location_businness_room"], 
+									$collumn["operation_location_businness_room"],
 									$collumn["operation_location_instructor_house"],
 									$collumn["operation_location_other_school_room"],
 									$collumn["operation_location_barracks"],
@@ -311,9 +311,9 @@ foreach ($school_structure as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("shared_building_with_school"=>$result["erro"]));
 
 	//campos 14 à 19
-	$shared_school_inep_ids = array($collumn["shared_school_inep_id_1"], 
+	$shared_school_inep_ids = array($collumn["shared_school_inep_id_1"],
 									$collumn["shared_school_inep_id_2"],
-									$collumn["shared_school_inep_id_3"], 
+									$collumn["shared_school_inep_id_3"],
 									$collumn["shared_school_inep_id_4"],
 									$collumn["shared_school_inep_id_5"],
 									$collumn["shared_school_inep_id_6"]);
@@ -327,33 +327,33 @@ foreach ($school_structure as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("consumed_water_type"=>$result["erro"]));
 
 	//campos 21 à 25
-	$water_supplys = array($collumn["water_supply_public"], 
+	$water_supplys = array($collumn["water_supply_public"],
 								$collumn["water_supply_artesian_well"],
-								$collumn["water_supply_well"], 
+								$collumn["water_supply_well"],
 								$collumn["water_supply_river"],
 								$collumn["water_supply_inexistent"]);
 	$result = $ssv->supply($water_supplys);
 	if(!$result["status"]) array_push($log, array("water_supplys"=>$result["erro"]));
 
 	//campos 26 à 29
-	$energy_supplys = array($collumn["energy_supply_public"], 
+	$energy_supplys = array($collumn["energy_supply_public"],
 								$collumn["energy_supply_generator"],
-								$collumn["energy_supply_other"], 
+								$collumn["energy_supply_other"],
 								$collumn["energy_supply_inexistent"]);
 	$result = $ssv->supply($energy_supplys);
 	if(!$result["status"]) array_push($log, array("energy_supplys"=>$result["erro"]));
 
 	//campos 30 à 32
-	$sewages = array($collumn["sewage_public"], 
+	$sewages = array($collumn["sewage_public"],
 						$collumn["sewage_fossa"],
 						$collumn["sewage_inexistent"]);
 	$result = $ssv->supply($sewages);
 	if(!$result["status"]) array_push($log, array("sewages"=>$result["erro"]));
 
 	//campos 33 à 38
-	$garbage_destinations = array($collumn["garbage_destination_collect"], 
+	$garbage_destinations = array($collumn["garbage_destination_collect"],
 									$collumn["garbage_destination_burn"],
-									$collumn["garbage_destination_throw_away"], 
+									$collumn["garbage_destination_throw_away"],
 									$collumn["garbage_destination_recycle"],
 									$collumn["garbage_destination_bury"],
 									$collumn["garbage_destination_other"]);
@@ -361,33 +361,33 @@ foreach ($school_structure as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("garbage_destinations"=>$result["erro"]));
 
 	//campos 39 à 68
-	$dependencies = array($collumn["dependencies_principal_room"], 
+	$dependencies = array($collumn["dependencies_principal_room"],
 							$collumn["dependencies_instructors_room"],
-							$collumn["dependencies_secretary_room"], 
+							$collumn["dependencies_secretary_room"],
 							$collumn["dependencies_info_lab"],
 							$collumn["dependencies_science_lab"],
-							$collumn["dependencies_aee_room"], 
+							$collumn["dependencies_aee_room"],
 							$collumn["dependencies_indoor_sports_court"],
 							$collumn["dependencies_outdoor_sports_court"],
-							$collumn["dependencies_kitchen"], 
+							$collumn["dependencies_kitchen"],
 							$collumn["dependencies_library"],
 							$collumn["dependencies_reading_room"],
-							$collumn["dependencies_playground"], 
+							$collumn["dependencies_playground"],
 							$collumn["dependencies_nursery"],
 							$collumn["dependencies_outside_bathroom"],
-							$collumn["dependencies_inside_bathroom"], 
+							$collumn["dependencies_inside_bathroom"],
 							$collumn["dependencies_child_bathroom"],
 							$collumn["dependencies_prysical_disability_bathroom"],
-							$collumn["dependencies_physical_disability_support"], 
+							$collumn["dependencies_physical_disability_support"],
 							$collumn["dependencies_bathroom_with_shower"],
 							$collumn["dependencies_refectory"],
-							$collumn["dependencies_storeroom"], 
+							$collumn["dependencies_storeroom"],
 							$collumn["dependencies_warehouse"],
 							$collumn["dependencies_auditorium"],
-							$collumn["dependencies_covered_patio"], 
+							$collumn["dependencies_covered_patio"],
 							$collumn["dependencies_uncovered_patio"],
 							$collumn["dependencies_student_accomodation"],
-							$collumn["dependencies_instructor_accomodation"], 
+							$collumn["dependencies_instructor_accomodation"],
 							$collumn["dependencies_green_area"],
 							$collumn["dependencies_laundry"],
 							$collumn["dependencies_none"]);
@@ -432,8 +432,8 @@ foreach ($school_structure as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("employees_count"=>$result["erro"]));
 
 	//campo 89
-	$sql = 'SELECT  COUNT(pedagogical_mediation_type) AS number_of 
-		FROM 	classroom 
+	$sql = 'SELECT  COUNT(pedagogical_mediation_type) AS number_of
+		FROM 	classroom
 		WHERE 	school_inep_fk = "$school_inep_id_fk" AND
 				(pedagogical_mediation_type =  "1" OR pedagogical_mediation_type =  "2");';
 	$pedagogical_mediation_type = $db->select($sql);
@@ -445,49 +445,49 @@ foreach ($school_structure as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("feeding"=>$result["erro"]));
 
 	//campo 90
-	$sql = "SELECT 	COUNT(assistance_type) AS number_of 
-			FROM 	classroom  
-			WHERE 	assistance_type = '5' AND 
+	$sql = "SELECT 	COUNT(assistance_type) AS number_of
+			FROM 	classroom
+			WHERE 	assistance_type = '5' AND
 					school_inep_fk = '$school_inep_fk';" ;
 	$assistance_type = $db->select($sql);
 
 
-	$modalities = array("modalities_regular" => $collumn["modalities_regular"], 
+	$modalities = array("modalities_regular" => $collumn["modalities_regular"],
 							"modalities_especial" => $collumn["modalities_especial"],
-							"modalities_eja" =>	$collumn["modalities_eja"], 
+							"modalities_eja" =>	$collumn["modalities_eja"],
 							"modalities_professional" => $collumn["modalities_professional"]);
 
-	$result = $ssv->aee($collumn["aee"], $collumn["complementary_activities"], $modalities, 
+	$result = $ssv->aee($collumn["aee"], $collumn["complementary_activities"], $modalities,
 									$assistance_type[0]["number_of"]);
 	if(!$result["status"]) array_push($log, array("aee"=>$result["erro"]));
 
 	//campo 91
-	$sql = "SELECT 	COUNT(assistance_type) AS number_of 
-			FROM 	classroom  
-			WHERE 	assistance_type = '4' AND 
+	$sql = "SELECT 	COUNT(assistance_type) AS number_of
+			FROM 	classroom
+			WHERE 	assistance_type = '4' AND
 					school_inep_fk = '$school_inep_fk';" ;
 	$assistance_type = $db->select($sql);
 
 
-	$result = $ssv->aee($collumn["complementary_activities"], $collumn["aee"], $modalities, 
+	$result = $ssv->aee($collumn["complementary_activities"], $collumn["aee"], $modalities,
 									$assistance_type[0]["number_of"]);
 	if(!$result["status"]) array_push($log, array("complementary_activities"=>$result["erro"]));
 
 	//campo 92 à 95
 
-	$result = $ssv->checkModalities($collumn["aee"], 
-										$collumn["complementary_activities"], 
+	$result = $ssv->checkModalities($collumn["aee"],
+										$collumn["complementary_activities"],
 										$modalities,
 										$are_there_students_by_modalitie,
 										$are_there_instructors_by_modalitie);
 	if(!$result["status"]) array_push($log, array("modalities"=>$result["erro"]));
 
 	//campo 96
-	$sql = "SELECT 	DISTINCT  COUNT(esm.id) AS number_of, cr.school_inep_fk 
-			FROM 	classroom AS cr 
-						INNER JOIN 
-					edcenso_stage_vs_modality AS esm 
-						ON esm.id = cr.edcenso_stage_vs_modality_fk 
+	$sql = "SELECT 	DISTINCT  COUNT(esm.id) AS number_of, cr.school_inep_fk
+			FROM 	classroom AS cr
+						INNER JOIN
+					edcenso_stage_vs_modality AS esm
+						ON esm.id = cr.edcenso_stage_vs_modality_fk
 			WHERE 	stage IN (2,3,7) AND cr.school_inep_fk = '$school_inep_fk';";
 	$number_of_schools = $db->select($sql);
 
@@ -495,12 +495,12 @@ foreach ($school_structure as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("basic_education_cycle_organized"=>$result["erro"]));
 
 	//campo 97
-	$result = $ssv->differentiatedLocation($school_identification[$key]["inep_id"], 
+	$result = $ssv->differentiatedLocation($school_identification[$key]["inep_id"],
 											$collumn["different_location"]);
 	if(!$result["status"]) array_push($log, array("different_location"=>$result["erro"]));
 
 	//campo 98 à 100
-	$sociocultural_didactic_materials = array($collumn["sociocultural_didactic_material_none"], 
+	$sociocultural_didactic_materials = array($collumn["sociocultural_didactic_material_none"],
 												$collumn["sociocultural_didactic_material_quilombola"],
 												$collumn["sociocultural_didactic_material_native"]);
 	$result = $ssv->materials($sociocultural_didactic_materials);
@@ -511,7 +511,7 @@ foreach ($school_structure as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("native_education"=>$result["erro"]));
 
 	//102 à 103
-	$native_education_languages = array($collumn["native_education_language_native"], 
+	$native_education_languages = array($collumn["native_education_language_native"],
 												$collumn["native_education_language_portuguese"]);
 	$result = $ssv->languages($collumn["native_education"], $native_education_languages);
 	if(!$result["status"]) array_push($log, array("native_education_languages"=>$result["erro"]));
@@ -531,17 +531,17 @@ foreach ($school_structure as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("open_weekend"=>$result["erro"]));
 
 	//107
-	$sql = "SELECT 	COUNT(esm.id ) AS number_of 
-			FROM 	classroom AS cr  
-						INNER JOIN  
-					edcenso_stage_vs_modality AS esm 
+	$sql = "SELECT 	COUNT(esm.id ) AS number_of
+			FROM 	classroom AS cr
+						INNER JOIN
+					edcenso_stage_vs_modality AS esm
 						ON esm.id = cr.edcenso_stage_vs_modality_fk
-			WHERE 	cr.assistance_type NOT IN (4,5) AND 
-					cr.school_inep_fk =  '$school_inep_id_fk' AND 
+			WHERE 	cr.assistance_type NOT IN (4,5) AND
+					cr.school_inep_fk =  '$school_inep_id_fk' AND
 					esm.stage NOT IN (1,2);";
 	$pedagogical_formation_by_alternance = $db->select($sql);
 
-	$result = $ssv->pedagogicalFormation($collumn["pedagogical_formation_by_alternance"], 
+	$result = $ssv->pedagogicalFormation($collumn["pedagogical_formation_by_alternance"],
 											$pedagogical_formation_by_alternance[0]["number_of"]);
 	if(!$result["status"]) array_push($log, array("pedagogical_formation_by_alternance"=>$result["erro"]));
 
@@ -607,7 +607,7 @@ foreach ($instructor_identification as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("sex"=>$result["erro"]));
 
 	//campo 11, 12, 13
-	$result = $iiv->validateFiliation($collumn['filiation'], $collumn['filiation_1'], $collumn['filiation_2'], 
+	$result = $iiv->validateFiliation($collumn['filiation'], $collumn['filiation_1'], $collumn['filiation_2'],
 								$instructor_documents_and_address[$key]["cpf"], 100);
 	if(!$result["status"]) array_push($log, array("filiation"=>$result["erro"]));
 
@@ -636,14 +636,14 @@ foreach ($instructor_identification as $key => $collumn) {
 							$collumn['deficiency_type_phisical_disability'],
 							$collumn['deficiency_type_intelectual_disability']);
 
-	$excludingdeficiencies = array($collumn['deficiency_type_blindness'] => 
-								array($collumn['deficiency_type_low_vision'], $collumn['deficiency_type_deafness'], 
-										$collumn['deficiency_type_deafblindness']), 
-							$collumn['deficiency_type_low_vision'] => 
-								array($collumn['deficiency_type_deafblindness']), 
-							$collumn['deficiency_type_deafness'] => 
-								array($collumn['deficiency_type_disability_hearing'], $collumn['deficiency_type_disability_hearing']), 
-							$collumn['deficiency_type_disability_hearing'] => 
+	$excludingdeficiencies = array($collumn['deficiency_type_blindness'] =>
+								array($collumn['deficiency_type_low_vision'], $collumn['deficiency_type_deafness'],
+										$collumn['deficiency_type_deafblindness']),
+							$collumn['deficiency_type_low_vision'] =>
+								array($collumn['deficiency_type_deafblindness']),
+							$collumn['deficiency_type_deafness'] =>
+								array($collumn['deficiency_type_disability_hearing'], $collumn['deficiency_type_disability_hearing']),
+							$collumn['deficiency_type_disability_hearing'] =>
 								array($collumn['deficiency_type_deafblindness']));
 
 	$result = $iiv->checkDeficiencies($collumn['deficiency'], $deficiencies, $excludingdeficiencies);
@@ -675,7 +675,7 @@ foreach ($instructor_documents_and_address as $key => $collumn) {
 	//campo 1
 	$result = $idav->isRegister("40", $collumn['register_type']);
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
-	
+
 	//campo 2
 	$result = $idav->isAllowedInepId($school_inep_id_fk,
 									$allowed_school_inep_ids);
@@ -701,7 +701,7 @@ foreach ($instructor_documents_and_address as $key => $collumn) {
 
 	//campo 7
 	$result = $idav->isCEPValid($collumn['cep']);
-	if(!$result["status"]) array_push($log, array("cep"=>$result["erro"]));	
+	if(!$result["status"]) array_push($log, array("cep"=>$result["erro"]));
 
 	//campo 8
 	$result = $idav->isAdressValid($collumn['address'], $collumn['cep'], 100);
@@ -731,12 +731,10 @@ foreach ($instructor_documents_and_address as $key => $collumn) {
 	if($log != null) $instructor_documents_and_address_log["row $key"] = $log;
 }
 
-
 /*
 *Validação da tabela instructor_teaching_data
 *Registro 51
 */
-
 
 $itdv = new instructorTeachingDataValidation();
 $instructor_teaching_data_log = array();
@@ -754,7 +752,7 @@ foreach ($instructor_teaching_data as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
 
 	//campo 2
-	$result = $itdv->isAllowedInepId($school_inep_id_fk, 
+	$result = $itdv->isAllowedInepId($school_inep_id_fk,
 									$allowed_school_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
@@ -780,13 +778,11 @@ foreach ($instructor_teaching_data as $key => $collumn) {
 	$sql = "SELECT COUNT(id) AS status FROM classroom WHERE id = '$classroom_fk';";
 	$check = $db->select($sql);
 
-
-
 	$result = $itdv->isEqual($check[0]['status'],'1', 'Não há tal classroom_id_fk $classroom_fk');
 	if(!$result["status"]) array_push($log, array("classroom_id_fk"=>$result["erro"]));
 
 	//campo 7
-	$sql = "SELECT assistance_type, pedagogical_mediation_type, edcenso_stage_vs_modality_fk 
+	$sql = "SELECT assistance_type, pedagogical_mediation_type, edcenso_stage_vs_modality_fk
 			FROM classroom
 			WHERE id = '$classroom_fk';";
 	$check = $db->select($sql);
@@ -795,8 +791,8 @@ foreach ($instructor_teaching_data as $key => $collumn) {
 	$edcenso_svm = $check[0]['edcenso_stage_vs_modality_fk'];
 
 	$sql = "SELECT count(cr.id) AS status_instructor
-			FROM 	classroom as cr 
-						INNER JOIN 
+			FROM 	classroom as cr
+						INNER JOIN
 					instructor_teaching_data AS itd
 						ON itd.classroom_id_fk = cr.id
 			WHERE 	cr.id = '$classroom_fk' AND itd.id != 'instructor_fk';";
@@ -805,8 +801,8 @@ foreach ($instructor_teaching_data as $key => $collumn) {
 
 
 	$sql = "SELECT count(si.id) AS status_student
-			FROM 	classroom AS cr 
-						INNER JOIN 
+			FROM 	classroom AS cr
+						INNER JOIN
 					instructor_teaching_data AS itd
 						ON itd.classroom_id_fk = cr.id
 						INNER JOIN
@@ -814,25 +810,25 @@ foreach ($instructor_teaching_data as $key => $collumn) {
 						ON ii.id = itd.instructor_fk
 						INNER JOIN
 					student_enrollment AS se
-						ON se.classroom_fk =cr.id 
-						INNER JOIN 
+						ON se.classroom_fk =cr.id
+						INNER JOIN
 					student_identification AS si
 					 	on si.id = se.student_fk
 			WHERE 	cr.id = '$classroom_fk' AND ii.id = 'instructor_fk'
-					AND 
+					AND
 					(ii.deficiency_type_deafness = '1' OR ii.deficiency_type_disability_hearing = '1' OR
 					ii.deficiency_type_deafblindness = '1' OR si.deficiency_type_deafness = '1' OR
 					si.deficiency_type_deafblindness = '1');";
 	$check = $db->select($sql);
 	$status_instructor = $check[0]['status_student'];
 
-	$result = $itdv->checkRole($collumn['role'], $pedagogical_mediation_type, 
+	$result = $itdv->checkRole($collumn['role'], $pedagogical_mediation_type,
 								$assistance_type, $status_instructor, $status_student );
 	if(!$result["status"]) array_push($log, array("role"=>$result["erro"]));
 
 	//campo 08
 	$sql = "SELECT se.administrative_dependence
-			FROM school_identification AS se 
+			FROM school_identification AS se
 			WHERE se.inep_id = '$school_inep_id_fk';";
 
 	$check = $db->select($sql);
@@ -879,7 +875,7 @@ foreach ($instructor_teaching_data as $key => $collumn) {
 
 	$disciplines = array_values($check[0]);
 
-	$result = $itdv->checkDisciplineCode($disciplines_codes, $collumn['role'], $assistance_type, 
+	$result = $itdv->checkDisciplineCode($disciplines_codes, $collumn['role'], $assistance_type,
 											$edcenso_svm, $disciplines);
 	if(!$result["status"]) array_push($log, array("disciplines_codes"=>$result["erro"]));
 
@@ -895,8 +891,6 @@ foreach ($instructor_teaching_data as $key => $collumn) {
 $stiv = new studentIdentificationValidation();
 $student_identification_log = array();
 
-
-
 foreach ($student_identification as $key => $collumn) {
 
 	$school_inep_id_fk = $collumn["school_inep_id_fk"];
@@ -907,7 +901,7 @@ foreach ($student_identification as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
 
 	//campo 2
-	$result = $stiv->isAllowedInepId($school_inep_id_fk, 
+	$result = $stiv->isAllowedInepId($school_inep_id_fk,
 									$allowed_school_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
@@ -920,7 +914,7 @@ foreach ($student_identification as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("id"=>$result["erro"]));
 
 	//campo 5
-	$result = $stiv->isNameValid($collumn['name'], 100, 
+	$result = $stiv->isNameValid($collumn['name'], 100,
 								$student_documents_and_address[$key]["cpf"]);
 	if(!$result["status"]) array_push($log, array("name"=>$result["erro"]));
 
@@ -937,7 +931,7 @@ foreach ($student_identification as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("sex"=>$result["erro"]));
 
 	//campo 9, 10, 11
-	$result = $stiv->validateFiliation($collumn['filiation'], $collumn['filiation_1'], $collumn['filiation_2'], 
+	$result = $stiv->validateFiliation($collumn['filiation'], $collumn['filiation_1'], $collumn['filiation_2'],
 								$student_documents_and_address[$key]["cpf"], 100);
 	if(!$result["status"]) array_push($log, array("filiation"=>$result["erro"]));
 
@@ -957,12 +951,12 @@ foreach ($student_identification as $key => $collumn) {
 	$student_id = $collumn['id'];
 
 	$sql = "SELECT 	COUNT(cr.id) AS status
-			FROM 	student_identification as si 
-						INNER JOIN 
-					student_enrollment AS se 
+			FROM 	student_identification as si
+						INNER JOIN
+					student_enrollment AS se
 						ON si.id = se.student_fk
-          				INNER JOIN  
-          			classroom AS cr 
+          				INNER JOIN
+          			classroom AS cr
           				ON se.classroom_fk = cr.id
 			WHERE si.id = '$student_id' AND (cr.assistance_type = 5 OR cr.modality = 2)
 			GROUP BY si.id;";
@@ -983,32 +977,32 @@ foreach ($student_identification as $key => $collumn) {
 								$collumn['deficiency_type_phisical_disability'],
 								$collumn['deficiency_type_intelectual_disability'],
 								$collumn['deficiency_type_autism'],
-								$collumn['deficiency_type_aspenger_syndrome'], 
+								$collumn['deficiency_type_aspenger_syndrome'],
 								$collumn['deficiency_type_rett_syndrome'],
 								$collumn['deficiency_type_childhood_disintegrative_disorder'],
 								$collumn['deficiency_type_gifted']);
 
-	$excludingdeficiencies = array(	$collumn['deficiency_type_blindness'] => 
-										array($collumn['deficiency_type_low_vision'], $collumn['deficiency_type_deafness'], 
-												$collumn['deficiency_type_deafblindness']), 
-									$collumn['deficiency_type_low_vision'] => 
-										array($collumn['deficiency_type_deafblindness']), 
-									$collumn['deficiency_type_deafness'] => 
-										array($collumn['deficiency_type_disability_hearing'], $collumn['deficiency_type_disability_hearing']), 
-									$collumn['deficiency_type_disability_hearing'] => 
-										array($collumn['deficiency_type_deafblindness']), 
-									$collumn['deficiency_type_autism'] => 
-										array($collumn['deficiency_type_aspenger_syndrome'], $collumn['deficiency_type_rett_syndrome'], 
-												$collumn['deficiency_type_childhood_disintegrative_disorder']),  
-									$collumn['deficiency_type_aspenger_syndrome'] => 
-										array($collumn['deficiency_type_rett_syndrome'], $collumn['deficiency_type_childhood_disintegrative_disorder']), 
-									$collumn['deficiency_type_rett_syndrome'] => 
+	$excludingdeficiencies = array(	$collumn['deficiency_type_blindness'] =>
+										array($collumn['deficiency_type_low_vision'], $collumn['deficiency_type_deafness'],
+												$collumn['deficiency_type_deafblindness']),
+									$collumn['deficiency_type_low_vision'] =>
+										array($collumn['deficiency_type_deafblindness']),
+									$collumn['deficiency_type_deafness'] =>
+										array($collumn['deficiency_type_disability_hearing'], $collumn['deficiency_type_disability_hearing']),
+									$collumn['deficiency_type_disability_hearing'] =>
+										array($collumn['deficiency_type_deafblindness']),
+									$collumn['deficiency_type_autism'] =>
+										array($collumn['deficiency_type_aspenger_syndrome'], $collumn['deficiency_type_rett_syndrome'],
+												$collumn['deficiency_type_childhood_disintegrative_disorder']),
+									$collumn['deficiency_type_aspenger_syndrome'] =>
+										array($collumn['deficiency_type_rett_syndrome'], $collumn['deficiency_type_childhood_disintegrative_disorder']),
+									$collumn['deficiency_type_rett_syndrome'] =>
 										array($collumn['deficiency_type_childhood_disintegrative_disorder']));
 
 	$result = $stiv->checkDeficiencies($collumn['deficiency'], $deficiencies_whole, $excludingdeficiencies);
 	if(!$result["status"]) array_push($log, array("deficiencies"=>$result["erro"]));
 
-	//campo 25	
+	//campo 25
 
 	$deficiencies_sample = array($collumn['deficiency_type_blindness'],
 									$collumn['deficiency_type_low_vision'],
@@ -1020,17 +1014,17 @@ foreach ($student_identification as $key => $collumn) {
 
 	$result = $stiv->checkMultiple($collumn['deficiency'], $collumn['deficiency_type_multiple_disabilities'], $deficiencies_sample);
 	if(!$result["status"]) array_push($log, array("deficiency_type_multiple_disabilities"=>$result["erro"]));
-			
+
 	//campo 30 à 39
 	$sql = "SELECT  COUNT(si.id) AS status
-			FROM 	student_identification AS si 
-						INNER JOIN 
-					student_enrollment AS se 
+			FROM 	student_identification AS si
+						INNER JOIN
+					student_enrollment AS se
 						ON si.id = se.student_fk
-			WHERE 	se.edcenso_stage_vs_modality_fk in (16, 7, 18, 11, 41, 27, 28, 32, 33, 37, 38)  
+			WHERE 	se.edcenso_stage_vs_modality_fk in (16, 7, 18, 11, 41, 27, 28, 32, 33, 37, 38)
 					AND si.id = '$student_id';";
 	$demandresources = $db->select($sql);
-	
+
 	$resources = array($collumn['resource_aid_lector'],
 						$collumn['resource_interpreter_guide'],
 						$collumn['resource_interpreter_libras'],
@@ -1043,9 +1037,9 @@ foreach ($student_identification as $key => $collumn) {
 						$collumn['resource_aid_transcription']);
 
 	array_pop($deficiencies_whole);
-	$result = $stiv->inNeedOfResources($deficiencies_whole, 
-										$demandresources, 
-										$resources, 
+	$result = $stiv->inNeedOfResources($deficiencies_whole,
+										$demandresources,
+										$resources,
 										$collumn['deficiency_type_blindness'],
 										$collumn['deficiency_type_deafblindness']);
 	if(!$result["status"]) array_push($log, array("resources"=>$result["erro"]));
@@ -1064,9 +1058,154 @@ $sda = new studentDocumentsAndAddressValidation();
 $student_documents_and_address_log = array();
 
 foreach ($student_documents_and_address as $key => $collumn) {
-	
-}
 
+	$school_inep_id_fk = $collumn["school_inep_id_fk"];
+	$student_inep_id_fk = $collumn["student_inep_id"];
+	$log = array();
+
+	$sqlTable6012 = "SELECT nationality AS field12 FROM student_identification;";
+	$checkSql6012 = $db->select($sqlTable6012);
+	$field6012 = $checkSql6012[$key]['field12'];
+
+  $foreign = $sda->isAllowed($field6012, array("3"));
+
+  $sqlTable6006 = "SELECT birthday AS field06 FROM student_identification;";
+	$checkSql6006 = $db->select($sqlTable6006);
+	$field6006 = $checkSql6006[$key]['field06'];
+
+	$sqlTable7005 = "SELECT rg_number AS field5 FROM student_documents_and_address;";
+	$checkSql7005 = $db->select($sqlTable7005);
+	$field7005 = $checkSql6012[$key]['field5'];
+
+  date_default_timezone_set('America/Bahia');
+  $date = date('d/m/Y');
+
+  $field7009 = $sda->isAllowed($collumn['civil_certification'], array("1", "2"));
+
+	//campo 1
+	$result = $sda->isRegister("70", $collumn['register_type']);
+	if (!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
+
+	//campo 2
+	$result = $sda->isAllowedInepId($school_inep_id_fk,
+									$allowed_school_inep_ids);
+	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
+
+	//campo 3
+	$result = $sda->isAllowedInepId($student_inep_id_fk,
+									$allowed_students_inep_ids);
+	if(!$result["status"]) array_push($log, array("student_inep_id"=>$result["erro"]));
+
+	//campo 4
+	$sql = "SELECT COUNT(inep_id) AS status FROM student_identification WHERE inep_id = '$student_inep_id';";
+	$check = $db->select($sql);
+
+	$result = $sda->isEqual($check[0]['status'],'1', 'Não há tal student_inep_id $student_inep_id');
+	if(!$result["status"]) array_push($log, array("student_fk"=>$result["erro"]));
+
+	//campo 5
+	$result = $sda->isRgNumberValid($collumn['rg_number'], $field6012);
+	if(!$result["status"]) array_push($log, array("rg_number"=>$result["erro"]));
+
+	//campo 6
+	$result = $sda->isRgEmissorOrganValid($collumn['rg_number_edcenso_organ_id_emitter_fk'], $field6012, $field7005);
+	if(!$result["status"]) array_push($log, array("rg_number_edcenso_organ_id_emitter_fk"=>$result["erro"]));
+
+	//campo 7
+	$result = $sda->isRgUfValid($collumn['rg_number_edcenso_uf_fk'], $field6012, $field7005);
+	if(!$result["status"]) array_push($log, array("rg_number_edcenso_uf_fk"=>$result["erro"]));
+
+	//campo 8
+  $result = $sda->isDateValid($field6012, $collumn['rg_number_expediction_date'] ,$field6006, $date, 0, 8);
+  if(!$result["status"]) array_push($log, array("rg_number_expediction_date"=>$result["erro"]));
+
+  //campo 9
+  $result = $sda->isAllowed($collumn['civil_certification'], array("1", "2"));
+  if(!$result["status"]) array_push($log, array("rg_number_expediction_date"=>$result["erro"]));
+
+  //campo 10
+  $result = $sda->isCivilCertificationTypeValid($field7009, $field7005, $field6012, $field6006, $date);
+  if(!$result["status"]) array_push($log, array("civil_certification_type"=>$result["erro"]));
+
+  //campo 11
+  $result = $sda->isFieldValid(8, $collumn['civil_certification_term_number'], $field6012, $field7005);
+  if(!$result["status"]) array_push($log, array("civil_certification_term_number"=>$result["erro"]));
+
+  //campo 12
+  $result = $sda->isFieldValid(4, $collumn['civil_certification_sheet'], $field6012, $field7005);
+  if(!$result["status"]) array_push($log, array("civil_certification_sheet"=>$result["erro"]));
+
+  //campo 13
+  $result = $sda->isFieldValid(8, $collumn['civil_certification_book'], $field6012, $field7005);
+  if(!$result["status"]) array_push($log, array("civil_certification_book"=>$result["erro"]));
+
+  //campo 14
+  $result = $sda->isDateValid($field6012, $collumn['civil_certification_date'] ,$field6006, $date, 1, 14);
+  if(!$result["status"]) array_push($log, array("civil_certification_date"=>$result["erro"]));
+
+  //campo 15
+  $result = $sda->isFieldValid(2, $collumn['notary_office_uf_fk'], $field6012, $field7005);
+  if(!$result["status"]) array_push($log, array("notary_office_uf_fk"=>$result["erro"]));
+
+  //campo 16
+  $result = $sda->isFieldValid(7, $collumn['notary_office_city_fk'], $field6012, $field7005);
+  if(!$result["status"]) array_push($log, array("notary_office_city_fk"=>$result["erro"]));
+
+  //campo 17
+  $result = $sda->isFieldValid(6, $collumn['edcenso_notary_office_fk'], $field6012, $field7005);
+  if(!$result["status"]) array_push($log, array("edcenso_notary_office_fk"=>$result["erro"]));
+
+  //campo 18
+  $result = $sda->isCivilRegisterNumberValid($collumn['civil_register_enrollment_number'], $field6012, $field7005);
+  if(!$result["status"]) array_push($log, array("civil_register_enrollment_number"=>$result["erro"]));
+
+  //campo 19
+  $result = $sda->isCPFValid($collumn['cpf']);
+  if(!$result["status"]) array_push($log, array("cpf"=>$result["erro"]));
+
+  //campo 20
+  $result = $sda->isPassportValid($collumn['foreign_document_or_passport'], $field6012);
+  if(!$result["status"]) array_push($log, array("foreign_document_or_passport"=>$result["erro"]));
+
+  //campo 21
+  $result = $sda->isNISValid($collumn['nis']);
+  if(!$result["status"]) array_push($log, array("nis"=>$result["erro"]));
+
+  //campo 22
+  $result = $sda->isAreaOfResidenceValid($collumn['residence_zone']);
+  if(!$result["status"]) array_push($log, array("residence_zone"=>$result["erro"]));
+
+  //campo 23
+  $result = $sda->isCEPValid($collumn['cep']);
+  if(!$result["status"]) array_push($log, array("cep"=>$result["erro"]));
+
+  //campo 24
+  $result = $sda->isAdressValid($collumn['address'], $collumn['cep'], 100);
+  if(!$result["status"]) array_push($log, array("address"=>$result["erro"]));
+
+  //campo 25
+  $result = $sda->isAdressValid($collumn['number'], $collumn['cep'], 10);
+  if(!$result["status"]) array_push($log, array("number"=>$result["erro"]));
+
+  //campo 26
+  $result = $sda->isAdressValid($collumn['complement'], $collumn['cep'], 20);
+  if(!$result["status"]) array_push($log, array("complement"=>$result["erro"]));
+
+  //campo 27
+  $result = $sda->isAdressValid($collumn['neighborhood'], $collumn['cep'], 50);
+  if(!$result["status"]) array_push($log, array("neighborhood"=>$result["erro"]));
+
+  //campo 28
+  $result = $sda->isAdressValid($collumn['edcenso_uf_fk'], $collumn['cep'], 2);
+  if(!$result["status"]) array_push($log, array("edcenso_uf_fk"=>$result["erro"]));
+
+  //campo 29
+  $result = $sda->isAdressValid($collumn['edcenso_city_fk'], $collumn['cep'], 7);
+  if(!$result["status"]) array_push($log, array("edcenso_city_fk"=>$result["erro"]));
+
+	//Adicionando log da row
+	if($log != null) $student_documents_and_address_log["row $key"] = $log;
+}
 
 /*
 *Validação da tabela student_enrollment
@@ -1089,12 +1228,12 @@ foreach ($student_enrollment as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
 
 	//campo 2
-	$result = $sev->isAllowedInepId($school_inep_id_fk, 
+	$result = $sev->isAllowedInepId($school_inep_id_fk,
 									$allowed_school_inep_ids);
 	if(!$result["status"]) array_push($log, array("school_inep_id_fk"=>$result["erro"]));
 
 	//campo 3
-	$result = $sev->isAllowedInepId($student_inep_id_fk, 
+	$result = $sev->isAllowedInepId($student_inep_id_fk,
 									$allowed_students_inep_ids);
 	if(!$result["status"]) array_push($log, array("student_inep_id"=>$result["erro"]));
 
@@ -1108,9 +1247,9 @@ foreach ($student_enrollment as $key => $collumn) {
 	//campo 05
 	$result = $sev->isNull($collumn['classroom_inep_id']);
 	if(!$result["status"]) array_push($log, array("classroom_inep_id"=>$result["erro"]));
-	
+
 	//campo 6
-	
+
 	$sql = "SELECT COUNT(id) AS status FROM classroom WHERE id = '$classroom_fk';";
 	$check = $db->select($sql);
 
@@ -1122,7 +1261,7 @@ foreach ($student_enrollment as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("enrollment_id"=>$result["erro"]));
 
 	//campo 8
-	
+
 	$sql = "SELECT COUNT(id) AS status FROM classroom WHERE id = '$classroom_fk' AND edcenso_stage_vs_modality_fk = '3';";
 	$check = $db->select($sql);
 
@@ -1175,7 +1314,7 @@ foreach ($student_enrollment as $key => $collumn) {
 
 	//24
 
-	
+
 
 
 
@@ -1187,20 +1326,13 @@ foreach ($student_enrollment as $key => $collumn) {
 
 }
 
-
-
-
-
 $register_log = array('Register 00' => $school_identification_log,
 						'Register 10' => $school_structure_log,
 						'Register 30' => $instructor_identification_log,
 						'Register 40' => $instructor_documents_and_address_log,
 						'Register 51' => $instructor_teaching_data_log,
 						'Register 60' => $student_identification_log,
+						'Register 70' => $student_documents_and_address_log,
 						'Register 80' => $student_enrollment_log);
 echo json_encode($register_log);
-
-
-
-
 ?>
