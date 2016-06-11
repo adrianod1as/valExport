@@ -10,6 +10,13 @@ class Register
 	function __construct(){
 	}
 
+	function isEmpty($value){
+		if (trim($value) === '' || !isset($value)){
+			return array('status' => true, 'erro' => '');
+		}
+		return array('status' => false, 'erro' => 'O valor nao eh vazio');
+	}
+
 	function isNull($x){
 		if($x == null){
 			return array("status"=>true,"erro"=>"");

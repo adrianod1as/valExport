@@ -6,6 +6,7 @@ $DS = DIRECTORY_SEPARATOR;
 
 require_once(dirname(__FILE__) .  $DS . "db" .  $DS . "database.php");
 require_once(dirname(__FILE__) .  $DS . "exportation.php");
+require_once(dirname(__FILE__) . $DS . "registros" . $DS . "classroomValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "schoolStructureValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "InstructorIdentificationValidation.php");
 require_once(dirname(__FILE__) . $DS . "registros" . $DS . "instructorTeachingDataValidation.php");
@@ -547,6 +548,109 @@ foreach ($school_structure as $key => $collumn) {
 
 	//Adicionando log da row
 	if($log != null) $school_structure_log["row $key"] = $log;
+}
+
+/*
+*Validação da tabela classroom
+*Registro 20
+*/
+
+$crv = new ClassroomValidation();
+$classroom_log = array();
+
+foreach($classroom as $key => $column){
+	$log = array();
+
+	//campo 1
+	$result = $crv->isRegister('20', $column['register_type']);
+	if (!$result['status']) array_push($log, array('register_type' => $result['erro']));
+
+	//campo 2
+	$result = $crv->isEqual($column['school_inep_fk'], $school_identification[$key]['inep_id'], 'Inep ids sao diferentes');
+	if (!$result['status']) array_push($log, array('school_inep_fk' => $result['erro']));
+
+	//campo 3
+	$result = $crv->isEmpty($column['inep_id']);
+	if (!$result['status']) array_push($log, array('inep_id' => $result['erro']));
+
+	//campo 4
+	$result = $crv->checkLength($column['id'], 20);
+	if (!$result['status']) array_push($log, array('id' => $result['erro']));
+
+	//campo 5
+	$result = $crv->isValidClassroomName($column['name']);
+	if (!$result['status']) array_push($log, array('name' => $result['erro']));
+
+	//campo 6
+	$result = $crv->isValidMediation($column['pedagogical_mediation_type']);
+	if (!$result['status']) array_push($log, array('pedagogical_mediation_type' => $result['erro']));
+
+	//campos 7 a 10
+	$result = $crv->isValidClassroomTime($column['initial_hour'], $column['initial_minute'],
+										 $column['final_hour'], $column['final_minute'],
+										 $column['pedagogical_mediation_type']);
+	if (!$result['status']) array_push($log, array('classroom_time' => $result['erro']));
+	//acima: imprimir "classroom_time" no erro ou um erro pra cada um dos campos?
+
+	//campos 11 a 17
+	$result = $crv->areValidClassroomDays(array($column['week_days_sunday'], $column['week_days_monday'], $column['week_days_tuesday'],
+											    $column['week_days_wednesday'], $column['week_days_thursday'], $column['week_days_friday'],
+											    $column['week_days_saturday']), $column['pedagogical_mediation_type']);
+	if (!$result['status']) array_push($log, array('classroom_days' => $result['erro']));
+	//acima: imprimir "classroom_days" no erro ou um erro pra cada um dos campos?
+
+	//campo 18
+	$result = $crv->isValidAssistanceType($school_structure[$key], $column['assistance_type'], $column['pedagogical_mediation_type']);
+	if (!$result['status']) array_push($log, array('assistance_type' => $result['erro']));
+
+	//campo 19
+	$result = $crv->isValidMaisEducacaoParticipator($column['mais_educacao_participator'], $column['mediation'], $school_identification[$key]['administrative_dependence'],
+													$column['assistance_type'], $column['modality'], $column['edcenso_stage_vs_modality_fk']);
+	if (!$result['status']) array_push($log, array('mais_educacao_participator' => $result['erro']));
+
+	//campos 20 a 25
+	$activities = array($column['complementary_activity_type_1'], $column['complementary_activity_type_2'], $column['complementary_activity_type_3'],
+						$column['complementary_activity_type_4'], $column['complementary_activity_type_5'], $column['complementary_activity_type_6']);
+	$result = $crv->isValidComplementaryActivityType($activities, $column['assistance_type']);
+	if (!$result['status']) array_push($log, array('complementary_activity_types' => $result['erro']));
+
+	//campos 26 a 36
+	$aeeArray = array($column['aee_braille_system_education'], $column['aee_optical_and_non_optical_resources'],
+					  $column['aee_mental_processes_development_strategies'], $column['aee_mobility_and_orientation_techniques'],
+					  $column['aee_libras'], $column['aee_caa_use_education'], $column['aee_curriculum_enrichment_strategy'],
+					  $column['aee_soroban_use_education'], $column['aee_usability_and_functionality_of_computer_accessible_education'],
+					  $column['aee_teaching_of_Portuguese_language_written_modality'], $column['aee_strategy_for_school_environment_autonomy']);
+	$result = $crv->isValidAEE($aeeArray, $column['assistance_type']);
+	if (!$result['status']) array_push($log, array('aee' => $result['erro']));
+
+	//campo 37
+	$schoolStructureModalities = array($school_structure[$key]['modalities_regular'], $school_structure[$key]['modalities_especial'],
+									   $school_structure[$key]['modalities_eja'], $school_structure[$key]['modalities_professional']);
+	$result = $crv->isValidModality($column['modality'], $column['assistance_type'], $schoolStructureModalities, $column['mediation']);
+	if (!$result['status']) array_push($log, array('modality' => $result['erro']));
+
+	//campo 38
+
+	//abaixo: $column['stage'] ou $column['edcenso_stage_vs_modality_fk']?
+	$result = $crv->isValidStage($column['stage'], $column['assistance_type'], $column['mediation']);
+	if (!$result['status']) array_push($log, array('stage' => $result['erro']));
+
+	//campo 39
+	$result = $crv->isValidProfessionalEducation($column['edcenso_professional_education_course_fk'], $column['edcenso_stage_vs_modality_fk']);
+	if (!$result['status']) array_push($log, array('edcenso_professional_education_course' => $result['erro']));
+
+	//campos 40 a 65
+	$disciplinesArray = array($column['discipline_chemistry'], $column['discipline_physics'], $column['discipline_mathematics'], $column['discipline_biology'], $column['discipline_science'],
+							  $column['discipline_language_portuguese_literature'], $column['discipline_foreign_language_english'], $column['discipline_foreign_language_spanish'], $column['discipline_foreign_language_franch'], $column['discipline_foreign_language_other'],
+							  $column['discipline_arts'], $column['discipline_physical_education'], $column['discipline_history'], $column['discipline_geography'], $column['discipline_philosophy'],
+							  $column['discipline_social_study'], $column['discipline_sociology'], $column['discipline_informatics'], $column['discipline_professional_disciplines'], $column['discipline_special_education_and_inclusive_practices'],
+							  $column['discipline_sociocultural_diversity'], $column['discipline_libras'], $column['discipline_pedagogical'], $column['discipline_religious'], $column['discipline_native_language'],
+							  $column['discipline_others']);
+	$result = $crv->isValidDiscipline($disciplinesArray, $column['pedagogical_mediation_type'], $column['assistance_type'], $column['stage']);
+	if (!$result['status']) array_push($log, array('disciplines' => $result['erro']));
+
+	//Adicionando log da row
+	if($log != null) $classroom_log["row $key"] = $log;
 }
 
 /*
@@ -1328,6 +1432,7 @@ foreach ($student_enrollment as $key => $collumn) {
 
 $register_log = array('Register 00' => $school_identification_log,
 						'Register 10' => $school_structure_log,
+						'Register 20' => $classroom_log,
 						'Register 30' => $instructor_identification_log,
 						'Register 40' => $instructor_documents_and_address_log,
 						'Register 51' => $instructor_teaching_data_log,
