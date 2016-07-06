@@ -28,6 +28,17 @@ if( $var != null
 	$year = $var;
 }
 
+//Recebendo ano via HTTP ou via argumento no console.
+$var = isset($_GET['inep_id']) ? $_GET['inep_id'] : $argv[1];
+
+
+if( $var != null && is_int(intval($var))){
+	$target_inep_id = $var;
+}else{
+	echo "informe um inep_id válido";
+	return 0;
+}
+
 $export = new Exportation();
 
 //Inicializando Objeto de conexão com o banco
@@ -43,7 +54,7 @@ list($school_identification,
 		$instructor_teaching_data,
 		$student_identification,
 		$student_documents_and_address,
-		$student_enrollment) = $export->getTables();
+		$student_enrollment) = $export->getTables($target_inep_id);
 
 
 //Inep ids permitidos
@@ -273,6 +284,8 @@ foreach ($school_identification as $key => $collumn) {
 
 $ssv = new SchoolStructureValidation();
 $school_structure_log = array();
+
+
 
 foreach ($school_structure as $key => $collumn) {
 
@@ -1168,7 +1181,7 @@ $student_documents_and_address_log = array();
 
 foreach ($student_documents_and_address as $key => $collumn) {
 
-	
+
 
 	$school_inep_id_fk = $collumn["school_inep_id_fk"];
 	$student_inep_id_fk = $collumn["student_inep_id"];

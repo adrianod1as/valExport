@@ -11,46 +11,46 @@ class Exportation {
 		self::$db = new Db();
 	}
 
-	function getTables(){
+	function getTables($inep_id){
 
 		//Registro 00
-		$sql = "SELECT * FROM school_identification ORDER BY inep_id";
+		$sql = "SELECT * FROM school_identification WHERE inep_id = '$inep_id'";
 		$school_identification = self::$db->select($sql);
 
 		//Registro 10
-		$sql = "SELECT * FROM school_structure ORDER BY school_inep_id_fk";
+		$sql = "SELECT * FROM school_structure WHERE school_inep_id_fk = '$inep_id'";
 		$school_structure = self::$db->select($sql);
 
 		//Registro 20
-		$sql = "SELECT * FROM classroom";
+		$sql = "SELECT * FROM classroom WHERE school_inep_fk = '$inep_id'";
 		$classroom = self::$db->select($sql);
 
 		//Registro 30
-		$sql = "SELECT * FROM instructor_identification";
+		$sql = "SELECT * FROM instructor_identification WHERE school_inep_id_fk = '$inep_id'";
 		$instructor_identification = self::$db->select($sql);
 
 		//Registro 40
-		$sql = "SELECT * FROM instructor_documents_and_address";
+		$sql = "SELECT * FROM instructor_documents_and_address WHERE school_inep_id_fk = '$inep_id'";
 		$instructor_documents_and_address = self::$db->select($sql);
 
 		//Registro 50
-		$sql = "SELECT * FROM instructor_variable_data";
+		$sql = "SELECT * FROM instructor_variable_data WHERE school_inep_id_fk = '$inep_id'";
 		$instructor_variable_data = self::$db->select($sql);
 
 		//Registro 51
-		$sql = "SELECT * FROM instructor_teaching_data";
+		$sql = "SELECT * FROM instructor_teaching_data WHERE school_inep_id_fk = '$inep_id'";
 		$instructor_teaching_data = self::$db->select($sql);
 
 		//Registro 60
-		$sql = "SELECT * FROM student_identification";
+		$sql = "SELECT * FROM student_identification WHERE school_inep_id_fk = '$inep_id'";
 		$student_identification = self::$db->select($sql);
 
 		//Registro 70
-		$sql = "SELECT * FROM student_documents_and_address";
+		$sql = "SELECT * FROM student_documents_and_address WHERE school_inep_id_fk = '$inep_id'";
 		$student_documents_and_address = self::$db->select($sql);
 
 		//Registro 80
-		$sql = "SELECT * FROM student_enrollment";
+		$sql = "SELECT * FROM student_enrollment WHERE school_inep_id_fk = '$inep_id'";
 		$student_enrollment = self::$db->select($sql);
 
 		return array($school_identification,
