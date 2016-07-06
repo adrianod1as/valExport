@@ -86,6 +86,7 @@ $school_identification_log = array();
 
 foreach ($school_identification as $key => $collumn) {
 	$log = array();
+	$inep_id = $collumn['inep_id'];
 
 	//campo 1
 	$result = $siv->isRegister("00", $collumn['register_type']);
@@ -262,7 +263,7 @@ foreach ($school_identification as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("ies_code"=>$result["erro"]));
 
 	//Adicionando log da row
-	if($log != null) $school_identification_log["row $key"] = $log;
+	if($log != null) $school_identification_log["row $key - inep_id $inep_id"] = $log;
 }
 
 /*
@@ -547,7 +548,7 @@ foreach ($school_structure as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("pedagogical_formation_by_alternance"=>$result["erro"]));
 
 	//Adicionando log da row
-	if($log != null) $school_structure_log["row $key"] = $log;
+	if($log != null) $school_structure_log["row $key - inep_id $school_inep_id_fk"] = $log;
 }
 
 /*
@@ -560,6 +561,7 @@ $classroom_log = array();
 
 foreach($classroom as $key => $column){
 	$log = array();
+	$classroom_id = $column['id'];
 
 	//campo 1
 	$result = $crv->isRegister('20', $column['register_type']);
@@ -650,7 +652,7 @@ foreach($classroom as $key => $column){
 	if (!$result['status']) array_push($log, array('disciplines' => $result['erro']));
 
 	//Adicionando log da row
-	if($log != null) $classroom_log["row $key"] = $log;
+	if($log != null) $classroom_log["row $key - id $classroom_id"] = $log;
 }
 
 /*
@@ -666,6 +668,7 @@ $instructor_identification_log = array();
 foreach ($instructor_identification as $key => $collumn) {
 
 	$school_inep_id_fk = $collumn["school_inep_id_fk"];
+	$instructor_identification_id = $collumn['id'];
 	$log = array();
 
 	//campo 1
@@ -759,7 +762,7 @@ foreach ($instructor_identification as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("deficiency_type_multiple_disabilities"=>$result["erro"]));
 
 	//Adicionando log da row
-	if($log != null) $instructor_identification_log["row $key"] = $log;
+	if($log != null) $instructor_identification_log["row $key - id $instructor_identification_id"] = $log;
 }
 
 /*
@@ -775,7 +778,7 @@ foreach ($instructor_documents_and_address as $key => $collumn) {
 
 	$school_inep_id_fk = $collumn["school_inep_id_fk"];
 	$instructor_inep_id = $collumn["inep_id"];
-
+	$instructor_documents_and_address_id = $collumn['id'];
 	//campo 1
 	$result = $idav->isRegister("40", $collumn['register_type']);
 	if(!$result["status"]) array_push($log, array("register_type"=>$result["erro"]));
@@ -832,7 +835,7 @@ foreach ($instructor_documents_and_address as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("edcenso_city_fk"=>$result["erro"]));
 
 	//Adicionando log da row
-	if($log != null) $instructor_documents_and_address_log["row $key"] = $log;
+	if($log != null) $instructor_documents_and_address_log["row $key - id $instructor_documents_and_address_id"] = $log;
 }
 
 /*
@@ -849,6 +852,7 @@ foreach ($instructor_teaching_data as $key => $collumn) {
 	$instructor_inep_id = $collumn["instructor_inep_id"];
 	$instructor_fk = $collumn['instructor_fk'];
 	$classroom_fk = $collumn['classroom_id_fk'];
+	$instructor_teaching_data_id = $collumn['id'];
 	$log = array();
 
 	//campo 1
@@ -984,7 +988,7 @@ foreach ($instructor_teaching_data as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("disciplines_codes"=>$result["erro"]));
 
 	//Adicionando log da row
-	if($log != null) $instructor_teaching_data_log["row $key"] = $log;
+	if($log != null) $instructor_teaching_data_log["row $key - id $instructor_teaching_data_id "] = $log;
 }
 
 /*
@@ -998,6 +1002,7 @@ $student_identification_log = array();
 foreach ($student_identification as $key => $collumn) {
 
 	$school_inep_id_fk = $collumn["school_inep_id_fk"];
+	$student_identification_id = $collumn['id'];
 	$log = array();
 
 	//campo 1
@@ -1149,7 +1154,7 @@ foreach ($student_identification as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("resources"=>$result["erro"]));
 
 	//Adicionando log da row
-	if($log != null) $student_identification_log["row $key"] = $log;
+	if($log != null) $student_identification_log["row $key - id $student_identification_id"] = $log;
 
 }
 
@@ -1163,8 +1168,11 @@ $student_documents_and_address_log = array();
 
 foreach ($student_documents_and_address as $key => $collumn) {
 
+	
+
 	$school_inep_id_fk = $collumn["school_inep_id_fk"];
 	$student_inep_id_fk = $collumn["student_inep_id"];
+	$student_documents_and_address_id = $collumn['id'];
 	$log = array();
 
 	$sqlTable6012 = "SELECT nationality AS field12 FROM student_identification;";
@@ -1308,7 +1316,7 @@ foreach ($student_documents_and_address as $key => $collumn) {
   if(!$result["status"]) array_push($log, array("edcenso_city_fk"=>$result["erro"]));
 
 	//Adicionando log da row
-	if($log != null) $student_documents_and_address_log["row $key"] = $log;
+	if($log != null) $student_documents_and_address_log["row $key - id $student_documents_and_address_id"] = $log;
 }
 
 /*
@@ -1325,6 +1333,7 @@ foreach ($student_enrollment as $key => $collumn) {
 	$school_inep_id_fk = $collumn["school_inep_id_fk"];
 	$student_inep_id_fk = $collumn["student_inep_id"];
 	$classroom_fk = $collumn['classroom_fk'];
+	$student_enrollment_id = $collumn['id'];
 	$log = array();
 
 	//campo 1
@@ -1426,7 +1435,7 @@ foreach ($student_enrollment as $key => $collumn) {
 	if(!$result["status"]) array_push($log, array("student_entry_form"=>$result["erro"]));
 
 	//Adicionando log da row
-	if($log != null) $student_enrollment_log["row $key"] = $log;
+	if($log != null) $student_enrollment_log["row $key - id $student_enrollment_id"] = $log;
 
 }
 
