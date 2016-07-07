@@ -3,6 +3,8 @@
 require_once(dirname(__FILE__) .  $DS . "db" .  $DS . "database.php");
 
 
+
+
 class Exportation {
 
 	protected static $db;
